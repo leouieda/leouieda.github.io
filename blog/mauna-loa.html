@@ -1,0 +1,422 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>A satellite view of the December 2022 Mauna Loa eruption | Leonardo Uieda</title>
+  <link rel="shortcut icon" href="../images/favicon.png" />
+
+  <!-- OpenGraph social media card -->
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="A satellite view of the December 2022 Mauna Loa eruption" />
+  <meta property="og:description" content="On 27 November 2022, the Mauna Loa volcano in Hawai‘i started erupting for the first time since 1984. The eruption has now ceased and since its start the Landsat 9 satellite has take two..." />
+  <meta property="og:image" content="https://www.leouieda.com/images/thumbnail.jpg" />
+  <meta property="og:url" content="https://www.leouieda.com/blog/mauna-loa.html" />
+
+  <!-- FontAwsome -->
+  <link rel="stylesheet" href="../pkg/fontawesome/css/all.css" />
+
+  <!-- Academicons -->
+  <link rel="stylesheet" href="../pkg/academicons-1.9.1/css/academicons.min.css" />
+
+  <!-- Atkinson Hyperlegible font -->
+  <link rel="stylesheet" href="../pkg/atkinson-hyperlegible/fonts.css" />
+
+  <!-- Ubuntu Mono font -->
+  <link rel="stylesheet" href="../pkg/ubuntu-mono/fonts.css" />
+
+  <!-- KaTeX -->
+  <link rel="stylesheet" href="../pkg/katex-0.15.3/katex.min.css" integrity="sha384-KiWOvVjnN8qwAZbuQyWDIbfCLFhLXNETzBQjA/92pIowpC0d2O3nppDGQVgwd2nB" />
+
+  <!-- Andy Bell's CSS reset -->
+  <link rel="stylesheet" href="../css/reset.css" />
+
+  <!-- Main CSS stylesheet -->
+  <link rel="stylesheet" href="../css/style.css" />
+
+  <!-- Plausible analytics for anonymous usage statistics -->
+  <script defer data-domain="leouieda.com" src="https://plausible.io/js/plausible.js"></script>
+
+</head>
+
+<body>
+  <header>
+    <div class="spread content-wide">
+      <a aria-label="Home" class="font-bold" href="../">Leonardo Uieda</a>
+      <nav aria-label="Main">
+        <ul class="list-inline" role="list">
+            <li>
+              <a class=""  href="../">Home</a>
+            </li>
+            <li>
+              <a class=""  href="../about/">About</a>
+            </li>
+            <li>
+              <a class="active" aria-current="page" href=".">Blog</a>
+            </li>
+            <li>
+              <a class=""  href="../cv/">CV</a>
+            </li>
+            <li>
+              <a class=""  href="../contact/">Contact</a>
+            </li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <main class="flow">
+
+    <div class="content flow">
+  
+    
+  
+  <article class="flow jupyter-notebook">
+    <h1>
+      A satellite view of the December 2022 Mauna Loa eruption
+    </h1>
+    <time class="text-muted" datetime="2022-12-20">
+      <i class="far fa-calendar-alt" aria-hidden="true"></i>
+      2022/12/20
+    </time>
+    <p>On 27 November 2022, the <a href="https://www.usgs.gov/volcanoes/mauna-loa/mauna-loa-2022-eruption">Mauna Loa volcano in Hawai‘i started erupting</a> for the <a href="https://www.usgs.gov/volcanoes/mauna-loa/march-25-april-15-1984">first time since 1984</a>. The <a href="https://www.usgs.gov/volcanoes/mauna-loa/volcano-updates">eruption has now ceased</a> and since its start the <a href="https://en.wikipedia.org/wiki/Landsat_9">Landsat 9 satellite</a> has take two multi-spectral images (called <em>scenes</em>) of the volcano, one on 2 December and the other on 10 December.</p>
+<figure>
+<div class="ratio ratio-16x9">
+<iframe scrolling="no" src="https://www.openstreetmap.org/export/embed.html?bbox=-156.05954445605472%2C19.328329860797416%2C-155.24379545800784%2C19.836946534206607&amp;layer=mapnik"></iframe>
+</div>
+<figcaption>
+<p>If you’re unfamiliar with the Big Island of Hawai‘i, explore this interactive <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>. The default view when it first loads should be roughly the same as the Landsat scenes we’ll generate below.</p>
+</figcaption>
+</figure>
+<p>In this article, we’ll load and plot composites of these Landsat 9 scenes to try to get a glimpse of the eruption. The scenes were downloaded from <a href="https://earthexplorer.usgs.gov/">USGS EarthExplorer</a> (WRS row/path = <code>063/046</code>) and I uploaded <a href="https://doi.org/10.6084/m9.figshare.21677246">selected bands as compressed archives to figshare</a> (doi:<a href="https://doi.org/10.6084/m9.figshare.21677246">10.6084/m9.figshare.21677246</a>) for archival and easier retrieval using <a href="https://www.fatiando.org/pooch">Pooch</a>.</p>
+<div class="callout callout-warning">
+<p><strong><i class="fas fa-exclamation-circle"></i> Important:</strong> For official information on the eruption, please refer to the
+<a href="https://www.usgs.gov/observatories/hvo">USGS Hawaiian Volcano Observatory</a> website.
+This exploration is only meant as an exercise in data analysis and not as official
+advice regarding the eruption.</p>
+</div>
+<p>Let’s get started!</p>
+<h2 id="import-libraries">Import libraries</h2>
+<p>We’ll use the following libraries to manipulate the data and make some nice figures:</p>
+<ul>
+<li><a href="https://matplotlib.org/">matplotlib</a>: the most popular Python plotting library (for a good reason, it’s awesome).</li>
+<li><a href="https://pypi.org/project/matplotlib-scalebar/">matplotlib-scalebar</a>: to add a scale bar to matplotlib figures (a good map always has a scale).</li>
+<li><a href="https://www.compgeolab.org/xlandsat/">xlandsat</a>: a library developed by us at the <a href="https://www.compgeolab.org/">CompGeoLab</a> for loading the Landsat scenes into <a href="https://xarray.dev/">xarray</a> and making composites.</li>
+<li><a href="https://www.fatiando.org/pooch">pooch</a>: for downloading data from a variety of sources, including figshare DOIs.</li>
+</ul>
+<pre><code class="language-python">import matplotlib.pyplot as plt
+from matplotlib_scalebar.scalebar import ScaleBar
+import xlandsat as xls
+import pooch
+</code></pre>
+<h2 id="download-the-archived-data">Download the archived data</h2>
+<p>First, we’ll use <a href="https://www.fatiando.org/pooch">Pooch</a> to download the compressed archives with the scenes. The MD5 checksums were copied from the <a href="https://doi.org/10.6084/m9.figshare.21677246">figshare upload</a> and are used by Pooch to verify if the download was successful. Both archives are around 500 Mb in size so this can take a little while depending on your internet connection.</p>
+<pre><code class="language-python">doi = &quot;10.6084/m9.figshare.21677246.v2&quot;
+paths = {}
+paths[&quot;2022-12-02&quot;] = pooch.retrieve(
+    f&quot;doi:{doi}/LC09_L2SP_063046_20221202_20221204_02_T1.tar.gz&quot;,
+    known_hash=&quot;md5:3b2cb5dc4dbd4fbfad595124e9a59152&quot;,
+    progressbar=True,
+)
+paths[&quot;2022-12-10&quot;] = pooch.retrieve(
+    f&quot;doi:{doi}/LC08_L2SP_063046_20221210_20221219_02_T1.tar.gz&quot;,
+    known_hash=&quot;md5:9dbff9fbc8ba6dc97c26b9133ab1544a&quot;,
+    progressbar=True,
+)
+</code></pre>
+<h2 id="load-the-scenes">Load the scenes</h2>
+<p>Next, we’ll use <a href="https://www.compgeolab.org/xlandsat/">xlandsat</a> to load a section of the scenes into <code>xarray.Dataset</code> objects. A nice feature of <code>xlandsat</code> is that it can load the data directly from the compressed archive without having to unpack it first.</p>
+<p>We’ll use the same region definition (in UTM coordinates) to make sure both scenes refer to exactly the same bounding box. This also helps keep the scenes a bit smaller in memory. The region was chosen to include the main volcanoes on the island and show some of the coastline for reference (particularly around the Kailua-Kona region).</p>
+<pre><code class="language-python">region = [178500, 265000, 2140000, 2195000]  # UTM West, East, South, North
+scenes = {
+    date: xls.load_scene(paths[date], region=region) 
+    for date in paths
+}
+</code></pre>
+<p>One of the nice things about <code>xlandsat</code> is that it will include a lot of the metadata from the scenes in the <code>xarray.Dataset</code> and set the proper UTM coordinates for each pixel. This allows <code>xarray</code> to automate a lot of the boring parts of creating figures (setting axis labels, etc).</p>
+<h2 id="rgb-composites">RGB composites</h2>
+<p>Let’s make some RGB (AKA “true color”) composites to get an idea of what’s going on. These will be heavily affected by the clouds and <a href="https://www.usgs.gov/faqs/what-vog-how-it-related-sulfur-dioxide-so2-emissions">vog</a> but are good for visual inspection and getting our bearings.</p>
+<p>Generating composites with <code>xlandsat</code> is easy and by default it will use the red, green, and blue bands of the scene. We can also apply some re-scaling of the reflectance of each band to increase the contrast and avoid having the clouds and human structures saturate the image.</p>
+<pre><code class="language-python">rgb = {
+    date: xls.composite(scenes[date], rescale_to=[0, 0.2])
+    for date in scenes
+}
+</code></pre>
+<p>The composite is an <code>xarray.DataArray</code> that includes the right coordinates and metadata. Plotting it is as easy as calling <code>rgb[&quot;2022-12-02&quot;].plot.imshow()</code>. We’ll use a bit more code here to plot both scenes in the same figure and tweak some of the plot elements, in particular making the pixels squared by setting <code>ax.set_aspect(&quot;equal&quot;)</code>.</p>
+<pre><code class="language-python">fig, axes = plt.subplots(2, 1, figsize=(12, 15))
+for date, ax in zip(sorted(scenes.keys()), axes):
+    rgb[date].plot.imshow(ax=ax)
+    ax.set_aspect(&quot;equal&quot;)
+    ax.set_title(f&quot;RGB composite: {date}&quot;)
+    ax.set_facecolor(&quot;black&quot;)
+plt.show()
+</code></pre>
+<p><img src="mauna-loa_images/output_11_0.png" alt="png" /></p>
+<p>Can’t really see much because of the vog and the lava flows are dark so it’s hard to distinguish between old and new flows. The infrared range has a higher chance of showing something since it’s more sensitive to heat sources (like a fresh lava flow), particularly the short-wave infrared (SWIR) bands.</p>
+<h2 id="infrared-composites">Infrared composites</h2>
+<p>We’ll make a composite using the SWIR and near-infrared (NIR) bands to try to highlight the active lava flow and bypass the vog. It can look a bit unnatural but it offers a good glimpse of what’s currently active. In this composite, the red colors represent the SWIR2 band, green is SWIR1, and blue is NIR.</p>
+<pre><code class="language-python">infrared = {
+    date: xls.composite(
+        scenes[date], 
+        bands=(&quot;swir2&quot;, &quot;swir1&quot;, &quot;nir&quot;), 
+        rescale_to=[0, 0.35],
+    ) 
+    for date in scenes
+}
+</code></pre>
+<p>Now we can make some nicer figures, with a scale bar, caption at the bottom, and highlighting the <a href="https://www.usgs.gov/observatories/hvo/active-volcanoes-hawaii">4 active volcanoes on the island</a>. This time, we’ll place each scene on their own figure so we can save them separately.</p>
+<pre><code class="language-python"># Location to place the text for each volcano
+volcanoes = {
+    &quot;Mauna Loa&quot;: (224000, 2148000),
+    &quot;Kīlauea&quot;: (259000, 2144000),
+    &quot;Mauna Kea&quot;: (230000, 2192000), 
+    &quot;Hualālai&quot;: (203000, 2178500),     
+}
+for date in scenes:
+    fig, ax = plt.subplots(1, 1, figsize=(12, 10), facecolor=&quot;black&quot;)
+    infrared[date].plot.imshow(ax=ax, interpolation=&quot;none&quot;)
+    ax.set_aspect(&quot;equal&quot;)
+    # Remove so that it looks fancier
+    ax.axis(&quot;off&quot;)
+    # Add a caption at the bottom
+    text = (
+        &quot;Eruption of Mauna Loa, Hawai'i. &quot;
+        f&quot;{scenes[date].attrs['title']}. &quot;
+        &quot;Infrared composite: SWIR2, SWIR1, NIR. &quot;
+        &quot;Created by Leonardo Uieda (CC0).&quot;
+    )
+    ax.text(
+        0.0075, 0.016, 
+        text, 
+        transform=ax.transAxes,
+        color=&quot;white&quot;,
+        fontsize=9,
+        bbox=dict(
+            facecolor=&quot;#000000dd&quot;,
+            boxstyle=&quot;square&quot;,
+            pad=0.75,
+        ),
+    )
+    # Add text around each of the volcanoes
+    for name in volcanoes:
+        ax.text(
+            *volcanoes[name], 
+            name, 
+            color=&quot;#dddddd&quot;,
+            fontweight=&quot;bold&quot;,
+            fontsize=10,
+            ha=&quot;left&quot;,
+        )
+    # Add a scale bar
+    ax.add_artist(
+        ScaleBar(
+            dx=1, 
+            units=&quot;m&quot;, 
+            location=&quot;upper left&quot;, 
+            box_alpha=0,
+            color=&quot;white&quot;, 
+            scale_loc=&quot;bottom&quot;, 
+            width_fraction=0.005, 
+            length_fraction=0.06,
+            pad=0.4,
+        )
+    )
+    fig.tight_layout(pad=0)
+    # Save the figures to JPG files with 2 resolutions
+    for suffix, dpi in zip([&quot;&quot;, &quot;-low-res&quot;], [600, 200]):
+        plt.savefig(
+            f&quot;mauna-loa-landsat-{date}{suffix}.jpg&quot;, 
+            bbox_inches=&quot;tight&quot;, 
+            pad_inches=0, 
+            dpi=dpi,
+        )
+    # Prevent the figures from being displayed so we can
+    # insert them later and talk about each one separately
+    plt.close()
+</code></pre>
+<p>Finally, here are the two scenes viewed as infrared composites. Remember that the SWIR bands are sensitive to heat sources and the NIR band tends to reflect very strongly on areas with vegetation cover (making them appear blue in these images). Old lava flows should appear as dark gray and black since they reflect poorly on most bands.</p>
+<figure class="">
+    <img src="../images/mauna-loa-landsat-2022-12-02-low-res.jpg" alt="Scene from 2022/12/02. The volcano can be seen surrounded by clouds and with the current lava flows showing up as a bright red and green North-South line in the middle of the image. The main crater also appears as slight red. We can even pick up something in the Hale Ma'uma'u crater of Kīlauea down in the Southeast." style="">
+    <figcaption>Scene from 2022/12/02. The volcano can be seen surrounded by clouds and with the current lava flows showing up as a bright red and green North-South line in the middle of the image. The main crater also appears as slight red. We can even pick up something in the Hale Ma'uma'u crater of Kīlauea down in the Southeast.</figcaption>
+  </figure>
+<p>The lava flow is heading to the North, where it nearly reached the Daniel K. Inouye Highway which connects both sides of the island. If you zoom in on the higher resolution version of the image you can even see the road near the slope of Mauna Kea.</p>
+<figure class="">
+    <img src="../images/mauna-loa-landsat-2022-12-10-low-res.jpg" alt="Scene from 2022/12/10. The volcano is still surrounded by clouds and with the current lava flows showing up as a thin strip of light red and green. The main crater is no longer slight red and the northern tip of the lava flow is covered in clouds and therefore hard to make out." style="">
+    <figcaption>Scene from 2022/12/10. The volcano is still surrounded by clouds and with the current lava flows showing up as a thin strip of light red and green. The main crater is no longer slight red and the northern tip of the lava flow is covered in clouds and therefore hard to make out.</figcaption>
+  </figure>
+<p>From the 10 December scene we can see that the activity seems to have almost disappeared, except for some slight signal in the SWIR bands still visible in the main flow channel. The <a href="https://www.usgs.gov/observatories/hvo">USGS Hawaiian Volcano Observatory</a> has issued a <a href="https://www.usgs.gov/volcanoes/mauna-loa/volcano-updates">statement that the eruption has ended as of 15 December 2022</a> so this is likely the last Landsat scene that will show much of this eruption.</p>
+<div class="callout callout-note">
+<p><strong><i class="fas fa-images"></i> Want to download these images?</strong> High and low resolution versions of both of them are <a href="https://doi.org/10.6084/m9.figshare.21677246">available on figshare</a> (doi:<a href="https://doi.org/10.6084/m9.figshare.21677246">10.6084/m9.figshare.21677246</a>) under a <a href="https://creativecommons.org/publicdomain/zero/1.0/">CC0 license</a>.</p>
+</div>
+<h2 id="what-now">What now?</h2>
+<p>So it seems that the eruption has fully stopped and new Landsat scenes that would become available later in December 2022 will very likely not show anything remarkable (besides the already stunning views of Hawai‘i). If anything does come up, I may update this notebook.</p>
+<p>If you’re still curious and want to play with some more data, you can download scenes from the <a href="https://earthexplorer.usgs.gov/">USGS EarthExplorer</a> with a free account and easily load them with <a href="https://www.compgeolab.org/xlandsat/">xlandsat</a> just as I did above. A while back, I even made a <a href="https://www.youtube.com/watch?v=Wn_G4fvitV8">YouTube video on how to select and download scenes from EarthExplorer</a>, so go watch that if you want to get started right away.</p>
+<p><a href="https://www.youtube.com/watch?v=Wn_G4fvitV8"><img src="../images/screenshot-downloading-landsat-images.jpg" alt="Screenshot from the YouTub video on how to download Landsat scenes from EarthExplorer showing my at the bottom right corner and the website with a download window open." /></a></p>
+<p><strong>I hope this was a fun and useful learning experience. It sure was for me!</strong></p>
+<div class="callout mt-5">
+<p><strong>Licenses and original sources:</strong></p>
+<p>This blog post was originally written as a Jupyter notebook which can be found at the <a href="https://github.com/compgeolab/mauna-loa-landsat-2022"><i class="fab fa-github"></i> <code>compgeolab/mauna-loa-landsat-2022</code> GitHub repository</a>. Comments, corrections, and additions are welcome.</p>
+<p>All Python source code is made available under the <a href="https://github.com/compgeolab/mauna-loa-landsat-2022/blob/main/LICENSE">MIT license</a>.
+You can freely use and modify the code, without warranty, so long as you provide attribution to the authors. All text and figures in this post are available under the <a href="https://creativecommons.org/publicdomain/zero/1.0/">Creative Commons Public Domain Dedication (CC0)</a>.</p>
+</div>
+  </article>
+
+  <hr>
+
+  <p class="text-right">
+    <a href="index.html">
+      <i class="far fa-arrow-alt-circle-left" aria-hidden="true"></i>
+      Back to the blog
+    </a>
+  </p>
+    </div>
+  </main>
+
+  <footer class="flow">
+    <div class="content-wide flow">
+      <nav aria-label="Footer">
+        <ul class="list-inline" role="list">
+          <li>
+            <a class=""  href="../">Home</a>
+          </li>
+          <li>
+            <a class=""  href="../about/">About</a>
+          </li>
+          <li>
+            <a class="active" aria-current="page" href=".">Blog</a>
+          </li>
+          <li>
+            <a class=""  href="../cv/">CV</a>
+          </li>
+          <li>
+            <a class=""  href="../contact/">Contact</a>
+          </li>
+          <li>
+            <a class=""  href="../links/">Links</a>
+          </li>
+          <li>
+            <a class=""  href="../now/">Now</a>
+          </li>
+        </ul>
+      </nav>
+      <ul class="list-inline social-icons" role="list">
+        <li>
+          <!-- The rel="me" attribute verifies for these profiles that I own this domain -->
+  <a rel="me" href="https://bertha.social/@leouieda" target="_blank">
+    <i class="fab fa-mastodon fa-lg" title="Mastodon" aria-label="Mastodon"></i>
+  </a>
+        </li>
+        <li>
+          <!-- The rel="me" attribute verifies for these profiles that I own this domain -->
+  <a rel="me" href="https://www.linkedin.com/in/uieda" target="_blank">
+    <i class="fab fa-linkedin fa-lg" title="LinkedIn" aria-label="LinkedIn"></i>
+  </a>
+        </li>
+        <li>
+          <!-- The rel="me" attribute verifies for these profiles that I own this domain -->
+  <a rel="me" href="https://github.com/leouieda" target="_blank">
+    <i class="fab fa-github fa-lg" title="GitHub" aria-label="GitHub"></i>
+  </a>
+        </li>
+        <li>
+          <!-- The rel="me" attribute verifies for these profiles that I own this domain -->
+  <a rel="me" href="https://www.youtube.com/@leouieda" target="_blank">
+    <i class="fab fa-youtube fa-lg" title="YouTube" aria-label="YouTube"></i>
+  </a>
+        </li>
+        <li>
+          <!-- The rel="me" attribute verifies for these profiles that I own this domain -->
+  <a rel="me" href="https://orcid.org/0000-0001-6123-9515" target="_blank">
+    <i class="ai ai-orcid fa-lg" title="ORCID" aria-label="ORCID"></i>
+  </a>
+        </li>
+        <li>
+          <!-- The rel="me" attribute verifies for these profiles that I own this domain -->
+  <a rel="me" href="https://profiles.impactstory.org/u/0000-0001-6123-9515" target="_blank">
+    <i class="ai ai-impactstory fa-lg" title="ImpactStory" aria-label="ImpactStory"></i>
+  </a>
+        </li>
+        <li>
+          <!-- The rel="me" attribute verifies for these profiles that I own this domain -->
+  <a rel="me" href="https://www.researchgate.net/profile/Leonardo-Uieda" target="_blank">
+    <i class="ai ai-researchgate fa-lg" title="ResearchGate" aria-label="ResearchGate"></i>
+  </a>
+        </li>
+        <li>
+          <!-- The rel="me" attribute verifies for these profiles that I own this domain -->
+  <a rel="me" href="https://figshare.com/authors/Leonardo_Uieda/97471" target="_blank">
+    <i class="ai ai-figshare fa-lg" title="figshare" aria-label="figshare"></i>
+  </a>
+        </li>
+        <li>
+          <!-- The rel="me" attribute verifies for these profiles that I own this domain -->
+  <a rel="me" href="https://www.webofscience.com/wos/author/rid/G-3258-2012" target="_blank">
+    <i class="ai ai-researcherid fa-lg" title="ResearcherID" aria-label="ResearcherID"></i>
+  </a>
+        </li>
+        <li>
+          <!-- The rel="me" attribute verifies for these profiles that I own this domain -->
+  <a rel="me" href="https://www.scopus.com/authid/detail.uri?authorId=47062144700" target="_blank">
+    <i class="ai ai-scopus fa-lg" title="Scopus" aria-label="Scopus"></i>
+  </a>
+        </li>
+        <li>
+          <!-- The rel="me" attribute verifies for these profiles that I own this domain -->
+  <a rel="me" href="https://lattes.cnpq.br/8939551682050504" target="_blank">
+    <i class="ai ai-lattes fa-lg" title="Currículo Lattes" aria-label="Currículo Lattes"></i>
+  </a>
+        </li>
+        <li>
+          <!-- The rel="me" attribute verifies for these profiles that I own this domain -->
+  <a rel="me" href="http://scholar.google.com/citations?user=qfmPrUEAAAAJ" target="_blank">
+    <i class="ai ai-google-scholar fa-lg" title="Google Scholar" aria-label="Google Scholar"></i>
+  </a>
+        </li>
+      </ul>
+      <section class="footer-text flow">
+        <p>
+          Built on 2025/01/29 with <a href="https://nene.leouieda.com">Nēnē</a> v0.9.0
+          from source code at
+          <i class="fab fa-github" aria-label="GitHub"></i>
+  <a href="https://github.com/leouieda/website" target="_blank">leouieda/website</a>
+          / <i class="fas fa-history fa-sm"></i> <a href="https://github.com/leouieda/website/commit/9239bff"><code>9239bff</code></a>.
+          <strong>
+          Found a typo/mistake?
+          <a target="_blank" href="https://github.com/leouieda/website/edit/main/blog/mauna-loa.ipynb">
+            Send a fix through GitHub
+            <i class="fa fa-code-branch" aria-hidden="true"></i>
+          </a>
+          </strong>
+        </p>
+        <p>
+          Visitor statistics are gathered anonymously and without tracking by
+          <a href="https://plausible.io">Plausible</a> and can be viewed
+          at
+          <a href="https://plausible.io/leouieda.com">plausible.io/leouieda.com</a>.
+        </p>
+        <p>
+          Copyright &copy; 2025 Leonardo Uieda.
+            Except where otherwise noted, all content is licensed
+<a href="https://creativecommons.org/licenses/by/4.0/">CC-BY</a>.
+
+        </p>
+      </section>
+    </div>
+  </footer>
+
+  <!-- KaTeX -->
+  <script defer src="../pkg/katex-0.15.3/katex.min.js" integrity="sha384-0fdwu/T/EQMsQlrHCCHoH10pkPLlKA1jL5dFyUOvB3lfeT2540/2g6YgSi2BL14p" crossorigin="anonymous"></script>
+  <script defer src="../pkg/katex-0.15.3/auto-render.min.js" integrity="sha384-+XBljXPPiv+OzfbB3cVmLHf4hdUFHlWNZN5spNQ7rmHTXpd7WvJum6fIACpNNfIR" crossorigin="anonymous"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", function() {
+      renderMathInElement(document.body, {
+        delimiters: [
+          {left: '$$', right: '$$', display: true},
+          {left: '$', right: '$', display: false},
+        ],
+      });
+    });
+  </script>
+</body>
+</html>
