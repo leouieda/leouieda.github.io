@@ -1,0 +1,384 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Visualizing the on-going massive floods in Rio Grande do Sul, Brazil | Leonardo Uieda</title>
+  <link rel="shortcut icon" href="../images/favicon.png" />
+
+  <!-- OpenGraph social media card -->
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="Visualizing the on-going massive floods in Rio Grande do Sul, Brazil" />
+  <meta property="og:description" content="The state of Rio Grande do Sul in southern Brazil is currently experiencing massive floods due to intense rain fall, affecting hundreds of thousands of people. The scale of these events is..." />
+  <meta property="og:image" content="https://www.leouieda.com/images/thumbnail.jpg" />
+  <meta property="og:url" content="https://www.leouieda.com/blog/rio-grande-do-sul-floods-2024.html" />
+
+  <!-- FontAwsome -->
+  <link rel="stylesheet" href="../pkg/fontawesome/css/all.css" />
+
+  <!-- Academicons -->
+  <link rel="stylesheet" href="../pkg/academicons-1.9.1/css/academicons.min.css" />
+
+  <!-- Atkinson Hyperlegible font -->
+  <link rel="stylesheet" href="../pkg/atkinson-hyperlegible/fonts.css" />
+
+  <!-- Ubuntu Mono font -->
+  <link rel="stylesheet" href="../pkg/ubuntu-mono/fonts.css" />
+
+  <!-- KaTeX -->
+  <link rel="stylesheet" href="../pkg/katex-0.15.3/katex.min.css" integrity="sha384-KiWOvVjnN8qwAZbuQyWDIbfCLFhLXNETzBQjA/92pIowpC0d2O3nppDGQVgwd2nB" />
+
+  <!-- Andy Bell's CSS reset -->
+  <link rel="stylesheet" href="../css/reset.css" />
+
+  <!-- Main CSS stylesheet -->
+  <link rel="stylesheet" href="../css/style.css" />
+
+  <!-- Plausible analytics for anonymous usage statistics -->
+  <script defer data-domain="leouieda.com" src="https://plausible.io/js/plausible.js"></script>
+
+</head>
+
+<body>
+  <header>
+    <div class="spread content-wide">
+      <a aria-label="Home" class="font-bold" href="../">Leonardo Uieda</a>
+      <nav aria-label="Main">
+        <ul class="list-inline" role="list">
+            <li>
+              <a class=""  href="../">Home</a>
+            </li>
+            <li>
+              <a class=""  href="../about/">About</a>
+            </li>
+            <li>
+              <a class="active" aria-current="page" href=".">Blog</a>
+            </li>
+            <li>
+              <a class=""  href="../cv/">CV</a>
+            </li>
+            <li>
+              <a class=""  href="../contact/">Contact</a>
+            </li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <main class="flow">
+
+    <div class="content flow">
+  
+    
+  
+  <article class="flow jupyter-notebook">
+    <h1>
+      Visualizing the on-going massive floods in Rio Grande do Sul, Brazil
+    </h1>
+    <time class="text-muted" datetime="2024-05-10">
+      <i class="far fa-calendar-alt" aria-hidden="true"></i>
+      2024/05/10
+    </time>
+    <p>The state of Rio Grande do Sul in southern Brazil is currently experiencing <a href="https://en.wikipedia.org/wiki/2024_Rio_Grande_do_Sul_floods">massive floods due to intense rain fall</a>, affecting hundreds of thousands of people. The scale of these events is difficult to comprehend both at the human and at the physical level. To help visualize how large the floods are, I thought it would be good to look at the <a href="https://en.wikipedia.org/wiki/Landsat_program">Landsat</a> scenes from before and during the floods around the city of Porto Alegre (the state capital).</p>
+<p>I’ll use <a href="https://www.compgeolab.org/xlandsat">xlandsat</a> and other scientific Python libraries to create visualizations of Landsat data and an animated gif to flip back and forth between the before and after images.</p>
+<pre><code class="language-python">import xlandsat as xls
+import matplotlib.pyplot as plt  # for plotting
+from matplotlib_scalebar.scalebar import ScaleBar  # to add a scale bar
+import imageio  # to make a gif
+</code></pre>
+<p>I downloaded two Landsat scenes from <a href="https://earthexplorer.usgs.gov/">USGS EarthExplorer</a>. Both were Landsat 8 Level 1 Collection 2 scenes with WRS path/row = 221/81, one from 2024/04/06 and the other from 2024/05/08. I downloaded the full scene and places the <code>.tar</code> files in the same folder as this Jupyter notebook.</p>
+<div class="callout">
+<p><strong>Don’t know how to use EarthExplorer?</strong> Watch this <a href="https://www.youtube.com/watch?v=Wn_G4fvitV8">YouTube tutorial I made a while ago</a> going through the entire process.</p>
+</div>
+<h2 id="loading-the-data">Loading the data</h2>
+<p>Now I can load the before scene, cropped to show mostly the region of Porto Alegre.</p>
+<pre><code class="language-python">region = (425000, 530000, -3350000, -3270000)  # UTM meters
+bands = (&quot;red&quot;, &quot;green&quot;, &quot;blue&quot;)
+before = xls.load_scene(&quot;LC08_L1TP_221081_20240406_20240412_02_T1.tar&quot;, bands=bands, region=region)
+</code></pre>
+<p>And we can make a quick RGB composite and plot it for a quick check of our scene.</p>
+<pre><code class="language-python">rgb = xls.composite(before)
+# Need to adjust the colors to remove the top-of-the-atmosphere
+# glare from the L1 product
+rgb = xls.adjust_l1_colors(rgb)
+
+plt.figure(figsize=(12, 8), layout=&quot;constrained&quot;)
+rgb.plot.imshow()
+plt.axis(&quot;scaled&quot;)
+plt.show()
+</code></pre>
+<p><img src="rio-grande-do-sul-floods-2024_images/output_5_0.png" alt="png" /></p>
+<p>Now I can load the panchromatic band from the same file and cropped to the same region. The pan band has a higher resolution of 15m and we’ll use it to sharpen our image.</p>
+<pre><code class="language-python">before_pan = xls.load_panchromatic(&quot;LC08_L1TP_221081_20240406_20240412_02_T1.tar&quot;, region=region)
+</code></pre>
+<p>Now pansharpen the scene to get the RGB data at 15m instead of 30m.</p>
+<pre><code class="language-python">before_sharp = xls.pansharpen(before, before_pan)
+</code></pre>
+<p>And plot the pansharpened RGB composite of the before scene.</p>
+<pre><code class="language-python">rgb = xls.composite(before_sharp)
+rgb = xls.adjust_l1_colors(rgb, percentile=1)
+
+plt.figure(figsize=(12, 8), layout=&quot;constrained&quot;)
+rgb.plot.imshow()
+plt.axis(&quot;scaled&quot;)
+plt.show()
+</code></pre>
+<p><img src="rio-grande-do-sul-floods-2024_images/output_11_0.png" alt="png" /></p>
+<p>Now I can do the same thing for the after scene.</p>
+<pre><code class="language-python">after = xls.load_scene(&quot;LC08_L1TP_221081_20240508_20240508_02_RT.tar&quot;, bands=bands, region=region)
+after_pan = xls.load_panchromatic(&quot;LC08_L1TP_221081_20240508_20240508_02_RT.tar&quot;, region=region)
+after_sharp = xls.pansharpen(after, after_pan)
+</code></pre>
+<h2 id="creating-before-and-after-images">Creating before and after images</h2>
+<p>Now I make two images of the RGB composites for the before and after scenes with added annotations. I had to adjust the percentile range for the color correction in the after scene because of the higher amount of clouds in that image.</p>
+<pre><code class="language-python">for scene, percentile in [(before_sharp, 1), (after_sharp, 5)]:
+    rgb = xls.composite(scene)
+    rgb = xls.adjust_l1_colors(rgb, percentile=percentile)
+    
+    plt.figure(figsize=(14, 12), layout=&quot;tight&quot;, facecolor=&quot;black&quot;)
+    ax = plt.subplot(111)
+    rgb.plot.imshow(ax=ax)
+    # Make sure pixels are square
+    ax.set_aspect(&quot;equal&quot;)
+    # Remove so that it looks fancier
+    ax.axis(&quot;off&quot;)
+    # Add a caption at the bottom
+    text = (
+        &quot;Floods in Rio Grande do Sul, Brazil. &quot;
+        &quot;Pansharpened Landsat 8 scenes from &quot;
+        f&quot;{before.attrs['date_acquired']} and &quot;
+        f&quot;{after.attrs['date_acquired']}. &quot;
+        &quot;Visualization by Leonardo Uieda (CC0 license).&quot;
+    )
+    ax.text(
+        0.005, 0.01, 
+        text, 
+        transform=ax.transAxes,
+        color=&quot;white&quot;,
+        fontsize=9,
+        bbox=dict(
+            facecolor=&quot;#000000dd&quot;,
+            boxstyle=&quot;square&quot;,
+            pad=0.75,
+        ),
+    )
+    # Add the date to the top
+    ax.text(
+        0.995, 0.975, 
+        f&quot;{scene.attrs['date_acquired'].replace('-', '/')}&quot;, 
+        transform=ax.transAxes,
+        horizontalalignment=&quot;right&quot;,
+        color=&quot;white&quot;,
+        fontsize=16,
+        bbox=dict(
+            facecolor=&quot;#000000dd&quot;,
+            boxstyle=&quot;square&quot;,
+            pad=0.5,
+        ),
+    )
+    # Add a scale bar
+    ax.add_artist(
+        ScaleBar(
+            dx=1, 
+            units=&quot;m&quot;, 
+            location=&quot;upper left&quot;, 
+            box_alpha=0,
+            color=&quot;white&quot;, 
+            scale_loc=&quot;bottom&quot;, 
+            width_fraction=0.005, 
+            length_fraction=0.06,
+            pad=0.4,
+        )
+    )
+    # Save the figure at 600 and 100 DPI
+    for dpi, prefix in [(600, &quot;&quot;), (100, &quot;-lowres&quot;)]:
+        plt.savefig(
+            f&quot;rio-grande-do-sul-floods-{scene.attrs['date_acquired']}{prefix}.jpg&quot;, 
+            dpi=dpi, 
+            bbox_inches=&quot;tight&quot;,
+        )
+plt.show()
+</code></pre>
+<p><img src="rio-grande-do-sul-floods-2024_images/output_15_0.png" alt="png" /></p>
+<p><img src="rio-grande-do-sul-floods-2024_images/output_15_1.png" alt="png" /></p>
+<p>The massive scale of the floods are quite visible from the two images above. The brown water dominates the center of the image and there is also a darker, almost black, flooded river cutting through the city in the center right of the image.</p>
+<h2 id="creating-an-animated-gif">Creating an animated gif</h2>
+<p>To help visualize this further, I’ll use the <code>imageio</code> module to load the two images and make a looping gif animation. I’ll use the lower resolution images to avoid making the gif file too large. Setting <code>loop=0</code> makes the gif loop infinitely.</p>
+<pre><code class="language-python">images = [
+    imageio.v3.imread(f&quot;rio-grande-do-sul-floods-{scene.attrs['date_acquired']}-lowres.jpg&quot;)
+    for scene in [before, after]
+]
+imageio.mimsave(&quot;rio-grande-do-sul-floods-2024.gif&quot;, images, duration=1000, loop=0)
+</code></pre>
+<p><img src="rio-grande-do-sul-floods-2024.gif" alt="Animation of before and after the floods, with the after image showing a large amount of brown water at the center of the image where there were city and farms." /></p>
+<p>Flipping back and forth makes it easier to see all of the affected areas. It’s devastating to see such destruction. Unfortunately, it’s also a sign of things to come as the climate continues to change due to human action during late-stage capitalism.</p>
+<h2 id="downloading-the-data-and-images">Downloading the data and images</h2>
+<p>You can <strong>download</strong> the Landsat data, both images in high and low resolution, the animated gif, and this source code from figshare at doi:<a href="https://doi.org/10.6084/m9.figshare.25800298">10.6084/m9.figshare.25800298</a>. All are made available under the <a href="https://creativecommons.org/public-domain/cc0/">CC-0 license</a>.</p>
+<div class="callout">
+<p><strong>How to help:</strong> You can find out more about how to help the people affected by the floods from <a href="https://www.terra.com.br/noticias/doacoes-para-o-rio-grande-do-sul-saiba-como-doar-e-quais-sao-os-pontos-de-coleta-mais-proximos-de-sua-casa,caa8f066ede3cddbd20f2b2766edb2df1hot6p70.html">this report on Terra</a> (in Portuguese).</p>
+</div>
+  </article>
+
+  <hr>
+
+  <p class="text-right">
+    <a href="index.html">
+      <i class="far fa-arrow-alt-circle-left" aria-hidden="true"></i>
+      Back to the blog
+    </a>
+  </p>
+    </div>
+  </main>
+
+  <footer class="flow">
+    <div class="content-wide flow">
+      <nav aria-label="Footer">
+        <ul class="list-inline" role="list">
+          <li>
+            <a class=""  href="../">Home</a>
+          </li>
+          <li>
+            <a class=""  href="../about/">About</a>
+          </li>
+          <li>
+            <a class="active" aria-current="page" href=".">Blog</a>
+          </li>
+          <li>
+            <a class=""  href="../cv/">CV</a>
+          </li>
+          <li>
+            <a class=""  href="../contact/">Contact</a>
+          </li>
+          <li>
+            <a class=""  href="../links/">Links</a>
+          </li>
+          <li>
+            <a class=""  href="../now/">Now</a>
+          </li>
+        </ul>
+      </nav>
+      <ul class="list-inline social-icons" role="list">
+        <li>
+          <!-- The rel="me" attribute verifies for these profiles that I own this domain -->
+  <a rel="me" href="https://bertha.social/@leouieda" target="_blank">
+    <i class="fab fa-mastodon fa-lg" title="Mastodon" aria-label="Mastodon"></i>
+  </a>
+        </li>
+        <li>
+          <!-- The rel="me" attribute verifies for these profiles that I own this domain -->
+  <a rel="me" href="https://www.linkedin.com/in/uieda" target="_blank">
+    <i class="fab fa-linkedin fa-lg" title="LinkedIn" aria-label="LinkedIn"></i>
+  </a>
+        </li>
+        <li>
+          <!-- The rel="me" attribute verifies for these profiles that I own this domain -->
+  <a rel="me" href="https://github.com/leouieda" target="_blank">
+    <i class="fab fa-github fa-lg" title="GitHub" aria-label="GitHub"></i>
+  </a>
+        </li>
+        <li>
+          <!-- The rel="me" attribute verifies for these profiles that I own this domain -->
+  <a rel="me" href="https://www.youtube.com/@leouieda" target="_blank">
+    <i class="fab fa-youtube fa-lg" title="YouTube" aria-label="YouTube"></i>
+  </a>
+        </li>
+        <li>
+          <!-- The rel="me" attribute verifies for these profiles that I own this domain -->
+  <a rel="me" href="https://orcid.org/0000-0001-6123-9515" target="_blank">
+    <i class="ai ai-orcid fa-lg" title="ORCID" aria-label="ORCID"></i>
+  </a>
+        </li>
+        <li>
+          <!-- The rel="me" attribute verifies for these profiles that I own this domain -->
+  <a rel="me" href="https://profiles.impactstory.org/u/0000-0001-6123-9515" target="_blank">
+    <i class="ai ai-impactstory fa-lg" title="ImpactStory" aria-label="ImpactStory"></i>
+  </a>
+        </li>
+        <li>
+          <!-- The rel="me" attribute verifies for these profiles that I own this domain -->
+  <a rel="me" href="https://www.researchgate.net/profile/Leonardo-Uieda" target="_blank">
+    <i class="ai ai-researchgate fa-lg" title="ResearchGate" aria-label="ResearchGate"></i>
+  </a>
+        </li>
+        <li>
+          <!-- The rel="me" attribute verifies for these profiles that I own this domain -->
+  <a rel="me" href="https://figshare.com/authors/Leonardo_Uieda/97471" target="_blank">
+    <i class="ai ai-figshare fa-lg" title="figshare" aria-label="figshare"></i>
+  </a>
+        </li>
+        <li>
+          <!-- The rel="me" attribute verifies for these profiles that I own this domain -->
+  <a rel="me" href="https://www.webofscience.com/wos/author/rid/G-3258-2012" target="_blank">
+    <i class="ai ai-researcherid fa-lg" title="ResearcherID" aria-label="ResearcherID"></i>
+  </a>
+        </li>
+        <li>
+          <!-- The rel="me" attribute verifies for these profiles that I own this domain -->
+  <a rel="me" href="https://www.scopus.com/authid/detail.uri?authorId=47062144700" target="_blank">
+    <i class="ai ai-scopus fa-lg" title="Scopus" aria-label="Scopus"></i>
+  </a>
+        </li>
+        <li>
+          <!-- The rel="me" attribute verifies for these profiles that I own this domain -->
+  <a rel="me" href="https://lattes.cnpq.br/8939551682050504" target="_blank">
+    <i class="ai ai-lattes fa-lg" title="Currículo Lattes" aria-label="Currículo Lattes"></i>
+  </a>
+        </li>
+        <li>
+          <!-- The rel="me" attribute verifies for these profiles that I own this domain -->
+  <a rel="me" href="http://scholar.google.com/citations?user=qfmPrUEAAAAJ" target="_blank">
+    <i class="ai ai-google-scholar fa-lg" title="Google Scholar" aria-label="Google Scholar"></i>
+  </a>
+        </li>
+      </ul>
+      <section class="footer-text flow">
+        <p>
+          Built on 2025/04/13 with <a href="https://nene.leouieda.com">Nēnē</a> v0.9.0
+          from source code at
+          <i class="fab fa-github" aria-label="GitHub"></i>
+  <a href="https://github.com/leouieda/website" target="_blank">leouieda/website</a>
+          / <i class="fas fa-history fa-sm"></i> <a href="https://github.com/leouieda/website/commit/8f2f980"><code>8f2f980</code></a>.
+          <strong>
+          Found a typo/mistake?
+          <a target="_blank" href="https://github.com/leouieda/website/edit/main/blog/rio-grande-do-sul-floods-2024.ipynb">
+            Send a fix through GitHub
+            <i class="fa fa-code-branch" aria-hidden="true"></i>
+          </a>
+          </strong>
+        </p>
+        <p>
+          Visitor statistics are gathered anonymously and without tracking by
+          <a href="https://plausible.io">Plausible</a> and can be viewed
+          at
+          <a href="https://plausible.io/leouieda.com">plausible.io/leouieda.com</a>.
+        </p>
+        <p>
+          Copyright &copy; 2025 Leonardo Uieda.
+            Except where otherwise noted, all content is licensed
+<a href="https://creativecommons.org/licenses/by/4.0/">CC-BY</a>.
+
+        </p>
+      </section>
+    </div>
+  </footer>
+
+  <!-- KaTeX -->
+  <script defer src="../pkg/katex-0.15.3/katex.min.js" integrity="sha384-0fdwu/T/EQMsQlrHCCHoH10pkPLlKA1jL5dFyUOvB3lfeT2540/2g6YgSi2BL14p" crossorigin="anonymous"></script>
+  <script defer src="../pkg/katex-0.15.3/auto-render.min.js" integrity="sha384-+XBljXPPiv+OzfbB3cVmLHf4hdUFHlWNZN5spNQ7rmHTXpd7WvJum6fIACpNNfIR" crossorigin="anonymous"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", function() {
+      renderMathInElement(document.body, {
+        delimiters: [
+          {left: '$$', right: '$$', display: true},
+          {left: '$', right: '$', display: false},
+        ],
+      });
+    });
+  </script>
+
+  <!-- Dimensions -->
+  <script async src="https://badge.dimensions.ai/badge.js" charset="utf-8"></script>
+
+</body>
+</html>
