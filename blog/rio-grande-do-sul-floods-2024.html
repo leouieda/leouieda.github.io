@@ -1,0 +1,341 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Visualizing the on-going massive floods in Rio Grande do Sul, Brazil | Leonardo Uieda</title>
+  <link rel="shortcut icon" href="../assets/favicon.png" />
+
+  <!-- OpenGraph social media card -->
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="Visualizing the on-going massive floods in Rio Grande do Sul, Brazil" />
+  <meta property="og:description" content="The state of Rio Grande do Sul in southern Brazil is currently experiencing massive floods due to intense rain fall, affecting hundreds of thousands of people. The scale of these events is..." />
+  <meta property="og:image" content="https://www.leouieda.com/assets/thumbnail.jpg" />
+  <meta property="og:url" content="https://www.leouieda.com/blog/rio-grande-do-sul-floods-2024.html" />
+
+  <!-- Atkinson Hyperlegible fonts -->
+  <link rel="stylesheet" href="../pkg/atkinson-hyperlegible-next/font.css" />
+  <link rel="stylesheet" href="../pkg/atkinson-hyperlegible-mono/font.css" />
+
+  <!-- Andy Bell's CSS reset -->
+  <link rel="stylesheet" href="../css/reset.css" />
+
+  <!-- Syntax highlighting for code -->
+  <link rel="stylesheet" href="../css/pygments.css" />
+
+  <!-- Main CSS stylesheet -->
+  <link rel="stylesheet" href="../css/style.css" />
+
+  <!-- Plausible analytics for anonymous usage statistics -->
+  <script defer data-domain="leouieda.com" src="https://plausible.io/js/plausible.js"></script>
+  <!-- KaTeX -->
+  <link rel="stylesheet" href="../pkg/katex-0.15.3/katex.min.css" integrity="sha384-KiWOvVjnN8qwAZbuQyWDIbfCLFhLXNETzBQjA/92pIowpC0d2O3nppDGQVgwd2nB" />
+
+</head>
+
+<body>
+  <header id="top">
+    <div class="spread content-wide">
+      <a aria-label="Home" class="font-bold" href="../">Leonardo Uieda</a>
+      <nav aria-label="Main">
+        <ul class="list-inline" role="list">
+            <li>
+              <a class=""  href="../">Home</a>
+            </li>
+            <li>
+              <a class=""  href="../about/">About</a>
+            </li>
+            <li>
+              <a class="active" aria-current="page" href=".">Blog</a>
+            </li>
+            <li>
+              <a class=""  href="../cv/">CV</a>
+            </li>
+            <li>
+              <a class=""  href="../contact/">Contact</a>
+            </li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <main class="flow">
+
+    <div class="content flow">
+  
+    
+  
+  <article class="flow jupyter-notebook">
+    <h1>
+      Visualizing the on-going massive floods in Rio Grande do Sul, Brazil
+    </h1>
+    <time class="text-muted" datetime="2024-05-10">
+      Published on
+      2024/05/10
+    </time>
+    <p>The state of Rio Grande do Sul in southern Brazil is currently experiencing <a href="https://en.wikipedia.org/wiki/2024_Rio_Grande_do_Sul_floods">massive floods due to intense rain fall</a>, affecting hundreds of thousands of people. The scale of these events is difficult to comprehend both at the human and at the physical level. To help visualize how large the floods are, I thought it would be good to look at the <a href="https://en.wikipedia.org/wiki/Landsat_program">Landsat</a> scenes from before and during the floods around the city of Porto Alegre (the state capital).</p>
+<p>I’ll use <a href="https://www.compgeolab.org/xlandsat">xlandsat</a> and other scientific Python libraries to create visualizations of Landsat data and an animated gif to flip back and forth between the before and after images.</p>
+<div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">xlandsat</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">xls</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>  <span class="c1"># for plotting</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">matplotlib_scalebar.scalebar</span><span class="w"> </span><span class="kn">import</span> <span class="n">ScaleBar</span>  <span class="c1"># to add a scale bar</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">imageio</span>  <span class="c1"># to make a gif</span>
+</pre></div>
+<p>I downloaded two Landsat scenes from <a href="https://earthexplorer.usgs.gov/">USGS EarthExplorer</a>. Both were Landsat 8 Level 1 Collection 2 scenes with WRS path/row = 221/81, one from 2024/04/06 and the other from 2024/05/08. I downloaded the full scene and places the <code>.tar</code> files in the same folder as this Jupyter notebook.</p>
+<div class="callout">
+<p><strong>Don’t know how to use EarthExplorer?</strong> Watch this <a href="https://www.youtube.com/watch?v=Wn_G4fvitV8">YouTube tutorial I made a while ago</a> going through the entire process.</p>
+</div>
+<h2 id="loading-the-data">Loading the data</h2>
+<p>Now I can load the before scene, cropped to show mostly the region of Porto Alegre.</p>
+<div class="highlight"><pre><span></span><span class="n">region</span> <span class="o">=</span> <span class="p">(</span><span class="mi">425000</span><span class="p">,</span> <span class="mi">530000</span><span class="p">,</span> <span class="o">-</span><span class="mi">3350000</span><span class="p">,</span> <span class="o">-</span><span class="mi">3270000</span><span class="p">)</span>  <span class="c1"># UTM meters</span>
+<span class="n">bands</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;red&quot;</span><span class="p">,</span> <span class="s2">&quot;green&quot;</span><span class="p">,</span> <span class="s2">&quot;blue&quot;</span><span class="p">)</span>
+<span class="n">before</span> <span class="o">=</span> <span class="n">xls</span><span class="o">.</span><span class="n">load_scene</span><span class="p">(</span><span class="s2">&quot;LC08_L1TP_221081_20240406_20240412_02_T1.tar&quot;</span><span class="p">,</span> <span class="n">bands</span><span class="o">=</span><span class="n">bands</span><span class="p">,</span> <span class="n">region</span><span class="o">=</span><span class="n">region</span><span class="p">)</span>
+</pre></div>
+<p>And we can make a quick RGB composite and plot it for a quick check of our scene.</p>
+<div class="highlight"><pre><span></span><span class="n">rgb</span> <span class="o">=</span> <span class="n">xls</span><span class="o">.</span><span class="n">composite</span><span class="p">(</span><span class="n">before</span><span class="p">)</span>
+<span class="c1"># Need to adjust the colors to remove the top-of-the-atmosphere</span>
+<span class="c1"># glare from the L1 product</span>
+<span class="n">rgb</span> <span class="o">=</span> <span class="n">xls</span><span class="o">.</span><span class="n">adjust_l1_colors</span><span class="p">(</span><span class="n">rgb</span><span class="p">)</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span> <span class="mi">8</span><span class="p">),</span> <span class="n">layout</span><span class="o">=</span><span class="s2">&quot;constrained&quot;</span><span class="p">)</span>
+<span class="n">rgb</span><span class="o">.</span><span class="n">plot</span><span class="o">.</span><span class="n">imshow</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">axis</span><span class="p">(</span><span class="s2">&quot;scaled&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+<p><img src="rio-grande-do-sul-floods-2024_images/output_5_0.png" alt="png" /></p>
+<p>Now I can load the panchromatic band from the same file and cropped to the same region. The pan band has a higher resolution of 15m and we’ll use it to sharpen our image.</p>
+<div class="highlight"><pre><span></span><span class="n">before_pan</span> <span class="o">=</span> <span class="n">xls</span><span class="o">.</span><span class="n">load_panchromatic</span><span class="p">(</span><span class="s2">&quot;LC08_L1TP_221081_20240406_20240412_02_T1.tar&quot;</span><span class="p">,</span> <span class="n">region</span><span class="o">=</span><span class="n">region</span><span class="p">)</span>
+</pre></div>
+<p>Now pansharpen the scene to get the RGB data at 15m instead of 30m.</p>
+<div class="highlight"><pre><span></span><span class="n">before_sharp</span> <span class="o">=</span> <span class="n">xls</span><span class="o">.</span><span class="n">pansharpen</span><span class="p">(</span><span class="n">before</span><span class="p">,</span> <span class="n">before_pan</span><span class="p">)</span>
+</pre></div>
+<p>And plot the pansharpened RGB composite of the before scene.</p>
+<div class="highlight"><pre><span></span><span class="n">rgb</span> <span class="o">=</span> <span class="n">xls</span><span class="o">.</span><span class="n">composite</span><span class="p">(</span><span class="n">before_sharp</span><span class="p">)</span>
+<span class="n">rgb</span> <span class="o">=</span> <span class="n">xls</span><span class="o">.</span><span class="n">adjust_l1_colors</span><span class="p">(</span><span class="n">rgb</span><span class="p">,</span> <span class="n">percentile</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span> <span class="mi">8</span><span class="p">),</span> <span class="n">layout</span><span class="o">=</span><span class="s2">&quot;constrained&quot;</span><span class="p">)</span>
+<span class="n">rgb</span><span class="o">.</span><span class="n">plot</span><span class="o">.</span><span class="n">imshow</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">axis</span><span class="p">(</span><span class="s2">&quot;scaled&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+<p><img src="rio-grande-do-sul-floods-2024_images/output_11_0.png" alt="png" /></p>
+<p>Now I can do the same thing for the after scene.</p>
+<div class="highlight"><pre><span></span><span class="n">after</span> <span class="o">=</span> <span class="n">xls</span><span class="o">.</span><span class="n">load_scene</span><span class="p">(</span><span class="s2">&quot;LC08_L1TP_221081_20240508_20240508_02_RT.tar&quot;</span><span class="p">,</span> <span class="n">bands</span><span class="o">=</span><span class="n">bands</span><span class="p">,</span> <span class="n">region</span><span class="o">=</span><span class="n">region</span><span class="p">)</span>
+<span class="n">after_pan</span> <span class="o">=</span> <span class="n">xls</span><span class="o">.</span><span class="n">load_panchromatic</span><span class="p">(</span><span class="s2">&quot;LC08_L1TP_221081_20240508_20240508_02_RT.tar&quot;</span><span class="p">,</span> <span class="n">region</span><span class="o">=</span><span class="n">region</span><span class="p">)</span>
+<span class="n">after_sharp</span> <span class="o">=</span> <span class="n">xls</span><span class="o">.</span><span class="n">pansharpen</span><span class="p">(</span><span class="n">after</span><span class="p">,</span> <span class="n">after_pan</span><span class="p">)</span>
+</pre></div>
+<h2 id="creating-before-and-after-images">Creating before and after images</h2>
+<p>Now I make two images of the RGB composites for the before and after scenes with added annotations. I had to adjust the percentile range for the color correction in the after scene because of the higher amount of clouds in that image.</p>
+<div class="highlight"><pre><span></span><span class="k">for</span> <span class="n">scene</span><span class="p">,</span> <span class="n">percentile</span> <span class="ow">in</span> <span class="p">[(</span><span class="n">before_sharp</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="p">(</span><span class="n">after_sharp</span><span class="p">,</span> <span class="mi">5</span><span class="p">)]:</span>
+    <span class="n">rgb</span> <span class="o">=</span> <span class="n">xls</span><span class="o">.</span><span class="n">composite</span><span class="p">(</span><span class="n">scene</span><span class="p">)</span>
+    <span class="n">rgb</span> <span class="o">=</span> <span class="n">xls</span><span class="o">.</span><span class="n">adjust_l1_colors</span><span class="p">(</span><span class="n">rgb</span><span class="p">,</span> <span class="n">percentile</span><span class="o">=</span><span class="n">percentile</span><span class="p">)</span>
+    
+    <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">14</span><span class="p">,</span> <span class="mi">12</span><span class="p">),</span> <span class="n">layout</span><span class="o">=</span><span class="s2">&quot;tight&quot;</span><span class="p">,</span> <span class="n">facecolor</span><span class="o">=</span><span class="s2">&quot;black&quot;</span><span class="p">)</span>
+    <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="mi">111</span><span class="p">)</span>
+    <span class="n">rgb</span><span class="o">.</span><span class="n">plot</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">)</span>
+    <span class="c1"># Make sure pixels are square</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_aspect</span><span class="p">(</span><span class="s2">&quot;equal&quot;</span><span class="p">)</span>
+    <span class="c1"># Remove so that it looks fancier</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">axis</span><span class="p">(</span><span class="s2">&quot;off&quot;</span><span class="p">)</span>
+    <span class="c1"># Add a caption at the bottom</span>
+    <span class="n">text</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="s2">&quot;Floods in Rio Grande do Sul, Brazil. &quot;</span>
+        <span class="s2">&quot;Pansharpened Landsat 8 scenes from &quot;</span>
+        <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">before</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;date_acquired&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2"> and &quot;</span>
+        <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">after</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;date_acquired&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">. &quot;</span>
+        <span class="s2">&quot;Visualization by Leonardo Uieda (CC0 license).&quot;</span>
+    <span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">text</span><span class="p">(</span>
+        <span class="mf">0.005</span><span class="p">,</span> <span class="mf">0.01</span><span class="p">,</span> 
+        <span class="n">text</span><span class="p">,</span> 
+        <span class="n">transform</span><span class="o">=</span><span class="n">ax</span><span class="o">.</span><span class="n">transAxes</span><span class="p">,</span>
+        <span class="n">color</span><span class="o">=</span><span class="s2">&quot;white&quot;</span><span class="p">,</span>
+        <span class="n">fontsize</span><span class="o">=</span><span class="mi">9</span><span class="p">,</span>
+        <span class="n">bbox</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span>
+            <span class="n">facecolor</span><span class="o">=</span><span class="s2">&quot;#000000dd&quot;</span><span class="p">,</span>
+            <span class="n">boxstyle</span><span class="o">=</span><span class="s2">&quot;square&quot;</span><span class="p">,</span>
+            <span class="n">pad</span><span class="o">=</span><span class="mf">0.75</span><span class="p">,</span>
+        <span class="p">),</span>
+    <span class="p">)</span>
+    <span class="c1"># Add the date to the top</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">text</span><span class="p">(</span>
+        <span class="mf">0.995</span><span class="p">,</span> <span class="mf">0.975</span><span class="p">,</span> 
+        <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">scene</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;date_acquired&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;-&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;/&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> 
+        <span class="n">transform</span><span class="o">=</span><span class="n">ax</span><span class="o">.</span><span class="n">transAxes</span><span class="p">,</span>
+        <span class="n">horizontalalignment</span><span class="o">=</span><span class="s2">&quot;right&quot;</span><span class="p">,</span>
+        <span class="n">color</span><span class="o">=</span><span class="s2">&quot;white&quot;</span><span class="p">,</span>
+        <span class="n">fontsize</span><span class="o">=</span><span class="mi">16</span><span class="p">,</span>
+        <span class="n">bbox</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span>
+            <span class="n">facecolor</span><span class="o">=</span><span class="s2">&quot;#000000dd&quot;</span><span class="p">,</span>
+            <span class="n">boxstyle</span><span class="o">=</span><span class="s2">&quot;square&quot;</span><span class="p">,</span>
+            <span class="n">pad</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span>
+        <span class="p">),</span>
+    <span class="p">)</span>
+    <span class="c1"># Add a scale bar</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">add_artist</span><span class="p">(</span>
+        <span class="n">ScaleBar</span><span class="p">(</span>
+            <span class="n">dx</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> 
+            <span class="n">units</span><span class="o">=</span><span class="s2">&quot;m&quot;</span><span class="p">,</span> 
+            <span class="n">location</span><span class="o">=</span><span class="s2">&quot;upper left&quot;</span><span class="p">,</span> 
+            <span class="n">box_alpha</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+            <span class="n">color</span><span class="o">=</span><span class="s2">&quot;white&quot;</span><span class="p">,</span> 
+            <span class="n">scale_loc</span><span class="o">=</span><span class="s2">&quot;bottom&quot;</span><span class="p">,</span> 
+            <span class="n">width_fraction</span><span class="o">=</span><span class="mf">0.005</span><span class="p">,</span> 
+            <span class="n">length_fraction</span><span class="o">=</span><span class="mf">0.06</span><span class="p">,</span>
+            <span class="n">pad</span><span class="o">=</span><span class="mf">0.4</span><span class="p">,</span>
+        <span class="p">)</span>
+    <span class="p">)</span>
+    <span class="c1"># Save the figure at 600 and 100 DPI</span>
+    <span class="k">for</span> <span class="n">dpi</span><span class="p">,</span> <span class="n">prefix</span> <span class="ow">in</span> <span class="p">[(</span><span class="mi">600</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">),</span> <span class="p">(</span><span class="mi">100</span><span class="p">,</span> <span class="s2">&quot;-lowres&quot;</span><span class="p">)]:</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;rio-grande-do-sul-floods-</span><span class="si">{</span><span class="n">scene</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;date_acquired&#39;</span><span class="p">]</span><span class="si">}{</span><span class="n">prefix</span><span class="si">}</span><span class="s2">.jpg&quot;</span><span class="p">,</span> 
+            <span class="n">dpi</span><span class="o">=</span><span class="n">dpi</span><span class="p">,</span> 
+            <span class="n">bbox_inches</span><span class="o">=</span><span class="s2">&quot;tight&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+<p><img src="rio-grande-do-sul-floods-2024_images/output_15_0.png" alt="png" /></p>
+<p><img src="rio-grande-do-sul-floods-2024_images/output_15_1.png" alt="png" /></p>
+<p>The massive scale of the floods are quite visible from the two images above. The brown water dominates the center of the image and there is also a darker, almost black, flooded river cutting through the city in the center right of the image.</p>
+<h2 id="creating-an-animated-gif">Creating an animated gif</h2>
+<p>To help visualize this further, I’ll use the <code>imageio</code> module to load the two images and make a looping gif animation. I’ll use the lower resolution images to avoid making the gif file too large. Setting <code>loop=0</code> makes the gif loop infinitely.</p>
+<div class="highlight"><pre><span></span><span class="n">images</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="n">imageio</span><span class="o">.</span><span class="n">v3</span><span class="o">.</span><span class="n">imread</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;rio-grande-do-sul-floods-</span><span class="si">{</span><span class="n">scene</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;date_acquired&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">-lowres.jpg&quot;</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">scene</span> <span class="ow">in</span> <span class="p">[</span><span class="n">before</span><span class="p">,</span> <span class="n">after</span><span class="p">]</span>
+<span class="p">]</span>
+<span class="n">imageio</span><span class="o">.</span><span class="n">mimsave</span><span class="p">(</span><span class="s2">&quot;rio-grande-do-sul-floods-2024.gif&quot;</span><span class="p">,</span> <span class="n">images</span><span class="p">,</span> <span class="n">duration</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span> <span class="n">loop</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+</pre></div>
+<p><img src="rio-grande-do-sul-floods-2024.gif" alt="Animation of before and after the floods, with the after image showing a large amount of brown water at the center of the image where there were city and farms." /></p>
+<p>Flipping back and forth makes it easier to see all of the affected areas. It’s devastating to see such destruction. Unfortunately, it’s also a sign of things to come as the climate continues to change due to human action during late-stage capitalism.</p>
+<h2 id="downloading-the-data-and-images">Downloading the data and images</h2>
+<p>You can <strong>download</strong> the Landsat data, both images in high and low resolution, the animated gif, and this source code from figshare at doi:<a href="https://doi.org/10.6084/m9.figshare.25800298">10.6084/m9.figshare.25800298</a>. All are made available under the <a href="https://creativecommons.org/public-domain/cc0/">CC-0 license</a>.</p>
+<div class="callout">
+<p><strong>How to help:</strong> You can find out more about how to help the people affected by the floods from <a href="https://www.terra.com.br/noticias/doacoes-para-o-rio-grande-do-sul-saiba-como-doar-e-quais-sao-os-pontos-de-coleta-mais-proximos-de-sua-casa,caa8f066ede3cddbd20f2b2766edb2df1hot6p70.html">this report on Terra</a> (in Portuguese).</p>
+</div>
+  </article>
+
+  <hr>
+
+  <p class="text-right">
+    <a href="index.html">
+      ← Back to the blog
+    </a>
+  </p>
+    </div>
+  </main>
+
+  <footer class="flow">
+    <div class="content-wide flow">
+      <nav aria-label="Footer">
+        <ul class="list-inline" role="list">
+          <li><strong>CONTENTS:</strong></li>
+          <li>
+            <a class=""  href="../">Home</a>
+          </li>
+          <li>
+            <a class=""  href="../about/">About</a>
+          </li>
+          <li>
+            <a class="active" aria-current="page" href=".">Blog</a>
+          </li>
+          <li>
+            <a class=""  href="../cv/">CV</a>
+          </li>
+          <li>
+            <a class=""  href="../contact/">Contact</a>
+          </li>
+          <li>
+            <a class=""  href="../links/">Links</a>
+          </li>
+          <li>
+            <a class=""  href="../now/">Now</a>
+          </li>
+        </ul>
+      </nav>
+      <ul class="list-inline" role="list">
+        <li><strong>SOCIAL:</strong></li>
+        <li>
+          <a href="https://bertha.social/@leouieda" target="_blank">Mastodon</a>
+        </li>
+        <li>
+          <a href="https://bookwyrm.social/user/leouieda" target="_blank">BookWyrm</a>
+        </li>
+        <li>
+          <a href="https://www.linkedin.com/in/uieda" target="_blank">LinkedIn</a>
+        </li>
+        <li>
+          <a href="https://github.com/leouieda" target="_blank">GitHub</a>
+        </li>
+        <li>
+          <a href="https://www.youtube.com/@leouieda" target="_blank">YouTube</a>
+        </li>
+      </ul>
+      <ul class="list-inline" role="list">
+        <li><strong>ACADEMIC:</strong></li>
+        <li>
+          <a href="https://orcid.org/0000-0001-6123-9515" target="_blank">ORCID</a>
+        </li>
+        <li>
+          <a href="https://lattes.cnpq.br/8939551682050504" target="_blank">Lattes</a>
+        </li>
+        <li>
+          <a href="http://scholar.google.com/citations?user=qfmPrUEAAAAJ" target="_blank">Google Scholar</a>
+        </li>
+        <li>
+          <a href="https://www.researchgate.net/profile/Leonardo-Uieda" target="_blank">ResearchGate</a>
+        </li>
+        <li>
+          <a href="https://figshare.com/authors/Leonardo_Uieda/97471" target="_blank">figshare</a>
+        </li>
+        <li>
+          <a href="https://www.webofscience.com/wos/author/rid/G-3258-2012" target="_blank">Web of Science</a>
+        </li>
+        <li>
+          <a href="https://www.scopus.com/authid/detail.uri?authorId=47062144700" target="_blank">Scopus</a>
+        </li>
+      </ul>
+      <section class="flow font-small">
+        <p>
+          Built on 2025/12/12 with <a href="https://nene.leouieda.com">Nēnē</a> v0.10.0
+          from source code at
+          <a href="https://github.com/leouieda/website" target="_blank">leouieda/website</a>
+          (<a href="https://github.com/leouieda/website/commit/e243f4b"><code>e243f4b</code></a>).
+          <strong>
+          Found a typo/mistake?
+          <a target="_blank" href="https://github.com/leouieda/website/edit/main/blog/rio-grande-do-sul-floods-2024.ipynb">Send a fix through GitHub</a>.
+          </strong>
+        </p>
+        <p>
+          Visitor statistics are gathered anonymously and without tracking by
+          <a href="https://plausible.io">Plausible</a> and can be viewed
+          at
+          <a href="https://plausible.io/leouieda.com">plausible.io/leouieda.com</a>.
+        </p>
+        <p>
+          Copyright &copy; 2025 Leonardo Uieda.
+            Except where otherwise noted, all content is licensed
+<a href="https://creativecommons.org/licenses/by/4.0/">CC-BY</a>.
+
+        </p>
+      </section>
+      <section class="font-small text-center">
+        <a href="#top" class="button-link">↑ Back to top</a>
+      </section>
+    </div>
+  </footer>
+  <!-- KaTeX -->
+  <script defer src="../pkg/katex-0.15.3/katex.min.js" integrity="sha384-0fdwu/T/EQMsQlrHCCHoH10pkPLlKA1jL5dFyUOvB3lfeT2540/2g6YgSi2BL14p" crossorigin="anonymous"></script>
+  <script defer src="../pkg/katex-0.15.3/auto-render.min.js" integrity="sha384-+XBljXPPiv+OzfbB3cVmLHf4hdUFHlWNZN5spNQ7rmHTXpd7WvJum6fIACpNNfIR" crossorigin="anonymous"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", function() {
+      renderMathInElement(document.body, {
+        delimiters: [
+          {left: '$$', right: '$$', display: true},
+          {left: '$', right: '$', display: false},
+        ],
+      });
+    });
+  </script>
+
+</body>
+</html>

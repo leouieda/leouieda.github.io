@@ -1,0 +1,672 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>A geophysical tour of mid-ocean ridges | Leonardo Uieda</title>
+  <link rel="shortcut icon" href="../assets/favicon.png" />
+
+  <!-- OpenGraph social media card -->
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="A geophysical tour of mid-ocean ridges" />
+  <meta property="og:description" content="This tutorial was developed for Transform 2022, the Software Underground’s virtual festival of open Geoscience. Watch the recording on YouTube Run the code online: launch Binder Original source..." />
+  <meta property="og:image" content="https://www.leouieda.com/assets/thumbnail.jpg" />
+  <meta property="og:url" content="https://www.leouieda.com/blog/midocean-ridges.html" />
+
+  <!-- Atkinson Hyperlegible fonts -->
+  <link rel="stylesheet" href="../pkg/atkinson-hyperlegible-next/font.css" />
+  <link rel="stylesheet" href="../pkg/atkinson-hyperlegible-mono/font.css" />
+
+  <!-- Andy Bell's CSS reset -->
+  <link rel="stylesheet" href="../css/reset.css" />
+
+  <!-- Syntax highlighting for code -->
+  <link rel="stylesheet" href="../css/pygments.css" />
+
+  <!-- Main CSS stylesheet -->
+  <link rel="stylesheet" href="../css/style.css" />
+
+  <!-- Plausible analytics for anonymous usage statistics -->
+  <script defer data-domain="leouieda.com" src="https://plausible.io/js/plausible.js"></script>
+  <!-- KaTeX -->
+  <link rel="stylesheet" href="../pkg/katex-0.15.3/katex.min.css" integrity="sha384-KiWOvVjnN8qwAZbuQyWDIbfCLFhLXNETzBQjA/92pIowpC0d2O3nppDGQVgwd2nB" />
+
+</head>
+
+<body>
+  <header id="top">
+    <div class="spread content-wide">
+      <a aria-label="Home" class="font-bold" href="../">Leonardo Uieda</a>
+      <nav aria-label="Main">
+        <ul class="list-inline" role="list">
+            <li>
+              <a class=""  href="../">Home</a>
+            </li>
+            <li>
+              <a class=""  href="../about/">About</a>
+            </li>
+            <li>
+              <a class="active" aria-current="page" href=".">Blog</a>
+            </li>
+            <li>
+              <a class=""  href="../cv/">CV</a>
+            </li>
+            <li>
+              <a class=""  href="../contact/">Contact</a>
+            </li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <main class="flow">
+
+    <div class="content flow">
+  
+    
+  
+  <article class="flow jupyter-notebook pad-images">
+    <h1>
+      A geophysical tour of mid-ocean ridges
+    </h1>
+    <time class="text-muted" datetime="2022-04-28">
+      Published on
+      2022/04/28
+    </time>
+    <div class="callout callout-note mb-5">
+<p>This tutorial was developed for <a href="https://transform.softwareunderground.org/">Transform 2022</a>,
+the <a href="https://softwareunderground.org/">Software Underground</a>’s virtual festival of open Geoscience.</p>
+<ul>
+    <li> Watch the <a href="https://www.youtube.com/watch?v=NzJmRlJCNbQ" target="_blank">recording on YouTube</a></li>
+    <li> Run the code online: <a href="https://mybinder.org/v2/gh/compgeolab/transform2022/HEAD?labpath=mid-ocean-ridge-geophysics.ipynb" target="_blank">launch Binder</a></li>
+    <li> Original source code and instructions: <a href="https://github.com/compgeolab/transform2022" target="_blank">compgeolab/transform2022</a></li>
+    <li> Code license: <a href="https://github.com/compgeolab/transform2022/blob/main/LICENSE.txt" target="_blank">BSD 3-clause</a></li>
+    <li> Text and figures license: <a href="https://github.com/compgeolab/transform2022/blob/main/LICENSE.txt" target="_blank">CC-BY</a></li>
+</ul>
+</div>
+<h2 id="ℹ-about-this-tutorial">ℹ️ About this tutorial</h2>
+<p>Mid-ocean ridges are the places where the oceanic crust and lithosphere are born. They are large mountain ranges in the deep ocean, stretching all around the globe and with heights rivaling that of the tallest mountains on land. Ridges are also a key part of plate tectonics, a major component of the biogeochemical cycle of the oceans, and the home of unique biological communities.</p>
+<p>In this tutorial, we’ll study the <strong>mid-ocean ridges through the lens of geophysics</strong>. We’ll use open geophysical data (gravity, bathymetry, lithospheric age) and open-source Python tools to try to answer questions like:</p>
+<ul>
+<li>How do ridges stay so tall?</li>
+<li>Are they in isostatic equilibrium?</li>
+<li>Why do ocean basins get deeper as they age?</li>
+</ul>
+<p>Along the way, we’ll also learn how to translate into code the physical models of the cooling of the lithosphere so that we can compare their predictions with our data.</p>
+<div class="callout callout-note">
+<p><strong>Note:</strong> This tutorial was inspired by a computer-based practical lesson that I developed by the module <em>ENVS398 Global Geophysics &amp; Geodynamics</em> of the University of Liverpool. Because of the Transform format, some of the more interactive components that I would do during a live in-person class were removed but there is still room for personal experimentation.</p>
+</div>
+<div class="callout">
+<p><strong>Instructions:</strong> See the GitHub repository <a href="https://github.com/compgeolab/transform2022"><code>compgeolab/transform2022</code></a> for instructions on computer setup, following the tutorial, asking questions, etc. <strong>I highly encourage everyone to experiment with the code here and explore the data in further detail</strong> after the tutorial content is over.</p>
+</div>
+<h2 id="-import-the-required-libraries">🐍 Import the required libraries</h2>
+<p>We’ll be using several tools from the Scientific Python stack:</p>
+<div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">xarray</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">xr</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">verde</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">vd</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">boule</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pooch</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pygmt</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pyproj</span>
+</pre></div>
+<p>Increase the resolution of the matplotlib images.</p>
+<div class="highlight"><pre><span></span><span class="n">plt</span><span class="o">.</span><span class="n">rc</span><span class="p">(</span><span class="s2">&quot;figure&quot;</span><span class="p">,</span> <span class="n">dpi</span><span class="o">=</span><span class="mi">200</span><span class="p">)</span>
+</pre></div>
+<h2 id="-to-the-data">📈 To the data!</h2>
+<p>The data we’ll be using in this tutorial are:</p>
+<ul>
+<li><a href="https://doi.org/10.5281/zenodo.5882203">ETOPO1</a> (public domain): A global model of topography and bathymetry, <a href="https://doi.org/10.7289/V5C8276M">originally at 1 arc-minute resolution</a> but we’ll use a downsampled version to 10 arc-minutes to avoid long downloads.</li>
+<li><a href="https://doi.org/10.5281/zenodo.5882207">Gravity</a> (CC-BY): A global grid of observed gravity in mGal at 10 arc-minute resolution generated from the <a href="https://doi.org/10.5880/icgem.2015.1">EIGEN-6C4 spherical harmonic model</a>.</li>
+<li><a href="https://www.earthbyte.org/category/resources/data-models/seafloor-age/">Seafloor (lithosphere) age</a> (CC-BY): A 6 arc-minute grid of global seafloor age by <a href="https://doi.org/10.1029/2020GC009214">Seton et al. (2020)</a>.</li>
+</ul>
+<h3>Download the data</h3>
+<p>We can download all of these grids using <a href="https://www.fatiando.org/pooch/">Pooch</a> if we know where to find them on the internet.</p>
+<div class="highlight"><pre><span></span><span class="n">path_etopo1</span> <span class="o">=</span> <span class="n">pooch</span><span class="o">.</span><span class="n">retrieve</span><span class="p">(</span>
+    <span class="n">url</span><span class="o">=</span><span class="s2">&quot;doi:10.5281/zenodo.5882203/earth-topography-10arcmin.nc&quot;</span><span class="p">,</span>
+    <span class="n">known_hash</span><span class="o">=</span><span class="s2">&quot;md5:c43b61322e03669c4313ba3d9a58028d&quot;</span><span class="p">,</span>
+    <span class="n">progressbar</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+<div class="highlight"><pre><span></span><span class="n">path_gravity</span> <span class="o">=</span> <span class="n">pooch</span><span class="o">.</span><span class="n">retrieve</span><span class="p">(</span>
+    <span class="n">url</span><span class="o">=</span><span class="s2">&quot;doi:10.5281/zenodo.5882207/earth-gravity-10arcmin.nc&quot;</span><span class="p">,</span>
+    <span class="n">known_hash</span><span class="o">=</span><span class="s2">&quot;md5:56df20e0e67e28ebe4739a2f0357c4a6&quot;</span><span class="p">,</span>
+    <span class="n">progressbar</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+<div class="highlight"><pre><span></span><span class="n">path_seafloorage</span> <span class="o">=</span> <span class="n">pooch</span><span class="o">.</span><span class="n">retrieve</span><span class="p">(</span>
+    <span class="n">url</span><span class="o">=</span><span class="s2">&quot;https://www.earthbyte.org/webdav/ftp/earthbyte/agegrid/2020/Grids/age.2020.1.GTS2012.6m.nc&quot;</span><span class="p">,</span>
+    <span class="n">known_hash</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">progressbar</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+<h3>Load the grids</h3>
+<p>Now we can load these netCDF grids with <a href="https://docs.xarray.dev">xarray</a>.</p>
+<div class="highlight"><pre><span></span><span class="n">etopo1</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">load_dataarray</span><span class="p">(</span><span class="n">path_etopo1</span><span class="p">)</span>
+</pre></div>
+<div class="highlight"><pre><span></span><span class="n">gravity</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">load_dataarray</span><span class="p">(</span><span class="n">path_gravity</span><span class="p">)</span>
+</pre></div>
+<div class="highlight"><pre><span></span><span class="n">seafloorage</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">load_dataarray</span><span class="p">(</span><span class="n">path_seafloorage</span><span class="p">)</span>
+</pre></div>
+<p>Notice that the ETOPO1 and gravity grids are co-registered (meaning that the align perfectly) since there were both created to be used together in the <a href="https://github.com/fatiando-data">Fatiando a Terra FAIR data collection</a>. But the seafloor age grid has a different resolution so the values aren’t located in the same places as the other two. We’ll have to deal with this later on.</p>
+<h3>Plot the grids</h3>
+<p>Now that we have out grids, we can plot them on maps using <a href="https://www.pygmt.org/">PyGMT</a>.</p>
+<div class="callout">
+<p><strong>💡 Tip:</strong> You could do the same using <a href="https://scitools.org.uk/cartopy/docs/latest/">Cartopy</a> and <a href="https://matplotlib.org/">matplotlib</a> but PyGMT is faster and has better support for map projections.</p>
+</div>
+<div class="highlight"><pre><span></span><span class="n">fig</span> <span class="o">=</span> <span class="n">pygmt</span><span class="o">.</span><span class="n">Figure</span><span class="p">()</span>
+<span class="n">fig</span><span class="o">.</span><span class="n">grdimage</span><span class="p">(</span><span class="n">etopo1</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="s2">&quot;etopo1&quot;</span><span class="p">,</span> <span class="n">shading</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">projection</span><span class="o">=</span><span class="s2">&quot;W25c&quot;</span><span class="p">)</span>
+<span class="n">fig</span><span class="o">.</span><span class="n">basemap</span><span class="p">(</span><span class="n">frame</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">fig</span><span class="o">.</span><span class="n">colorbar</span><span class="p">(</span><span class="n">frame</span><span class="o">=</span><span class="s1">&#39;af+l&quot;ETOPO1 relief [m]&quot;&#39;</span><span class="p">)</span>
+<span class="n">fig</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+<p><img src="midocean-ridges_images/output_16_0.png" alt="png" /></p>
+<div class="highlight"><pre><span></span><span class="n">fig</span> <span class="o">=</span> <span class="n">pygmt</span><span class="o">.</span><span class="n">Figure</span><span class="p">()</span>
+<span class="n">fig</span><span class="o">.</span><span class="n">grdimage</span><span class="p">(</span><span class="n">gravity</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="s2">&quot;viridis&quot;</span><span class="p">,</span> <span class="n">projection</span><span class="o">=</span><span class="s2">&quot;W25c&quot;</span><span class="p">)</span>
+<span class="n">fig</span><span class="o">.</span><span class="n">basemap</span><span class="p">(</span><span class="n">frame</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">fig</span><span class="o">.</span><span class="n">colorbar</span><span class="p">(</span><span class="n">frame</span><span class="o">=</span><span class="s1">&#39;af+l&quot;Gravity at 10 km height [mGal]&quot;&#39;</span><span class="p">)</span>
+<span class="n">fig</span><span class="o">.</span><span class="n">coast</span><span class="p">(</span><span class="n">shorelines</span><span class="o">=</span><span class="s2">&quot;white&quot;</span><span class="p">)</span>
+<span class="n">fig</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+<p><img src="midocean-ridges_images/output_17_0.png" alt="png" /></p>
+<div class="highlight"><pre><span></span><span class="n">fig</span> <span class="o">=</span> <span class="n">pygmt</span><span class="o">.</span><span class="n">Figure</span><span class="p">()</span>
+<span class="n">fig</span><span class="o">.</span><span class="n">grdimage</span><span class="p">(</span><span class="n">seafloorage</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="s2">&quot;inferno&quot;</span><span class="p">,</span> <span class="n">projection</span><span class="o">=</span><span class="s2">&quot;W25c&quot;</span><span class="p">)</span>
+<span class="n">fig</span><span class="o">.</span><span class="n">basemap</span><span class="p">(</span><span class="n">frame</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">fig</span><span class="o">.</span><span class="n">colorbar</span><span class="p">(</span><span class="n">frame</span><span class="o">=</span><span class="s1">&#39;af+l&quot;Seafloor age [Myr]&quot;&#39;</span><span class="p">)</span>
+<span class="n">fig</span><span class="o">.</span><span class="n">coast</span><span class="p">(</span><span class="n">shorelines</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">fig</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+<p><img src="midocean-ridges_images/output_18_0.png" alt="png" /></p>
+<p>Main things to notice in these plots:</p>
+<ul>
+<li>ETOPO1 should be fairly familiar to most people. What we’ll be focusing on are the long stretches of shallow bathymetry in the oceans, like the one running in North-South in the middle of the Atlantic. These are the mid-ocean ridges.</li>
+<li>Gravity is the absolute value of gravity measured at a constant height of 10 km above the WGS84 reference ellipsoid. By “gravity” we mean the combined “gravitational” and “centrifugal” accelerations. The overall pattern should be familiar to most geoscientists, with stronger gravity at the poles and weaker at the equator because of both the flattening of the Earth and the centrifugal component. Notice also the dim small-scale changes that accompany large mountain ranges and subduction zones.</li>
+<li>Seafloor age, as expected, is younger at the mid-ocean ridges and progressively older as we move away from them. Most of the seafloor is between 0-150 Myr (a baby 👶 by geological standards) with only small sections of older lithosphere.</li>
+</ul>
+<div class="callout">
+<p><strong>💡 Tip:</strong> PyGMT and GMT include built-in support for <a href="https://docs.generic-mapping-tools.org/latest/cookbook/cpts.html">several different colormaps</a> (called “CPTs” in GMT).</p>
+</div>
+<h2 id="-isostatic-state">⛰️ Isostatic state</h2>
+<p>The first thing we’ll do is investigate the <strong>isostatic state</strong> of the mid-ocean ridges. In other words, <strong>are the ridges supported by their buoyancy (isostasy) or by other forces?</strong></p>
+<p>This is a job for gravity data! We know that <strong>gravity disturbances should be very small and close to zero</strong> in regions that are locally in isostatic equilibrium (following an Airy–Heiskanen or Pratt–Hayford model). If they are in equilibrium, that means that the height of the ridges is supported mostly by their buoyancy. Since we know that ridges are where the oceanic lithosphere is being created, that buoyancy can’t come from a low-density thick crustal root. So this would be <strong>evidence for a lower density asthenosphere beneath the ridges</strong>.</p>
+<p>So let’s calculate the gravity disturbance globally to check this. The disturbance (usually shown as $\delta g$ in books/papers) is defined as:</p>
+<p>$$ \delta g (\lambda, \phi, h) = g (\lambda, \phi, h) - \gamma  (\lambda, \phi, h) $$</p>
+<p>in which $(\lambda, \phi, h)$ are the longitude, latitude, and height above the ellipsoid, $g$ is the observed amplitude of gravity (i.e., our <code>gravity</code> grid), and $\gamma$ is the <strong>normal gravity</strong> (the amplitude of the gravity caused by a reference ellipsoid like WGS84).</p>
+<p>Since we have $g$ already, we only need to calculate $\gamma$ at the same observation points. The <a href="https://www.fatiando.org/boule/">Boule</a> package is made exactly for this purpose:</p>
+<div class="highlight"><pre><span></span><span class="n">normal_gravity</span> <span class="o">=</span> <span class="n">boule</span><span class="o">.</span><span class="n">WGS84</span><span class="o">.</span><span class="n">normal_gravity</span><span class="p">(</span>
+    <span class="n">gravity</span><span class="o">.</span><span class="n">latitude</span><span class="p">,</span> <span class="n">gravity</span><span class="o">.</span><span class="n">height</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">gravity_disturbance</span> <span class="o">=</span> <span class="n">gravity</span> <span class="o">-</span> <span class="n">normal_gravity</span>
+</pre></div>
+<div class="callout callout-note">
+<p>ℹ️ <strong>Note:</strong> We don’t need to pass the longitude to <code>WGS84.normal_gravity</code> because the oblate ellipsoid is symmetric in that dimension and hence it’s gravity doesn’t depend on it.</p>
+</div>
+<p>Plot the gravity disturbance globally to see what it looks like:</p>
+<div class="highlight"><pre><span></span><span class="n">fig</span> <span class="o">=</span> <span class="n">pygmt</span><span class="o">.</span><span class="n">Figure</span><span class="p">()</span>
+<span class="n">fig</span><span class="o">.</span><span class="n">grdimage</span><span class="p">(</span><span class="n">gravity_disturbance</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="s2">&quot;polar+h&quot;</span><span class="p">,</span> <span class="n">projection</span><span class="o">=</span><span class="s2">&quot;W25c&quot;</span><span class="p">)</span>
+<span class="n">fig</span><span class="o">.</span><span class="n">basemap</span><span class="p">(</span><span class="n">frame</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">fig</span><span class="o">.</span><span class="n">colorbar</span><span class="p">(</span><span class="n">frame</span><span class="o">=</span><span class="s1">&#39;af+l&quot;Gravity disturbance at 10 km height [mGal]&quot;&#39;</span><span class="p">)</span>
+<span class="n">fig</span><span class="o">.</span><span class="n">coast</span><span class="p">(</span><span class="n">shorelines</span><span class="o">=</span><span class="s2">&quot;#999999&quot;</span><span class="p">)</span>
+<span class="n">fig</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+<pre><code>grdimage [WARNING]: Longitude range too small; geographic boundary condition changed to natural.
+</code></pre>
+<p><img src="midocean-ridges_images/output_23_1.png" alt="png" /></p>
+<p>Things to note from this map:</p>
+<ul>
+<li>The disturbance is <strong>close to zero at mid-ocean ridges</strong> and most of the oceans. This indicates that the ridges and most oceanic basins are in isostatic equilibrium and supported by their buoyancy.</li>
+<li>Subduction zones are the main regions where the disturbance is very large, indicating that the relief we see there is due tectonic forces instead of isostasy.</li>
+<li>Large oceanic island chains like Hawai’i are also not supported by their buoyancy, resulting in large disturbances. Instead, these islands are kept up by the flexural strength of the oceanic lithosphere itself (i.e., a Vening Meinesz model of isostasy).</li>
+</ul>
+<h2 id="-close-in-on-a-ridge">🔍 Close in on a ridge</h2>
+<p>Let’s zoom in on a particular mid-ocean ridge system in the South Pacific (a large section around the island of <a href="https://en.wikipedia.org/wiki/Easter_Island">Rapa Nui</a>) to study it more closely. We’ll slice our grids to this region to select that part of the data only. This is one of the many reasons why <strong>xarray is awesome</strong>!</p>
+<div class="highlight"><pre><span></span><span class="n">region</span> <span class="o">=</span> <span class="p">(</span><span class="o">-</span><span class="mi">170</span><span class="p">,</span> <span class="o">-</span><span class="mi">80</span><span class="p">,</span> <span class="o">-</span><span class="mi">65</span><span class="p">,</span> <span class="o">-</span><span class="mi">10</span><span class="p">)</span>  <span class="c1"># W, E, S, N</span>
+<span class="n">disturbance_pacific</span> <span class="o">=</span> <span class="n">gravity_disturbance</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span>
+    <span class="n">longitude</span><span class="o">=</span><span class="nb">slice</span><span class="p">(</span><span class="n">region</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">region</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span> 
+    <span class="n">latitude</span><span class="o">=</span><span class="nb">slice</span><span class="p">(</span><span class="n">region</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">region</span><span class="p">[</span><span class="mi">3</span><span class="p">]),</span>
+<span class="p">)</span>
+<span class="n">etopo1_pacific</span> <span class="o">=</span> <span class="n">etopo1</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span>
+    <span class="n">longitude</span><span class="o">=</span><span class="nb">slice</span><span class="p">(</span><span class="n">region</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">region</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span> 
+    <span class="n">latitude</span><span class="o">=</span><span class="nb">slice</span><span class="p">(</span><span class="n">region</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">region</span><span class="p">[</span><span class="mi">3</span><span class="p">]),</span>
+<span class="p">)</span>
+<span class="n">seafloorage_pacific</span> <span class="o">=</span> <span class="n">seafloorage</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span>
+    <span class="n">lon</span><span class="o">=</span><span class="nb">slice</span><span class="p">(</span><span class="n">region</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">region</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span> 
+    <span class="n">lat</span><span class="o">=</span><span class="nb">slice</span><span class="p">(</span><span class="n">region</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">region</span><span class="p">[</span><span class="mi">3</span><span class="p">]),</span>
+<span class="p">)</span>
+</pre></div>
+<p>Make some maps of the sliced grids:</p>
+<div class="highlight"><pre><span></span><span class="n">fig</span> <span class="o">=</span> <span class="n">pygmt</span><span class="o">.</span><span class="n">Figure</span><span class="p">()</span>
+<span class="n">fig</span><span class="o">.</span><span class="n">grdimage</span><span class="p">(</span><span class="n">etopo1_pacific</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="s2">&quot;etopo1&quot;</span><span class="p">,</span> <span class="n">projection</span><span class="o">=</span><span class="s2">&quot;M25c&quot;</span><span class="p">)</span>
+<span class="n">fig</span><span class="o">.</span><span class="n">basemap</span><span class="p">(</span><span class="n">frame</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">fig</span><span class="o">.</span><span class="n">colorbar</span><span class="p">(</span><span class="n">frame</span><span class="o">=</span><span class="s1">&#39;af+l&quot;ETOPO1 relief [m]&quot;&#39;</span><span class="p">)</span>
+<span class="n">fig</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+<p><img src="midocean-ridges_images/output_28_0.png" alt="png" /></p>
+<div class="highlight"><pre><span></span><span class="n">fig</span> <span class="o">=</span> <span class="n">pygmt</span><span class="o">.</span><span class="n">Figure</span><span class="p">()</span>
+<span class="n">fig</span><span class="o">.</span><span class="n">grdimage</span><span class="p">(</span><span class="n">disturbance_pacific</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="s2">&quot;polar+h&quot;</span><span class="p">,</span> <span class="n">projection</span><span class="o">=</span><span class="s2">&quot;M25c&quot;</span><span class="p">)</span>
+<span class="n">fig</span><span class="o">.</span><span class="n">basemap</span><span class="p">(</span><span class="n">frame</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">fig</span><span class="o">.</span><span class="n">colorbar</span><span class="p">(</span><span class="n">frame</span><span class="o">=</span><span class="s1">&#39;af+l&quot;Gravity disturbance at 10 km height [mGal]&quot;&#39;</span><span class="p">)</span>
+<span class="n">fig</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+<p><img src="midocean-ridges_images/output_29_0.png" alt="png" /></p>
+<div class="highlight"><pre><span></span><span class="n">fig</span> <span class="o">=</span> <span class="n">pygmt</span><span class="o">.</span><span class="n">Figure</span><span class="p">()</span>
+<span class="n">fig</span><span class="o">.</span><span class="n">grdimage</span><span class="p">(</span><span class="n">seafloorage_pacific</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="s2">&quot;inferno&quot;</span><span class="p">,</span> <span class="n">projection</span><span class="o">=</span><span class="s2">&quot;M25c&quot;</span><span class="p">)</span>
+<span class="n">fig</span><span class="o">.</span><span class="n">basemap</span><span class="p">(</span><span class="n">frame</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">fig</span><span class="o">.</span><span class="n">colorbar</span><span class="p">(</span><span class="n">frame</span><span class="o">=</span><span class="s1">&#39;af+l&quot;Seafloor age [Myr]&quot;&#39;</span><span class="p">)</span>
+<span class="n">fig</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+<p><img src="midocean-ridges_images/output_30_0.png" alt="png" /></p>
+<p>Things to note on these maps:</p>
+<ul>
+<li>There is a triple junction in there with 2 mid-ocean ridges meeting (it’s clear from the age grid).</li>
+<li>This region is roughly in isostatic equilibrium, except for a few island chains and fracture zones.</li>
+</ul>
+<h2 id="-prepare-the-data">💆🏾‍♂️ Prepare the data</h2>
+<p>Remember how I said we’d have to deal with the fact that the grids aren’t aligned? That time is now!</p>
+<p>We’ll want to compare the age and bathymetric data, making cross-plots of these values and trying to model the bathymetry as a function of age. To do this, we need bathymetry and age values at the <strong>exact same points</strong>.</p>
+<p>This is how we’ll do it:</p>
+<ol>
+<li>Project the 2 grids so we can work in Cartesian coordinates (makes interpolation and down-sampling a bit easier).</li>
+<li>Down-sample the age grid to roughly 10 arc-minutes resolution.</li>
+<li>Interpolate the age values onto the same points as the bathymetry grid.</li>
+</ol>
+<p>First, project the grids using <a href="https://www.fatiando.org/verde/">Verde</a>.</p>
+<div class="highlight"><pre><span></span><span class="n">projection</span> <span class="o">=</span> <span class="n">pyproj</span><span class="o">.</span><span class="n">Proj</span><span class="p">(</span>
+    <span class="n">proj</span><span class="o">=</span><span class="s2">&quot;merc&quot;</span><span class="p">,</span> 
+    <span class="n">lat0</span><span class="o">=</span><span class="n">etopo1_pacific</span><span class="o">.</span><span class="n">latitude</span><span class="o">.</span><span class="n">mean</span><span class="p">(),</span>
+<span class="p">)</span>
+<span class="n">etopo1_pacific_proj</span> <span class="o">=</span> <span class="n">vd</span><span class="o">.</span><span class="n">project_grid</span><span class="p">(</span>
+    <span class="n">etopo1_pacific</span><span class="p">,</span> <span class="n">projection</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;nearest&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">seafloorage_pacific_proj</span> <span class="o">=</span> <span class="n">vd</span><span class="o">.</span><span class="n">project_grid</span><span class="p">(</span>
+    <span class="n">seafloorage_pacific</span><span class="p">,</span> <span class="n">projection</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;nearest&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+<pre><code>/home/leo/bin/conda/envs/default/lib/python3.9/site-packages/verde/base/base_classes.py:463: FutureWarning: The 'spacing', 'shape' and 'region' arguments will be removed in Verde v2.0.0. Please use the 'verde.grid_coordinates' function to define grid coordinates and pass them as the 'coordinates' argument.
+  warnings.warn(
+/home/leo/bin/conda/envs/default/lib/python3.9/site-packages/verde/base/base_classes.py:463: FutureWarning: The 'spacing', 'shape' and 'region' arguments will be removed in Verde v2.0.0. Please use the 'verde.grid_coordinates' function to define grid coordinates and pass them as the 'coordinates' argument.
+  warnings.warn(
+</code></pre>
+<div class="callout callout-note">
+<p>ℹ️ <strong>Note:</strong> You can safely ignore these <code>FutureWarning</code>s coming from Verde. They aren’t errors and <a href="https://github.com/fatiando/verde/issues/363">will be resolved in Verde 1.8.0 once that is released</a>.</p>
+</div>
+<p>Now we can down-sample the age grid to roughly 10 arc-minute resolution. We’ll first need to convert the grid into a set of points, then we can take the mean values inside 10 arc-minute blocks. By doing this <em>block reduction</em> instead of simply taking every-other point, we avoid issues with <a href="https://en.wikipedia.org/wiki/Aliasing">aliasing</a>.</p>
+<div class="highlight"><pre><span></span><span class="n">age_table</span> <span class="o">=</span> <span class="n">vd</span><span class="o">.</span><span class="n">grid_to_table</span><span class="p">(</span><span class="n">seafloorage_pacific_proj</span><span class="p">)</span><span class="o">.</span><span class="n">dropna</span><span class="p">()</span>
+<span class="c1"># 10 / 60 = 10 arc-minutes, 111 km is roughly the arc of a degree</span>
+<span class="n">blockmean</span> <span class="o">=</span> <span class="n">vd</span><span class="o">.</span><span class="n">BlockReduce</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">,</span> <span class="n">spacing</span><span class="o">=</span><span class="mi">10</span> <span class="o">/</span> <span class="mi">60</span> <span class="o">*</span> <span class="mf">111e3</span><span class="p">)</span>
+<span class="n">coordinates_age</span><span class="p">,</span> <span class="n">mean_age</span> <span class="o">=</span> <span class="n">blockmean</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span>
+    <span class="n">coordinates</span><span class="o">=</span><span class="p">(</span><span class="n">age_table</span><span class="o">.</span><span class="n">easting</span><span class="p">,</span> <span class="n">age_table</span><span class="o">.</span><span class="n">northing</span><span class="p">),</span> 
+    <span class="n">data</span><span class="o">=</span><span class="n">age_table</span><span class="o">.</span><span class="n">z</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+<p>Finally, we can now interpolate the age data onto the same points as the bathymetry grid.</p>
+<div class="highlight"><pre><span></span><span class="n">interpolator</span> <span class="o">=</span> <span class="n">vd</span><span class="o">.</span><span class="n">ScipyGridder</span><span class="p">(</span><span class="n">method</span><span class="o">=</span><span class="s2">&quot;nearest&quot;</span><span class="p">)</span>
+<span class="n">interpolator</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">coordinates_age</span><span class="p">,</span> <span class="n">mean_age</span><span class="p">)</span>
+<span class="n">grid</span> <span class="o">=</span> <span class="n">interpolator</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span>
+    <span class="n">coordinates</span><span class="o">=</span><span class="p">(</span>
+        <span class="n">etopo1_pacific_proj</span><span class="o">.</span><span class="n">easting</span><span class="p">,</span> 
+        <span class="n">etopo1_pacific_proj</span><span class="o">.</span><span class="n">northing</span><span class="p">,</span>
+    <span class="p">),</span>
+    <span class="n">data_names</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;seafloorage&quot;</span><span class="p">],</span>
+<span class="p">)</span>
+</pre></div>
+<p>Now we can merge the bathymetry grid into the <code>grid</code> variable (a <code>xarray.Dataset</code>) for easier manipulation.</p>
+<div class="highlight"><pre><span></span><span class="n">grid</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">merge</span><span class="p">([</span><span class="n">grid</span><span class="p">,</span> <span class="n">etopo1_pacific_proj</span><span class="p">])</span>
+</pre></div>
+<p>Plot some maps of these two grids:</p>
+<div class="highlight"><pre><span></span><span class="n">fig</span> <span class="o">=</span> <span class="n">pygmt</span><span class="o">.</span><span class="n">Figure</span><span class="p">()</span>
+<span class="n">fig</span><span class="o">.</span><span class="n">grdimage</span><span class="p">(</span><span class="n">grid</span><span class="o">.</span><span class="n">seafloorage</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="s2">&quot;inferno&quot;</span><span class="p">,</span> <span class="n">projection</span><span class="o">=</span><span class="s2">&quot;X25c&quot;</span><span class="p">)</span>
+<span class="n">fig</span><span class="o">.</span><span class="n">basemap</span><span class="p">(</span><span class="n">frame</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">fig</span><span class="o">.</span><span class="n">colorbar</span><span class="p">(</span><span class="n">frame</span><span class="o">=</span><span class="s1">&#39;af+l&quot;Seafloor age [Myr]&quot;&#39;</span><span class="p">)</span>
+<span class="n">fig</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+<p><img src="midocean-ridges_images/output_42_0.png" alt="png" /></p>
+<div class="highlight"><pre><span></span><span class="n">fig</span> <span class="o">=</span> <span class="n">pygmt</span><span class="o">.</span><span class="n">Figure</span><span class="p">()</span>
+<span class="n">fig</span><span class="o">.</span><span class="n">grdimage</span><span class="p">(</span><span class="n">grid</span><span class="o">.</span><span class="n">topography</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="s2">&quot;etopo1&quot;</span><span class="p">,</span> <span class="n">projection</span><span class="o">=</span><span class="s2">&quot;X25c&quot;</span><span class="p">)</span>
+<span class="n">fig</span><span class="o">.</span><span class="n">basemap</span><span class="p">(</span><span class="n">frame</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">fig</span><span class="o">.</span><span class="n">colorbar</span><span class="p">(</span><span class="n">frame</span><span class="o">=</span><span class="s1">&#39;af+l&quot;ETOPO1 [m]&quot;&#39;</span><span class="p">)</span>
+<span class="n">fig</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+<p><img src="midocean-ridges_images/output_43_0.png" alt="png" /></p>
+<p>Make a cross-plot to see if there is any relationship between bathymetry and seafloor age.</p>
+<div class="highlight"><pre><span></span><span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span> <span class="mi">9</span><span class="p">))</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span>
+    <span class="n">grid</span><span class="o">.</span><span class="n">seafloorage</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">ravel</span><span class="p">(),</span> 
+    <span class="n">grid</span><span class="o">.</span><span class="n">topography</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">ravel</span><span class="p">(),</span> 
+    <span class="s2">&quot;.&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">&quot;Seafloor age [Myr]&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">&quot;Bathymetry [m]&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlim</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">grid</span><span class="o">.</span><span class="n">seafloorage</span><span class="o">.</span><span class="n">max</span><span class="p">())</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">grid</span><span class="p">()</span>
+</pre></div>
+<p><img src="midocean-ridges_images/output_45_0.png" alt="png" /></p>
+<p>There is clearly a pattern there but it’s also very noisy, with a lot of very shallow points (all of those oceanic islands). Let’s <strong>remove the small wavelength effects of the islands</strong> to see if we can highlight the main trend better. We can do this by <strong>down-sampling both grids</strong>.</p>
+<p>This is easier now that both are in the same <code>xarray.Dataset</code> since we can use the <code>coarsen</code> method. It will essentially perform the same blocked operation we did with Verde but it works better with grids. Let’s coarsen these grids down to about 1 degree resolution (take a mean every 6 points).</p>
+<div class="highlight"><pre><span></span><span class="n">grid_coarse</span> <span class="o">=</span> <span class="n">grid</span><span class="o">.</span><span class="n">coarsen</span><span class="p">(</span><span class="n">easting</span><span class="o">=</span><span class="mi">6</span><span class="p">,</span> <span class="n">northing</span><span class="o">=</span><span class="mi">6</span><span class="p">,</span> <span class="n">boundary</span><span class="o">=</span><span class="s2">&quot;trim&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
+</pre></div>
+<p>Make the plots again to see what happened.</p>
+<div class="highlight"><pre><span></span><span class="n">fig</span> <span class="o">=</span> <span class="n">pygmt</span><span class="o">.</span><span class="n">Figure</span><span class="p">()</span>
+<span class="n">fig</span><span class="o">.</span><span class="n">grdimage</span><span class="p">(</span><span class="n">grid_coarse</span><span class="o">.</span><span class="n">seafloorage</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="s2">&quot;inferno&quot;</span><span class="p">,</span> <span class="n">projection</span><span class="o">=</span><span class="s2">&quot;X25c&quot;</span><span class="p">)</span>
+<span class="n">fig</span><span class="o">.</span><span class="n">basemap</span><span class="p">(</span><span class="n">frame</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">fig</span><span class="o">.</span><span class="n">colorbar</span><span class="p">(</span><span class="n">frame</span><span class="o">=</span><span class="s1">&#39;af+l&quot;Seafloor age [Myr]&quot;&#39;</span><span class="p">)</span>
+<span class="n">fig</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+<p><img src="midocean-ridges_images/output_49_0.png" alt="png" /></p>
+<div class="highlight"><pre><span></span><span class="n">fig</span> <span class="o">=</span> <span class="n">pygmt</span><span class="o">.</span><span class="n">Figure</span><span class="p">()</span>
+<span class="n">fig</span><span class="o">.</span><span class="n">grdimage</span><span class="p">(</span><span class="n">grid_coarse</span><span class="o">.</span><span class="n">topography</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="s2">&quot;etopo1&quot;</span><span class="p">,</span> <span class="n">projection</span><span class="o">=</span><span class="s2">&quot;X25c&quot;</span><span class="p">)</span>
+<span class="n">fig</span><span class="o">.</span><span class="n">basemap</span><span class="p">(</span><span class="n">frame</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">fig</span><span class="o">.</span><span class="n">colorbar</span><span class="p">(</span><span class="n">frame</span><span class="o">=</span><span class="s1">&#39;af+l&quot;ETOPO1 [m]&quot;&#39;</span><span class="p">)</span>
+<span class="n">fig</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+<p><img src="midocean-ridges_images/output_50_0.png" alt="png" /></p>
+<p>Make a cross-plot to see if there is any relationship between bathymetry and seafloor age.</p>
+<div class="highlight"><pre><span></span><span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span> <span class="mi">9</span><span class="p">))</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span>
+    <span class="n">grid_coarse</span><span class="o">.</span><span class="n">seafloorage</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">ravel</span><span class="p">(),</span> 
+    <span class="n">grid_coarse</span><span class="o">.</span><span class="n">topography</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">ravel</span><span class="p">(),</span> 
+    <span class="s2">&quot;.&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">&quot;Seafloor age [Myr]&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">&quot;Bathymetry [m]&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlim</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">grid</span><span class="o">.</span><span class="n">seafloorage</span><span class="o">.</span><span class="n">max</span><span class="p">())</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">grid</span><span class="p">()</span>
+</pre></div>
+<p><img src="midocean-ridges_images/output_52_0.png" alt="png" /></p>
+<p>Now that the islands and other short-wavelength features have been smoothed over, the overall pattern of deeper oceanic basins as they age is clear to see.</p>
+<p>Our next step is to see if we can <strong>model this relationship</strong>.</p>
+<h2 id="-the-plate-model">🍽️ The plate model</h2>
+<p>The <strong>plate cooling model</strong> describes the temperature distribution and evolution of the oceanic lithosphere, from its formation at mid-ocean ridges to its cooling as it ages and moves away from the ridge. This is a sketch of how the model is set up:</p>
+<p><img src="https://github.com/compgeolab/transform2022/raw/main/figures/ridge-cooling-model-setup.png" alt="Sketch of the plate model, showing the main variables and concepts of the model" /></p>
+<p>The model assumes that:</p>
+<ul>
+<li>The lithosphere is formed at the ridge and spreads symmetrically around it (so we only need to model one side) with a speed of $u$.</li>
+<li>The top of the lithosphere is kept at a constant temperature $T=T_0$.</li>
+<li>The asthenosphere and mid-ocean ridge are at a constant temperature $T=T_a$.</li>
+<li>The cooling happens only by vertical conduction from the lithosphere into the water column.</li>
+</ul>
+<p>With this model setup, we can tread this as 1D thermal diffusion problem since we can replace the distance to the ridge ($x$) with its age ($t$). The governing differential equation for this is:</p>
+<p>$$
+\dfrac{\partial^2 T}{\partial z^2}
+= \dfrac{1}{\alpha} \dfrac{\partial T}{\partial t}
+$$</p>
+<p>in which $\alpha$ is the thermal diffusivity of the lithosphere. With the boundary conditions of constant temperature $T_0$ at the surface, constant temperature $T_a$ at $z=z_L$ (the <strong>maximum lithospheric thickness</strong>), and initial condition of $T = T_a$, the solution to this equation is:</p>
+<p>$$
+T(z, t) =
+T_0 + (T_a - T_0)
+\left[
+\dfrac{z}{z_L} + \dfrac{2}{\pi}
+\sum\limits_{n=1}^{\infty}
+\dfrac{1}{n}
+\exp\left(-\dfrac{\alpha n^2 \pi^2 t}{z_L^2}\right)
+\sin\left(\dfrac{n \pi z}{z_L}\right)
+\right]
+$$</p>
+<div class="callout callout-note">
+<p>ℹ️ <strong>Note:</strong> The equations used here can be found the classic book <em>Geodynamics</em> by <a href="https://doi.org/10.1017/CBO9780511843877">Turcotte &amp; Schubert (2014)</a>. I highly recommend going over the derivations and explanations in there.</p>
+</div>
+<h2 id="-predicting-bathymetry">🥠 Predicting bathymetry</h2>
+<p>We can use the plate cooling model temperature distribution above to <strong>predict bathymetry</strong> by assuming that the oceanic lithosphere is in <strong>isostatic equilibrium</strong> (which we know to be true due to the gravity disturbances). Imposing that condition and assuming that the density of the lithosphere changes as it cools by a linear coefficient of thermal expansion $\alpha_V$, we can arrive at a prediction of <strong>bathymetry for the plate cooling model</strong>:</p>
+<p>$$
+w(t) = w_r + \dfrac{\rho_m \alpha_V (T_a - T_0) z_L}{\rho_m - \rho_w} \left[ \dfrac{1}{2} - \dfrac{4}{\pi^2}
+\sum\limits_{m=0}^{\infty} \dfrac{1}{(1 + 2m)^2} \exp\left(-\dfrac{t \alpha \pi^2 (1 + 2m)^2}{z_L^2}\right) \right]
+$$</p>
+<p>Let’s make a function that calculates this prediction. We’ll assume that temperatures are in $K$, distances are in $m$, ages are in $Myr$, thermal diffusivity is in $mm^2/s$, thermal expansion is in $1/K$, and densities are in $kg/m^3$.</p>
+<div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">plate_model_bathymetry</span><span class="p">(</span>
+    <span class="n">age</span><span class="p">,</span>
+    <span class="n">ridge_depth</span><span class="p">,</span>
+    <span class="n">temperature_surface</span><span class="p">,</span>
+    <span class="n">temperature_asthenosphere</span><span class="p">,</span>
+    <span class="n">max_thickness</span><span class="p">,</span>
+    <span class="n">thermal_diffusivity</span><span class="p">,</span>
+    <span class="n">thermal_expansion</span><span class="p">,</span>
+    <span class="n">density_water</span><span class="p">,</span>
+    <span class="n">density_mantle</span><span class="p">,</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Predicted bathymetry from the plate cooling model.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Make units compatible:</span>
+    <span class="c1">#   1e-6 converts from mm² to m²</span>
+    <span class="n">thermal_diffusivity</span> <span class="o">=</span> <span class="mf">1e-6</span> <span class="o">*</span> <span class="n">thermal_diffusivity</span>
+    <span class="c1">#   Million years into seconds</span>
+    <span class="n">age</span> <span class="o">=</span> <span class="mf">1e6</span> <span class="o">*</span> <span class="mf">365.25</span> <span class="o">*</span> <span class="mi">24</span> <span class="o">*</span> <span class="mi">60</span> <span class="o">*</span> <span class="mi">60</span> <span class="o">*</span> <span class="n">age</span>
+    
+    <span class="n">summation</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">100</span><span class="p">):</span>
+        <span class="n">summation</span> <span class="o">=</span> <span class="n">summation</span> <span class="o">+</span> <span class="p">(</span>
+            <span class="mi">1</span> <span class="o">/</span> <span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="mi">2</span><span class="o">*</span><span class="n">m</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span>
+                <span class="o">-</span> <span class="n">age</span> <span class="o">*</span> <span class="n">thermal_diffusivity</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">**</span><span class="mi">2</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="mi">2</span><span class="o">*</span><span class="n">m</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span>
+                <span class="o">/</span> <span class="n">max_thickness</span><span class="o">**</span><span class="mi">2</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+    <span class="n">depth</span> <span class="o">=</span> <span class="o">-</span><span class="p">(</span>
+        <span class="n">ridge_depth</span> <span class="o">+</span> <span class="p">(</span>
+            <span class="n">density_mantle</span> <span class="o">*</span> <span class="n">thermal_expansion</span> 
+            <span class="o">*</span> <span class="p">(</span><span class="n">temperature_asthenosphere</span> <span class="o">-</span> <span class="n">temperature_surface</span><span class="p">)</span> 
+            <span class="o">*</span> <span class="n">max_thickness</span>
+            <span class="o">/</span> <span class="p">(</span><span class="n">density_mantle</span> <span class="o">-</span> <span class="n">density_water</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="o">*</span> <span class="p">(</span><span class="mf">0.5</span> <span class="o">-</span> <span class="mi">4</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">**</span><span class="mi">2</span> <span class="o">*</span> <span class="n">summation</span><span class="p">)</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">depth</span>
+</pre></div>
+<p>Now we can try to make a prediction of bathymetry and see if it matches our data. To do so, let’s assume the following parameters:</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:right">Parameter</th>
+<th style="text-align:left">Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:right">$w_r$</td>
+<td style="text-align:left">$2500\ m$</td>
+</tr>
+<tr>
+<td style="text-align:right">$\rho_w$</td>
+<td style="text-align:left">$1000\ \frac{kg}{m^3}$</td>
+</tr>
+<tr>
+<td style="text-align:right">$\rho_m$</td>
+<td style="text-align:left">$3300\ \frac{kg}{m^3}$</td>
+</tr>
+<tr>
+<td style="text-align:right">$T_0$</td>
+<td style="text-align:left">$273\ K$</td>
+</tr>
+<tr>
+<td style="text-align:right">$T_a$</td>
+<td style="text-align:left">$1600\ K$</td>
+</tr>
+<tr>
+<td style="text-align:right">$\alpha$</td>
+<td style="text-align:left">$1\ \frac{mm^2}{s}$</td>
+</tr>
+<tr>
+<td style="text-align:right">$\alpha_V$</td>
+<td style="text-align:left">$3\cdot10^{-5}\ K^{-1}$</td>
+</tr>
+</tbody>
+</table>
+<div class="highlight"><pre><span></span><span class="n">bathymetry_plate</span> <span class="o">=</span> <span class="n">plate_model_bathymetry</span><span class="p">(</span>
+    <span class="n">age</span><span class="o">=</span><span class="n">grid_coarse</span><span class="o">.</span><span class="n">seafloorage</span><span class="p">,</span>
+    <span class="n">ridge_depth</span><span class="o">=</span><span class="mi">2500</span><span class="p">,</span>
+    <span class="n">temperature_surface</span><span class="o">=</span><span class="mi">273</span><span class="p">,</span>
+    <span class="n">temperature_asthenosphere</span><span class="o">=</span><span class="mi">1600</span><span class="p">,</span>
+    <span class="n">max_thickness</span><span class="o">=</span><span class="mf">100e3</span><span class="p">,</span>
+    <span class="n">thermal_diffusivity</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+    <span class="n">thermal_expansion</span><span class="o">=</span><span class="mf">3e-5</span><span class="p">,</span>
+    <span class="n">density_water</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span>
+    <span class="n">density_mantle</span><span class="o">=</span><span class="mi">3300</span><span class="p">,</span>
+    
+<span class="p">)</span>
+</pre></div>
+<p>The beauty of tools like xarray and Python’s dynamic typing is that our calculation function doesn’t need to know that it’s even using xarray grid and not a single number! By passing our age as grid, we get a grid of bathymetry back. If we passed in a single number, that’s what we would get without having to change anything in the code.</p>
+<p>Let’s make a plot of the grid of predicted bathymetry.</p>
+<div class="highlight"><pre><span></span><span class="n">fig</span> <span class="o">=</span> <span class="n">pygmt</span><span class="o">.</span><span class="n">Figure</span><span class="p">()</span>
+<span class="n">fig</span><span class="o">.</span><span class="n">grdimage</span><span class="p">(</span><span class="n">bathymetry_plate</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="s2">&quot;etopo1&quot;</span><span class="p">,</span> <span class="n">projection</span><span class="o">=</span><span class="s2">&quot;X25c&quot;</span><span class="p">)</span>
+<span class="n">fig</span><span class="o">.</span><span class="n">basemap</span><span class="p">(</span><span class="n">frame</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">fig</span><span class="o">.</span><span class="n">colorbar</span><span class="p">(</span><span class="n">frame</span><span class="o">=</span><span class="s1">&#39;af+l&quot;ETOPO1 [m]&quot;&#39;</span><span class="p">)</span>
+<span class="n">fig</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+<p><img src="midocean-ridges_images/output_62_0.png" alt="png" /></p>
+<p>Looks sensible and visually very similar to our smoothed bathymetry grid.</p>
+<p>Now we can check how the model predictions compare to the real observed data by plotting them side-by-side.</p>
+<div class="highlight"><pre><span></span><span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span> <span class="mi">9</span><span class="p">))</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span>
+    <span class="n">grid_coarse</span><span class="o">.</span><span class="n">seafloorage</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">ravel</span><span class="p">(),</span> 
+    <span class="n">grid_coarse</span><span class="o">.</span><span class="n">topography</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">ravel</span><span class="p">(),</span> 
+    <span class="s2">&quot;.&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span>
+    <span class="n">grid_coarse</span><span class="o">.</span><span class="n">seafloorage</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">ravel</span><span class="p">(),</span>
+    <span class="n">bathymetry_plate</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">ravel</span><span class="p">(),</span> 
+    <span class="s2">&quot;.r&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">&quot;Seafloor age [Myr]&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">&quot;Bathymetry [m]&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlim</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">grid</span><span class="o">.</span><span class="n">seafloorage</span><span class="o">.</span><span class="n">max</span><span class="p">())</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">grid</span><span class="p">()</span>
+</pre></div>
+<p><img src="midocean-ridges_images/output_65_0.png" alt="png" /></p>
+<p>🥳 <strong>It fits!</strong> From this plot, we can see that the plate model does a very good job at predicting the increase in bathymetric depth as the oceanic lithosphere cools with age. Of course, the <strong>input parameters used have a large influence on this</strong> and I chose values that I knew would fit the data ahead of time.</p>
+<h2 id="-ideas-for-you-to-try">💡 Ideas for you to try</h2>
+<p>That’s all we have time for here but I wanted to leave you with some ideas for things you can try to do with this code and data on your own:</p>
+<ul>
+<li>Make a function that calculates the temperature distribution with time and depth for the plate model (the first equation above) and make a plot to see if this matches what is on the <em>Geodynamics</em> book.</li>
+<li>Zoom in on different mid-ocean ridge systems around the world. <strong>Does the plate model work as well in them or is it only valid for the South Pacific?</strong> Will you have to change the input parameters to get a fit? If so, what does that mean in terms of the properties of that mid-ocean ridge system?</li>
+<li>Try to find the $z_L$, $\alpha_V$, etc that best fit the data through <strong>an inversion</strong>. This will be a non-linear. One way to do this would be to use <a href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.minimize_scalar.html#scipy.optimize.minimize_scalar"><code>scipy.optimize.minimize_scalar</code></a> to find the parameters that minimize the sum of squared differences between the data and the model predictions.</li>
+</ul>
+<p>Try some of this out! <strong>I’d love to see what you come up with!</strong> Share your results and ideas by either <a href="https://github.com/compgeolab/transform2022/issues">opening an issue on GitHub</a> or on the <a href="https://softwareunderground.org/">Software Underground</a> Slack group.</p>
+<p><strong>Happy coding!</strong></p>
+
+  </article>
+
+  <hr>
+
+  <p class="text-right">
+    <a href="index.html">
+      ← Back to the blog
+    </a>
+  </p>
+    </div>
+  </main>
+
+  <footer class="flow">
+    <div class="content-wide flow">
+      <nav aria-label="Footer">
+        <ul class="list-inline" role="list">
+          <li><strong>CONTENTS:</strong></li>
+          <li>
+            <a class=""  href="../">Home</a>
+          </li>
+          <li>
+            <a class=""  href="../about/">About</a>
+          </li>
+          <li>
+            <a class="active" aria-current="page" href=".">Blog</a>
+          </li>
+          <li>
+            <a class=""  href="../cv/">CV</a>
+          </li>
+          <li>
+            <a class=""  href="../contact/">Contact</a>
+          </li>
+          <li>
+            <a class=""  href="../links/">Links</a>
+          </li>
+          <li>
+            <a class=""  href="../now/">Now</a>
+          </li>
+        </ul>
+      </nav>
+      <ul class="list-inline" role="list">
+        <li><strong>SOCIAL:</strong></li>
+        <li>
+          <a href="https://bertha.social/@leouieda" target="_blank">Mastodon</a>
+        </li>
+        <li>
+          <a href="https://bookwyrm.social/user/leouieda" target="_blank">BookWyrm</a>
+        </li>
+        <li>
+          <a href="https://www.linkedin.com/in/uieda" target="_blank">LinkedIn</a>
+        </li>
+        <li>
+          <a href="https://github.com/leouieda" target="_blank">GitHub</a>
+        </li>
+        <li>
+          <a href="https://www.youtube.com/@leouieda" target="_blank">YouTube</a>
+        </li>
+      </ul>
+      <ul class="list-inline" role="list">
+        <li><strong>ACADEMIC:</strong></li>
+        <li>
+          <a href="https://orcid.org/0000-0001-6123-9515" target="_blank">ORCID</a>
+        </li>
+        <li>
+          <a href="https://lattes.cnpq.br/8939551682050504" target="_blank">Lattes</a>
+        </li>
+        <li>
+          <a href="http://scholar.google.com/citations?user=qfmPrUEAAAAJ" target="_blank">Google Scholar</a>
+        </li>
+        <li>
+          <a href="https://www.researchgate.net/profile/Leonardo-Uieda" target="_blank">ResearchGate</a>
+        </li>
+        <li>
+          <a href="https://figshare.com/authors/Leonardo_Uieda/97471" target="_blank">figshare</a>
+        </li>
+        <li>
+          <a href="https://www.webofscience.com/wos/author/rid/G-3258-2012" target="_blank">Web of Science</a>
+        </li>
+        <li>
+          <a href="https://www.scopus.com/authid/detail.uri?authorId=47062144700" target="_blank">Scopus</a>
+        </li>
+      </ul>
+      <section class="flow font-small">
+        <p>
+          Built on 2025/12/12 with <a href="https://nene.leouieda.com">Nēnē</a> v0.10.0
+          from source code at
+          <a href="https://github.com/leouieda/website" target="_blank">leouieda/website</a>
+          (<a href="https://github.com/leouieda/website/commit/e243f4b"><code>e243f4b</code></a>).
+          <strong>
+          Found a typo/mistake?
+          <a target="_blank" href="https://github.com/leouieda/website/edit/main/blog/midocean-ridges.ipynb">Send a fix through GitHub</a>.
+          </strong>
+        </p>
+        <p>
+          Visitor statistics are gathered anonymously and without tracking by
+          <a href="https://plausible.io">Plausible</a> and can be viewed
+          at
+          <a href="https://plausible.io/leouieda.com">plausible.io/leouieda.com</a>.
+        </p>
+        <p>
+          Copyright &copy; 2025 Leonardo Uieda.
+            Except where otherwise noted, all content is licensed
+<a href="https://creativecommons.org/licenses/by/4.0/">CC-BY</a>.
+
+        </p>
+      </section>
+      <section class="font-small text-center">
+        <a href="#top" class="button-link">↑ Back to top</a>
+      </section>
+    </div>
+  </footer>
+  <!-- KaTeX -->
+  <script defer src="../pkg/katex-0.15.3/katex.min.js" integrity="sha384-0fdwu/T/EQMsQlrHCCHoH10pkPLlKA1jL5dFyUOvB3lfeT2540/2g6YgSi2BL14p" crossorigin="anonymous"></script>
+  <script defer src="../pkg/katex-0.15.3/auto-render.min.js" integrity="sha384-+XBljXPPiv+OzfbB3cVmLHf4hdUFHlWNZN5spNQ7rmHTXpd7WvJum6fIACpNNfIR" crossorigin="anonymous"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", function() {
+      renderMathInElement(document.body, {
+        delimiters: [
+          {left: '$$', right: '$$', display: true},
+          {left: '$', right: '$', display: false},
+        ],
+      });
+    });
+  </script>
+
+</body>
+</html>

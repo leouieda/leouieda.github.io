@@ -1,0 +1,314 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>GMT and open-source at #AGU17 and a GMT/Python online demo | Leonardo Uieda</title>
+  <link rel="shortcut icon" href="../assets/favicon.png" />
+
+  <!-- OpenGraph social media card -->
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="GMT and open-source at #AGU17 and a GMT/Python online demo" />
+  <meta property="og:description" content="The AGU Fall Meeting is happening next week in New Orleans, potentially gathering more than 20,000 geoscientists in a single place. Me and Paul will be there to talk about the next version of the..." />
+  <meta property="og:image" content="https://www.leouieda.com/assets/thumbnail.jpg" />
+  <meta property="og:url" content="https://www.leouieda.com/blog/gmt-at-agu2017.html" />
+
+  <!-- Atkinson Hyperlegible fonts -->
+  <link rel="stylesheet" href="../pkg/atkinson-hyperlegible-next/font.css" />
+  <link rel="stylesheet" href="../pkg/atkinson-hyperlegible-mono/font.css" />
+
+  <!-- Andy Bell's CSS reset -->
+  <link rel="stylesheet" href="../css/reset.css" />
+
+  <!-- Syntax highlighting for code -->
+  <link rel="stylesheet" href="../css/pygments.css" />
+
+  <!-- Main CSS stylesheet -->
+  <link rel="stylesheet" href="../css/style.css" />
+
+  <!-- Plausible analytics for anonymous usage statistics -->
+  <script defer data-domain="leouieda.com" src="https://plausible.io/js/plausible.js"></script>
+  <!-- KaTeX -->
+  <link rel="stylesheet" href="../pkg/katex-0.15.3/katex.min.css" integrity="sha384-KiWOvVjnN8qwAZbuQyWDIbfCLFhLXNETzBQjA/92pIowpC0d2O3nppDGQVgwd2nB" />
+
+</head>
+
+<body>
+  <header id="top">
+    <div class="spread content-wide">
+      <a aria-label="Home" class="font-bold" href="../">Leonardo Uieda</a>
+      <nav aria-label="Main">
+        <ul class="list-inline" role="list">
+            <li>
+              <a class=""  href="../">Home</a>
+            </li>
+            <li>
+              <a class=""  href="../about/">About</a>
+            </li>
+            <li>
+              <a class="active" aria-current="page" href=".">Blog</a>
+            </li>
+            <li>
+              <a class=""  href="../cv/">CV</a>
+            </li>
+            <li>
+              <a class=""  href="../contact/">Contact</a>
+            </li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <main class="flow">
+
+    <div class="content flow">
+  
+    
+  
+  <article class="flow ">
+    <h1>
+      GMT and open-source at #AGU17 and a GMT/Python online demo
+    </h1>
+    <time class="text-muted" datetime="2017-12-05">
+      Published on
+      2017/12/05
+    </time>
+    <p>The <a href="https://fallmeeting.agu.org/2017/">AGU Fall Meeting</a> is happening next
+week in New Orleans, potentially gathering more than 20,000 geoscientists in a
+single place.
+Me and <a href="http://www.soest.hawaii.edu/wessel/">Paul</a> will be there to talk about
+the next version of the <a href="http://gmt.soest.hawaii.edu/">Generic Mapping Tools</a>,
+my work on <a href="https://www.gmtpython.xyz">GMT/Python</a>, and the role of open-source
+software in the Geosciences.</p>
+<p>There is so much going on at AGU that it can be daunting just to browse the
+scientific program.
+I haven’t even started and my calendar is already packed.
+For now, I’ll just share the sessions and events in which I’m taking part.</p>
+<h2 id="earth-arxiv-meetup">Earth ArXiv meetup</h2>
+<p><em>Thursday evening - TBD</em></p>
+<p><img src="/images/eartharxiv-banner.jpg" alt="The Earth ArXiv logo" /></p>
+<p>The <a href="https://eartharxiv.org/">Earth ArXiv</a> is a brand new community developed
+preprint server for the Earth and Planetary Sciences.
+Me and some other folks who are involved will get together for dinner/drinks on
+Thursday to nerd-out offline for a change.</p>
+<p>If you are interested in getting involved in Earth ArXiv,
+<a href="https://www.loomio.org/g/lpIH8bFU/eartharxiv">join the Loomio group</a>
+and the
+<a href="https://esip-slack-invite.herokuapp.com">ESIP Slack channel</a>
+and say “Hi”.
+The community is very welcoming and it needs all the help it can get to grow.</p>
+<p>We don’t know where we’ll meet yet but keep posted on Slack and Loomio if
+you’re interested in joining us.</p>
+<h2 id="panel-session-in-the-agu-data-fair">Panel session in the AGU Data Fair</h2>
+<p><em>Wednesday 12:30pm - Room 203</em></p>
+<p>I was invited to be a panelist on the
+<a href="https://agu.confex.com/agu/fm17/meetingapp.cgi/Session/30157">Data Capacity Building</a>
+session of the
+<a href="https://fallmeeting.agu.org/2017/agu-data-fair/">AGU Data Fair</a>.
+The fair has other very interesting panels happing throughout the week.
+They all center around “data”: where to get it, what to do with it, how to
+preserve it, and how to give and receive credit for it.</p>
+<p>We’ll be discussing what to do with the data once you acquire. From the
+panel description:</p>
+<blockquote>
+<p>The panel will discuss the challenges the researcher faces and how methods
+for managing data are currently available or are expected in the future that
+will help the researcher build value and capacity in the research data
+lifecycle.</p>
+</blockquote>
+<p>The discussion will be in an
+<a href="https://en.wikipedia.org/wiki/Reddit#IAmA_and_AMA">Ask-Me-Anything style (AMA)</a>
+with moderated questions from the audience (on and offline).
+If you have any questions that you want us to tackle, tweet them using the
+hashtag <a href="https://twitter.com/search?f=tweets&amp;q=%23AGUDataCapacity&amp;src=typd">#AGUDataCapacity</a>.
+They’ll be added to a list for the moderators.</p>
+<p>I’m really looking forward to this panel and getting to meet some new people in
+the process.</p>
+<h2 id="pauls-talk-about-gmt6">Paul’s talk about GMT6</h2>
+<p><em>Thursday 4:15pm - Room 228</em></p>
+<p>Paul is giving the talk
+<a href="https://agu.confex.com/agu/fm17/meetingapp.cgi/Paper/233558">The Generic Mapping Tools 6: Classic versus Modern Mode</a>
+at the
+<a href="https://agu.confex.com/agu/fm17/meetingapp.cgi/Session/33628">Challenges and Benefits of Open-Source Software and Open Data</a>
+session.
+He’ll be showcasing the new changes that are coming to GMT6, including “modern
+mode” and a new <code>gmt subplot</code> command.
+These are awesome new features of GMT aimed at making it more accessible to new
+users.
+For all the GMT gurus out there: Don’t worry, they’re also a huge time saver by
+eliminating many repeated command online options and boilerplate code.</p>
+<h2 id="panel-session-about-open-source-software">Panel session about open-source software</h2>
+<p><em>Thursday 4-6pm - Room 238</em></p>
+<p>I’ll also be a panelist on the session
+<a href="https://agu.confex.com/agu/fm17/meetingapp.cgi/Session/30500">Open-Source Software in the Geosciences</a>.
+The lineup of panelists is amazing and I’m honored to be included among them.
+It’ll be hard to contain the fan-boy in me.
+I wonder if geophysicists are used to getting asked for autographs.</p>
+<p>The discussion will center around the role of open-source software in our
+science, how it’s affected the careers of those who make it, and what we can do
+to make it a viable career path for new geoscientists.</p>
+<p>My contribution is the abstract
+“<a href="https://github.com/leouieda/agu2017-oss">Nurturing reliable and robust open-source scientific software</a>”.</p>
+<p>Many thanks to the chairs and conveners for putting it together.
+I’ll surely have a lot more to say after the panel.</p>
+<h2 id="poster-about-gmtpython">Poster about GMT/Python</h2>
+<p><em>Friday morning - Poster Hall D-F</em></p>
+<p>Last but not least,
+I’ll be presenting the poster
+“<a href="https://github.com/leouieda/agu2017">A modern Python interface for the Generic Mapping Tools</a>”
+about my work on <a href="https://www.gmtpython.xyz">GMT/Python</a>.
+Come see the poster and chat with me and Paul!
+I’d love to hear what you want to see in this software.
+I’ll also have a laptop and tablets for you to play around with a demo.</p>
+<p><img src="/images/poster-agu2017.png" alt="My AGU 2017 poster" /></p>
+<p>You can download a PDF of the poster from
+<a href="https://doi.org/10.6084/m9.figshare.5662411">figshare</a>.</p>
+<p>A lot has happened since
+<a href="/blog/gmt-after-scipy2017.html">my last update after Scipy2017</a>.
+Much of the infrastructure work to interface with the C API is done but there
+is still a lot do.
+Luckily, we just got our
+<a href="https://github.com/GenericMappingTools/gmt-python/pull/72">first code contributor</a>
+last week so it looks like I’ll have some help!</p>
+<p>You can try out the latest features in an <strong>online demo</strong> Jupyter notebook by
+visiting
+<a href="http://agu2017demo.gmtpython.xyz">agu2017demo.gmtpython.xyz</a></p>
+<p>The notebook is running on the newly re-released
+<a href="https://mybinder.org/">mybinder.org</a> service.
+The Jupyter team did an amazing job!</p>
+<h2 id="come-say-hi">Come say “Hi”</h2>
+<p>If you’ll be at AGU next week, <strong>stop by the poster on Friday or join the panel
+sessions if you want to chat or have any questions/suggestions</strong>.
+If you won’t, there is always
+<a href="https://twitter.com/leouieda">Twitter</a>
+and the <a href="http://softwareunderground.org/">Software Underground</a> Slack group.</p>
+<p>See you in New Orleans!</p>
+
+  </article>
+
+  <hr>
+
+  <p class="text-right">
+    <a href="index.html">
+      ← Back to the blog
+    </a>
+  </p>
+    </div>
+  </main>
+
+  <footer class="flow">
+    <div class="content-wide flow">
+      <nav aria-label="Footer">
+        <ul class="list-inline" role="list">
+          <li><strong>CONTENTS:</strong></li>
+          <li>
+            <a class=""  href="../">Home</a>
+          </li>
+          <li>
+            <a class=""  href="../about/">About</a>
+          </li>
+          <li>
+            <a class="active" aria-current="page" href=".">Blog</a>
+          </li>
+          <li>
+            <a class=""  href="../cv/">CV</a>
+          </li>
+          <li>
+            <a class=""  href="../contact/">Contact</a>
+          </li>
+          <li>
+            <a class=""  href="../links/">Links</a>
+          </li>
+          <li>
+            <a class=""  href="../now/">Now</a>
+          </li>
+        </ul>
+      </nav>
+      <ul class="list-inline" role="list">
+        <li><strong>SOCIAL:</strong></li>
+        <li>
+          <a href="https://bertha.social/@leouieda" target="_blank">Mastodon</a>
+        </li>
+        <li>
+          <a href="https://bookwyrm.social/user/leouieda" target="_blank">BookWyrm</a>
+        </li>
+        <li>
+          <a href="https://www.linkedin.com/in/uieda" target="_blank">LinkedIn</a>
+        </li>
+        <li>
+          <a href="https://github.com/leouieda" target="_blank">GitHub</a>
+        </li>
+        <li>
+          <a href="https://www.youtube.com/@leouieda" target="_blank">YouTube</a>
+        </li>
+      </ul>
+      <ul class="list-inline" role="list">
+        <li><strong>ACADEMIC:</strong></li>
+        <li>
+          <a href="https://orcid.org/0000-0001-6123-9515" target="_blank">ORCID</a>
+        </li>
+        <li>
+          <a href="https://lattes.cnpq.br/8939551682050504" target="_blank">Lattes</a>
+        </li>
+        <li>
+          <a href="http://scholar.google.com/citations?user=qfmPrUEAAAAJ" target="_blank">Google Scholar</a>
+        </li>
+        <li>
+          <a href="https://www.researchgate.net/profile/Leonardo-Uieda" target="_blank">ResearchGate</a>
+        </li>
+        <li>
+          <a href="https://figshare.com/authors/Leonardo_Uieda/97471" target="_blank">figshare</a>
+        </li>
+        <li>
+          <a href="https://www.webofscience.com/wos/author/rid/G-3258-2012" target="_blank">Web of Science</a>
+        </li>
+        <li>
+          <a href="https://www.scopus.com/authid/detail.uri?authorId=47062144700" target="_blank">Scopus</a>
+        </li>
+      </ul>
+      <section class="flow font-small">
+        <p>
+          Built on 2025/12/12 with <a href="https://nene.leouieda.com">Nēnē</a> v0.10.0
+          from source code at
+          <a href="https://github.com/leouieda/website" target="_blank">leouieda/website</a>
+          (<a href="https://github.com/leouieda/website/commit/e243f4b"><code>e243f4b</code></a>).
+          <strong>
+          Found a typo/mistake?
+          <a target="_blank" href="https://github.com/leouieda/website/edit/main/blog/gmt-at-agu2017.md">Send a fix through GitHub</a>.
+          </strong>
+        </p>
+        <p>
+          Visitor statistics are gathered anonymously and without tracking by
+          <a href="https://plausible.io">Plausible</a> and can be viewed
+          at
+          <a href="https://plausible.io/leouieda.com">plausible.io/leouieda.com</a>.
+        </p>
+        <p>
+          Copyright &copy; 2025 Leonardo Uieda.
+            Except where otherwise noted, all content is licensed
+<a href="https://creativecommons.org/licenses/by/4.0/">CC-BY</a>.
+
+        </p>
+      </section>
+      <section class="font-small text-center">
+        <a href="#top" class="button-link">↑ Back to top</a>
+      </section>
+    </div>
+  </footer>
+  <!-- KaTeX -->
+  <script defer src="../pkg/katex-0.15.3/katex.min.js" integrity="sha384-0fdwu/T/EQMsQlrHCCHoH10pkPLlKA1jL5dFyUOvB3lfeT2540/2g6YgSi2BL14p" crossorigin="anonymous"></script>
+  <script defer src="../pkg/katex-0.15.3/auto-render.min.js" integrity="sha384-+XBljXPPiv+OzfbB3cVmLHf4hdUFHlWNZN5spNQ7rmHTXpd7WvJum6fIACpNNfIR" crossorigin="anonymous"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", function() {
+      renderMathInElement(document.body, {
+        delimiters: [
+          {left: '$$', right: '$$', display: true},
+          {left: '$', right: '$', display: false},
+        ],
+      });
+    });
+  </script>
+
+</body>
+</html>

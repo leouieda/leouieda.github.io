@@ -1,0 +1,383 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>A satellite view of the December 2022 Mauna Loa eruption | Leonardo Uieda</title>
+  <link rel="shortcut icon" href="../assets/favicon.png" />
+
+  <!-- OpenGraph social media card -->
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="A satellite view of the December 2022 Mauna Loa eruption" />
+  <meta property="og:description" content="On 27 November 2022, the Mauna Loa volcano in Hawai‘i started erupting for the first time since 1984. The eruption has now ceased and since its start the Landsat 9 satellite has take two..." />
+  <meta property="og:image" content="https://www.leouieda.com/assets/thumbnail.jpg" />
+  <meta property="og:url" content="https://www.leouieda.com/blog/mauna-loa.html" />
+
+  <!-- Atkinson Hyperlegible fonts -->
+  <link rel="stylesheet" href="../pkg/atkinson-hyperlegible-next/font.css" />
+  <link rel="stylesheet" href="../pkg/atkinson-hyperlegible-mono/font.css" />
+
+  <!-- Andy Bell's CSS reset -->
+  <link rel="stylesheet" href="../css/reset.css" />
+
+  <!-- Syntax highlighting for code -->
+  <link rel="stylesheet" href="../css/pygments.css" />
+
+  <!-- Main CSS stylesheet -->
+  <link rel="stylesheet" href="../css/style.css" />
+
+  <!-- Plausible analytics for anonymous usage statistics -->
+  <script defer data-domain="leouieda.com" src="https://plausible.io/js/plausible.js"></script>
+  <!-- KaTeX -->
+  <link rel="stylesheet" href="../pkg/katex-0.15.3/katex.min.css" integrity="sha384-KiWOvVjnN8qwAZbuQyWDIbfCLFhLXNETzBQjA/92pIowpC0d2O3nppDGQVgwd2nB" />
+
+</head>
+
+<body>
+  <header id="top">
+    <div class="spread content-wide">
+      <a aria-label="Home" class="font-bold" href="../">Leonardo Uieda</a>
+      <nav aria-label="Main">
+        <ul class="list-inline" role="list">
+            <li>
+              <a class=""  href="../">Home</a>
+            </li>
+            <li>
+              <a class=""  href="../about/">About</a>
+            </li>
+            <li>
+              <a class="active" aria-current="page" href=".">Blog</a>
+            </li>
+            <li>
+              <a class=""  href="../cv/">CV</a>
+            </li>
+            <li>
+              <a class=""  href="../contact/">Contact</a>
+            </li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <main class="flow">
+
+    <div class="content flow">
+  
+    
+  
+  <article class="flow jupyter-notebook">
+    <h1>
+      A satellite view of the December 2022 Mauna Loa eruption
+    </h1>
+    <time class="text-muted" datetime="2022-12-20">
+      Published on
+      2022/12/20
+    </time>
+    <p>On 27 November 2022, the <a href="https://www.usgs.gov/volcanoes/mauna-loa/mauna-loa-2022-eruption">Mauna Loa volcano in Hawai‘i started erupting</a> for the <a href="https://www.usgs.gov/volcanoes/mauna-loa/march-25-april-15-1984">first time since 1984</a>. The <a href="https://www.usgs.gov/volcanoes/mauna-loa/volcano-updates">eruption has now ceased</a> and since its start the <a href="https://en.wikipedia.org/wiki/Landsat_9">Landsat 9 satellite</a> has take two multi-spectral images (called <em>scenes</em>) of the volcano, one on 2 December and the other on 10 December.</p>
+<figure>
+<div class="ratio ratio-16x9">
+<iframe scrolling="no" src="https://www.openstreetmap.org/export/embed.html?bbox=-156.05954445605472%2C19.328329860797416%2C-155.24379545800784%2C19.836946534206607&amp;layer=mapnik"></iframe>
+</div>
+<figcaption>
+<p>If you’re unfamiliar with the Big Island of Hawai‘i, explore this interactive <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>. The default view when it first loads should be roughly the same as the Landsat scenes we’ll generate below.</p>
+</figcaption>
+</figure>
+<p>In this article, we’ll load and plot composites of these Landsat 9 scenes to try to get a glimpse of the eruption. The scenes were downloaded from <a href="https://earthexplorer.usgs.gov/">USGS EarthExplorer</a> (WRS row/path = <code>063/046</code>) and I uploaded <a href="https://doi.org/10.6084/m9.figshare.21677246">selected bands as compressed archives to figshare</a> (doi:<a href="https://doi.org/10.6084/m9.figshare.21677246">10.6084/m9.figshare.21677246</a>) for archival and easier retrieval using <a href="https://www.fatiando.org/pooch">Pooch</a>.</p>
+<div class="callout callout-warning">
+<p><strong>Important:</strong> For official information on the eruption, please refer to the
+<a href="https://www.usgs.gov/observatories/hvo">USGS Hawaiian Volcano Observatory</a> website.
+This exploration is only meant as an exercise in data analysis and not as official
+advice regarding the eruption.</p>
+</div>
+<p>Let’s get started!</p>
+<h2 id="import-libraries">Import libraries</h2>
+<p>We’ll use the following libraries to manipulate the data and make some nice figures:</p>
+<ul>
+<li><a href="https://matplotlib.org/">matplotlib</a>: the most popular Python plotting library (for a good reason, it’s awesome).</li>
+<li><a href="https://pypi.org/project/matplotlib-scalebar/">matplotlib-scalebar</a>: to add a scale bar to matplotlib figures (a good map always has a scale).</li>
+<li><a href="https://www.compgeolab.org/xlandsat/">xlandsat</a>: a library developed by us at the <a href="https://www.compgeolab.org/">CompGeoLab</a> for loading the Landsat scenes into <a href="https://xarray.dev/">xarray</a> and making composites.</li>
+<li><a href="https://www.fatiando.org/pooch">pooch</a>: for downloading data from a variety of sources, including figshare DOIs.</li>
+</ul>
+<div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">matplotlib_scalebar.scalebar</span><span class="w"> </span><span class="kn">import</span> <span class="n">ScaleBar</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">xlandsat</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">xls</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pooch</span>
+</pre></div>
+<h2 id="download-the-archived-data">Download the archived data</h2>
+<p>First, we’ll use <a href="https://www.fatiando.org/pooch">Pooch</a> to download the compressed archives with the scenes. The MD5 checksums were copied from the <a href="https://doi.org/10.6084/m9.figshare.21677246">figshare upload</a> and are used by Pooch to verify if the download was successful. Both archives are around 500 Mb in size so this can take a little while depending on your internet connection.</p>
+<div class="highlight"><pre><span></span><span class="n">doi</span> <span class="o">=</span> <span class="s2">&quot;10.6084/m9.figshare.21677246.v2&quot;</span>
+<span class="n">paths</span> <span class="o">=</span> <span class="p">{}</span>
+<span class="n">paths</span><span class="p">[</span><span class="s2">&quot;2022-12-02&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">pooch</span><span class="o">.</span><span class="n">retrieve</span><span class="p">(</span>
+    <span class="sa">f</span><span class="s2">&quot;doi:</span><span class="si">{</span><span class="n">doi</span><span class="si">}</span><span class="s2">/LC09_L2SP_063046_20221202_20221204_02_T1.tar.gz&quot;</span><span class="p">,</span>
+    <span class="n">known_hash</span><span class="o">=</span><span class="s2">&quot;md5:3b2cb5dc4dbd4fbfad595124e9a59152&quot;</span><span class="p">,</span>
+    <span class="n">progressbar</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">paths</span><span class="p">[</span><span class="s2">&quot;2022-12-10&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">pooch</span><span class="o">.</span><span class="n">retrieve</span><span class="p">(</span>
+    <span class="sa">f</span><span class="s2">&quot;doi:</span><span class="si">{</span><span class="n">doi</span><span class="si">}</span><span class="s2">/LC08_L2SP_063046_20221210_20221219_02_T1.tar.gz&quot;</span><span class="p">,</span>
+    <span class="n">known_hash</span><span class="o">=</span><span class="s2">&quot;md5:9dbff9fbc8ba6dc97c26b9133ab1544a&quot;</span><span class="p">,</span>
+    <span class="n">progressbar</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+<h2 id="load-the-scenes">Load the scenes</h2>
+<p>Next, we’ll use <a href="https://www.compgeolab.org/xlandsat/">xlandsat</a> to load a section of the scenes into <code>xarray.Dataset</code> objects. A nice feature of <code>xlandsat</code> is that it can load the data directly from the compressed archive without having to unpack it first.</p>
+<p>We’ll use the same region definition (in UTM coordinates) to make sure both scenes refer to exactly the same bounding box. This also helps keep the scenes a bit smaller in memory. The region was chosen to include the main volcanoes on the island and show some of the coastline for reference (particularly around the Kailua-Kona region).</p>
+<div class="highlight"><pre><span></span><span class="n">region</span> <span class="o">=</span> <span class="p">[</span><span class="mi">178500</span><span class="p">,</span> <span class="mi">265000</span><span class="p">,</span> <span class="mi">2140000</span><span class="p">,</span> <span class="mi">2195000</span><span class="p">]</span>  <span class="c1"># UTM West, East, South, North</span>
+<span class="n">scenes</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="n">date</span><span class="p">:</span> <span class="n">xls</span><span class="o">.</span><span class="n">load_scene</span><span class="p">(</span><span class="n">paths</span><span class="p">[</span><span class="n">date</span><span class="p">],</span> <span class="n">region</span><span class="o">=</span><span class="n">region</span><span class="p">)</span> 
+    <span class="k">for</span> <span class="n">date</span> <span class="ow">in</span> <span class="n">paths</span>
+<span class="p">}</span>
+</pre></div>
+<p>One of the nice things about <code>xlandsat</code> is that it will include a lot of the metadata from the scenes in the <code>xarray.Dataset</code> and set the proper UTM coordinates for each pixel. This allows <code>xarray</code> to automate a lot of the boring parts of creating figures (setting axis labels, etc).</p>
+<h2 id="rgb-composites">RGB composites</h2>
+<p>Let’s make some RGB (AKA “true color”) composites to get an idea of what’s going on. These will be heavily affected by the clouds and <a href="https://www.usgs.gov/faqs/what-vog-how-it-related-sulfur-dioxide-so2-emissions">vog</a> but are good for visual inspection and getting our bearings.</p>
+<p>Generating composites with <code>xlandsat</code> is easy and by default it will use the red, green, and blue bands of the scene. We can also apply some re-scaling of the reflectance of each band to increase the contrast and avoid having the clouds and human structures saturate the image.</p>
+<div class="highlight"><pre><span></span><span class="n">rgb</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="n">date</span><span class="p">:</span> <span class="n">xls</span><span class="o">.</span><span class="n">composite</span><span class="p">(</span><span class="n">scenes</span><span class="p">[</span><span class="n">date</span><span class="p">],</span> <span class="n">rescale_to</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">])</span>
+    <span class="k">for</span> <span class="n">date</span> <span class="ow">in</span> <span class="n">scenes</span>
+<span class="p">}</span>
+</pre></div>
+<p>The composite is an <code>xarray.DataArray</code> that includes the right coordinates and metadata. Plotting it is as easy as calling <code>rgb[&quot;2022-12-02&quot;].plot.imshow()</code>. We’ll use a bit more code here to plot both scenes in the same figure and tweak some of the plot elements, in particular making the pixels squared by setting <code>ax.set_aspect(&quot;equal&quot;)</code>.</p>
+<div class="highlight"><pre><span></span><span class="n">fig</span><span class="p">,</span> <span class="n">axes</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span> <span class="mi">15</span><span class="p">))</span>
+<span class="k">for</span> <span class="n">date</span><span class="p">,</span> <span class="n">ax</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="n">scenes</span><span class="o">.</span><span class="n">keys</span><span class="p">()),</span> <span class="n">axes</span><span class="p">):</span>
+    <span class="n">rgb</span><span class="p">[</span><span class="n">date</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_aspect</span><span class="p">(</span><span class="s2">&quot;equal&quot;</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;RGB composite: </span><span class="si">{</span><span class="n">date</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_facecolor</span><span class="p">(</span><span class="s2">&quot;black&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+<p><img src="mauna-loa_images/output_11_0.png" alt="png" /></p>
+<p>Can’t really see much because of the vog and the lava flows are dark so it’s hard to distinguish between old and new flows. The infrared range has a higher chance of showing something since it’s more sensitive to heat sources (like a fresh lava flow), particularly the short-wave infrared (SWIR) bands.</p>
+<h2 id="infrared-composites">Infrared composites</h2>
+<p>We’ll make a composite using the SWIR and near-infrared (NIR) bands to try to highlight the active lava flow and bypass the vog. It can look a bit unnatural but it offers a good glimpse of what’s currently active. In this composite, the red colors represent the SWIR2 band, green is SWIR1, and blue is NIR.</p>
+<div class="highlight"><pre><span></span><span class="n">infrared</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="n">date</span><span class="p">:</span> <span class="n">xls</span><span class="o">.</span><span class="n">composite</span><span class="p">(</span>
+        <span class="n">scenes</span><span class="p">[</span><span class="n">date</span><span class="p">],</span> 
+        <span class="n">bands</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;swir2&quot;</span><span class="p">,</span> <span class="s2">&quot;swir1&quot;</span><span class="p">,</span> <span class="s2">&quot;nir&quot;</span><span class="p">),</span> 
+        <span class="n">rescale_to</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mf">0.35</span><span class="p">],</span>
+    <span class="p">)</span> 
+    <span class="k">for</span> <span class="n">date</span> <span class="ow">in</span> <span class="n">scenes</span>
+<span class="p">}</span>
+</pre></div>
+<p>Now we can make some nicer figures, with a scale bar, caption at the bottom, and highlighting the <a href="https://www.usgs.gov/observatories/hvo/active-volcanoes-hawaii">4 active volcanoes on the island</a>. This time, we’ll place each scene on their own figure so we can save them separately.</p>
+<div class="highlight"><pre><span></span><span class="c1"># Location to place the text for each volcano</span>
+<span class="n">volcanoes</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;Mauna Loa&quot;</span><span class="p">:</span> <span class="p">(</span><span class="mi">224000</span><span class="p">,</span> <span class="mi">2148000</span><span class="p">),</span>
+    <span class="s2">&quot;Kīlauea&quot;</span><span class="p">:</span> <span class="p">(</span><span class="mi">259000</span><span class="p">,</span> <span class="mi">2144000</span><span class="p">),</span>
+    <span class="s2">&quot;Mauna Kea&quot;</span><span class="p">:</span> <span class="p">(</span><span class="mi">230000</span><span class="p">,</span> <span class="mi">2192000</span><span class="p">),</span> 
+    <span class="s2">&quot;Hualālai&quot;</span><span class="p">:</span> <span class="p">(</span><span class="mi">203000</span><span class="p">,</span> <span class="mi">2178500</span><span class="p">),</span>     
+<span class="p">}</span>
+<span class="k">for</span> <span class="n">date</span> <span class="ow">in</span> <span class="n">scenes</span><span class="p">:</span>
+    <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span> <span class="mi">10</span><span class="p">),</span> <span class="n">facecolor</span><span class="o">=</span><span class="s2">&quot;black&quot;</span><span class="p">)</span>
+    <span class="n">infrared</span><span class="p">[</span><span class="n">date</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">,</span> <span class="n">interpolation</span><span class="o">=</span><span class="s2">&quot;none&quot;</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_aspect</span><span class="p">(</span><span class="s2">&quot;equal&quot;</span><span class="p">)</span>
+    <span class="c1"># Remove so that it looks fancier</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">axis</span><span class="p">(</span><span class="s2">&quot;off&quot;</span><span class="p">)</span>
+    <span class="c1"># Add a caption at the bottom</span>
+    <span class="n">text</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="s2">&quot;Eruption of Mauna Loa, Hawai&#39;i. &quot;</span>
+        <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">scenes</span><span class="p">[</span><span class="n">date</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;title&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">. &quot;</span>
+        <span class="s2">&quot;Infrared composite: SWIR2, SWIR1, NIR. &quot;</span>
+        <span class="s2">&quot;Created by Leonardo Uieda (CC0).&quot;</span>
+    <span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">text</span><span class="p">(</span>
+        <span class="mf">0.0075</span><span class="p">,</span> <span class="mf">0.016</span><span class="p">,</span> 
+        <span class="n">text</span><span class="p">,</span> 
+        <span class="n">transform</span><span class="o">=</span><span class="n">ax</span><span class="o">.</span><span class="n">transAxes</span><span class="p">,</span>
+        <span class="n">color</span><span class="o">=</span><span class="s2">&quot;white&quot;</span><span class="p">,</span>
+        <span class="n">fontsize</span><span class="o">=</span><span class="mi">9</span><span class="p">,</span>
+        <span class="n">bbox</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span>
+            <span class="n">facecolor</span><span class="o">=</span><span class="s2">&quot;#000000dd&quot;</span><span class="p">,</span>
+            <span class="n">boxstyle</span><span class="o">=</span><span class="s2">&quot;square&quot;</span><span class="p">,</span>
+            <span class="n">pad</span><span class="o">=</span><span class="mf">0.75</span><span class="p">,</span>
+        <span class="p">),</span>
+    <span class="p">)</span>
+    <span class="c1"># Add text around each of the volcanoes</span>
+    <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">volcanoes</span><span class="p">:</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">text</span><span class="p">(</span>
+            <span class="o">*</span><span class="n">volcanoes</span><span class="p">[</span><span class="n">name</span><span class="p">],</span> 
+            <span class="n">name</span><span class="p">,</span> 
+            <span class="n">color</span><span class="o">=</span><span class="s2">&quot;#dddddd&quot;</span><span class="p">,</span>
+            <span class="n">fontweight</span><span class="o">=</span><span class="s2">&quot;bold&quot;</span><span class="p">,</span>
+            <span class="n">fontsize</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
+            <span class="n">ha</span><span class="o">=</span><span class="s2">&quot;left&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+    <span class="c1"># Add a scale bar</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">add_artist</span><span class="p">(</span>
+        <span class="n">ScaleBar</span><span class="p">(</span>
+            <span class="n">dx</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> 
+            <span class="n">units</span><span class="o">=</span><span class="s2">&quot;m&quot;</span><span class="p">,</span> 
+            <span class="n">location</span><span class="o">=</span><span class="s2">&quot;upper left&quot;</span><span class="p">,</span> 
+            <span class="n">box_alpha</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+            <span class="n">color</span><span class="o">=</span><span class="s2">&quot;white&quot;</span><span class="p">,</span> 
+            <span class="n">scale_loc</span><span class="o">=</span><span class="s2">&quot;bottom&quot;</span><span class="p">,</span> 
+            <span class="n">width_fraction</span><span class="o">=</span><span class="mf">0.005</span><span class="p">,</span> 
+            <span class="n">length_fraction</span><span class="o">=</span><span class="mf">0.06</span><span class="p">,</span>
+            <span class="n">pad</span><span class="o">=</span><span class="mf">0.4</span><span class="p">,</span>
+        <span class="p">)</span>
+    <span class="p">)</span>
+    <span class="n">fig</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">(</span><span class="n">pad</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="c1"># Save the figures to JPG files with 2 resolutions</span>
+    <span class="k">for</span> <span class="n">suffix</span><span class="p">,</span> <span class="n">dpi</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">([</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="s2">&quot;-low-res&quot;</span><span class="p">],</span> <span class="p">[</span><span class="mi">600</span><span class="p">,</span> <span class="mi">200</span><span class="p">]):</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;mauna-loa-landsat-</span><span class="si">{</span><span class="n">date</span><span class="si">}{</span><span class="n">suffix</span><span class="si">}</span><span class="s2">.jpg&quot;</span><span class="p">,</span> 
+            <span class="n">bbox_inches</span><span class="o">=</span><span class="s2">&quot;tight&quot;</span><span class="p">,</span> 
+            <span class="n">pad_inches</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> 
+            <span class="n">dpi</span><span class="o">=</span><span class="n">dpi</span><span class="p">,</span>
+        <span class="p">)</span>
+    <span class="c1"># Prevent the figures from being displayed so we can</span>
+    <span class="c1"># insert them later and talk about each one separately</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+</pre></div>
+<p>Finally, here are the two scenes viewed as infrared composites. Remember that the SWIR bands are sensitive to heat sources and the NIR band tends to reflect very strongly on areas with vegetation cover (making them appear blue in these images). Old lava flows should appear as dark gray and black since they reflect poorly on most bands.</p>
+<figure class="">
+    <img src="../images/mauna-loa-landsat-2022-12-02-low-res.jpg" alt="Scene from 2022/12/02. The volcano can be seen surrounded by clouds and with the current lava flows showing up as a bright red and green North-South line in the middle of the image. The main crater also appears as slight red. We can even pick up something in the Hale Ma'uma'u crater of Kīlauea down in the Southeast." style="">
+    <figcaption>Scene from 2022/12/02. The volcano can be seen surrounded by clouds and with the current lava flows showing up as a bright red and green North-South line in the middle of the image. The main crater also appears as slight red. We can even pick up something in the Hale Ma'uma'u crater of Kīlauea down in the Southeast.</figcaption>
+  </figure>
+<p>The lava flow is heading to the North, where it nearly reached the Daniel K. Inouye Highway which connects both sides of the island. If you zoom in on the higher resolution version of the image you can even see the road near the slope of Mauna Kea.</p>
+<figure class="">
+    <img src="../images/mauna-loa-landsat-2022-12-10-low-res.jpg" alt="Scene from 2022/12/10. The volcano is still surrounded by clouds and with the current lava flows showing up as a thin strip of light red and green. The main crater is no longer slight red and the northern tip of the lava flow is covered in clouds and therefore hard to make out." style="">
+    <figcaption>Scene from 2022/12/10. The volcano is still surrounded by clouds and with the current lava flows showing up as a thin strip of light red and green. The main crater is no longer slight red and the northern tip of the lava flow is covered in clouds and therefore hard to make out.</figcaption>
+  </figure>
+<p>From the 10 December scene we can see that the activity seems to have almost disappeared, except for some slight signal in the SWIR bands still visible in the main flow channel. The <a href="https://www.usgs.gov/observatories/hvo">USGS Hawaiian Volcano Observatory</a> has issued a <a href="https://www.usgs.gov/volcanoes/mauna-loa/volcano-updates">statement that the eruption has ended as of 15 December 2022</a> so this is likely the last Landsat scene that will show much of this eruption.</p>
+<div class="callout callout-note">
+<p><strong>Want to download these images?</strong> High and low resolution versions of both of them are <a href="https://doi.org/10.6084/m9.figshare.21677246">available on figshare</a> (doi:<a href="https://doi.org/10.6084/m9.figshare.21677246">10.6084/m9.figshare.21677246</a>) under a <a href="https://creativecommons.org/publicdomain/zero/1.0/">CC0 license</a>.</p>
+</div>
+<h2 id="what-now">What now?</h2>
+<p>So it seems that the eruption has fully stopped and new Landsat scenes that would become available later in December 2022 will very likely not show anything remarkable (besides the already stunning views of Hawai‘i). If anything does come up, I may update this notebook.</p>
+<p>If you’re still curious and want to play with some more data, you can download scenes from the <a href="https://earthexplorer.usgs.gov/">USGS EarthExplorer</a> with a free account and easily load them with <a href="https://www.compgeolab.org/xlandsat/">xlandsat</a> just as I did above. A while back, I even made a <a href="https://www.youtube.com/watch?v=Wn_G4fvitV8">YouTube video on how to select and download scenes from EarthExplorer</a>, so go watch that if you want to get started right away.</p>
+<p><a href="https://www.youtube.com/watch?v=Wn_G4fvitV8"><img src="../images/screenshot-downloading-landsat-images.jpg" alt="Screenshot from the YouTub video on how to download Landsat scenes from EarthExplorer showing my at the bottom right corner and the website with a download window open." /></a></p>
+<p><strong>I hope this was a fun and useful learning experience. It sure was for me!</strong></p>
+<div class="callout mt-5">
+<p><strong>Licenses and original sources:</strong></p>
+<p>This blog post was originally written as a Jupyter notebook which can be found at the <a href="https://github.com/compgeolab/mauna-loa-landsat-2022"><code>compgeolab/mauna-loa-landsat-2022</code> GitHub repository</a>. Comments, corrections, and additions are welcome.</p>
+<p>All Python source code is made available under the <a href="https://github.com/compgeolab/mauna-loa-landsat-2022/blob/main/LICENSE">MIT license</a>.
+You can freely use and modify the code, without warranty, so long as you provide attribution to the authors. All text and figures in this post are available under the <a href="https://creativecommons.org/publicdomain/zero/1.0/">Creative Commons Public Domain Dedication (CC0)</a>.</p>
+</div>
+  </article>
+
+  <hr>
+
+  <p class="text-right">
+    <a href="index.html">
+      ← Back to the blog
+    </a>
+  </p>
+    </div>
+  </main>
+
+  <footer class="flow">
+    <div class="content-wide flow">
+      <nav aria-label="Footer">
+        <ul class="list-inline" role="list">
+          <li><strong>CONTENTS:</strong></li>
+          <li>
+            <a class=""  href="../">Home</a>
+          </li>
+          <li>
+            <a class=""  href="../about/">About</a>
+          </li>
+          <li>
+            <a class="active" aria-current="page" href=".">Blog</a>
+          </li>
+          <li>
+            <a class=""  href="../cv/">CV</a>
+          </li>
+          <li>
+            <a class=""  href="../contact/">Contact</a>
+          </li>
+          <li>
+            <a class=""  href="../links/">Links</a>
+          </li>
+          <li>
+            <a class=""  href="../now/">Now</a>
+          </li>
+        </ul>
+      </nav>
+      <ul class="list-inline" role="list">
+        <li><strong>SOCIAL:</strong></li>
+        <li>
+          <a href="https://bertha.social/@leouieda" target="_blank">Mastodon</a>
+        </li>
+        <li>
+          <a href="https://bookwyrm.social/user/leouieda" target="_blank">BookWyrm</a>
+        </li>
+        <li>
+          <a href="https://www.linkedin.com/in/uieda" target="_blank">LinkedIn</a>
+        </li>
+        <li>
+          <a href="https://github.com/leouieda" target="_blank">GitHub</a>
+        </li>
+        <li>
+          <a href="https://www.youtube.com/@leouieda" target="_blank">YouTube</a>
+        </li>
+      </ul>
+      <ul class="list-inline" role="list">
+        <li><strong>ACADEMIC:</strong></li>
+        <li>
+          <a href="https://orcid.org/0000-0001-6123-9515" target="_blank">ORCID</a>
+        </li>
+        <li>
+          <a href="https://lattes.cnpq.br/8939551682050504" target="_blank">Lattes</a>
+        </li>
+        <li>
+          <a href="http://scholar.google.com/citations?user=qfmPrUEAAAAJ" target="_blank">Google Scholar</a>
+        </li>
+        <li>
+          <a href="https://www.researchgate.net/profile/Leonardo-Uieda" target="_blank">ResearchGate</a>
+        </li>
+        <li>
+          <a href="https://figshare.com/authors/Leonardo_Uieda/97471" target="_blank">figshare</a>
+        </li>
+        <li>
+          <a href="https://www.webofscience.com/wos/author/rid/G-3258-2012" target="_blank">Web of Science</a>
+        </li>
+        <li>
+          <a href="https://www.scopus.com/authid/detail.uri?authorId=47062144700" target="_blank">Scopus</a>
+        </li>
+      </ul>
+      <section class="flow font-small">
+        <p>
+          Built on 2025/12/12 with <a href="https://nene.leouieda.com">Nēnē</a> v0.10.0
+          from source code at
+          <a href="https://github.com/leouieda/website" target="_blank">leouieda/website</a>
+          (<a href="https://github.com/leouieda/website/commit/e243f4b"><code>e243f4b</code></a>).
+          <strong>
+          Found a typo/mistake?
+          <a target="_blank" href="https://github.com/leouieda/website/edit/main/blog/mauna-loa.ipynb">Send a fix through GitHub</a>.
+          </strong>
+        </p>
+        <p>
+          Visitor statistics are gathered anonymously and without tracking by
+          <a href="https://plausible.io">Plausible</a> and can be viewed
+          at
+          <a href="https://plausible.io/leouieda.com">plausible.io/leouieda.com</a>.
+        </p>
+        <p>
+          Copyright &copy; 2025 Leonardo Uieda.
+            Except where otherwise noted, all content is licensed
+<a href="https://creativecommons.org/licenses/by/4.0/">CC-BY</a>.
+
+        </p>
+      </section>
+      <section class="font-small text-center">
+        <a href="#top" class="button-link">↑ Back to top</a>
+      </section>
+    </div>
+  </footer>
+  <!-- KaTeX -->
+  <script defer src="../pkg/katex-0.15.3/katex.min.js" integrity="sha384-0fdwu/T/EQMsQlrHCCHoH10pkPLlKA1jL5dFyUOvB3lfeT2540/2g6YgSi2BL14p" crossorigin="anonymous"></script>
+  <script defer src="../pkg/katex-0.15.3/auto-render.min.js" integrity="sha384-+XBljXPPiv+OzfbB3cVmLHf4hdUFHlWNZN5spNQ7rmHTXpd7WvJum6fIACpNNfIR" crossorigin="anonymous"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", function() {
+      renderMathInElement(document.body, {
+        delimiters: [
+          {left: '$$', right: '$$', display: true},
+          {left: '$', right: '$', display: false},
+        ],
+      });
+    });
+  </script>
+
+</body>
+</html>

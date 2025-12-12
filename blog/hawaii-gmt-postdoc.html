@@ -1,0 +1,317 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>A year in Hawaii hacking on the Generic Mapping Tools | Leonardo Uieda</title>
+  <link rel="shortcut icon" href="../assets/favicon.png" />
+
+  <!-- OpenGraph social media card -->
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="A year in Hawaii hacking on the Generic Mapping Tools" />
+  <meta property="og:description" content="Back in July of 2016, I applied for a postdoc position to build Python bindings for the Generic Mapping Tools (GMT) software with Professor Paul Wessel at the University of Hawaii. The short..." />
+  <meta property="og:image" content="https://www.leouieda.com/assets/thumbnail.jpg" />
+  <meta property="og:url" content="https://www.leouieda.com/blog/hawaii-gmt-postdoc.html" />
+
+  <!-- Atkinson Hyperlegible fonts -->
+  <link rel="stylesheet" href="../pkg/atkinson-hyperlegible-next/font.css" />
+  <link rel="stylesheet" href="../pkg/atkinson-hyperlegible-mono/font.css" />
+
+  <!-- Andy Bell's CSS reset -->
+  <link rel="stylesheet" href="../css/reset.css" />
+
+  <!-- Syntax highlighting for code -->
+  <link rel="stylesheet" href="../css/pygments.css" />
+
+  <!-- Main CSS stylesheet -->
+  <link rel="stylesheet" href="../css/style.css" />
+
+  <!-- Plausible analytics for anonymous usage statistics -->
+  <script defer data-domain="leouieda.com" src="https://plausible.io/js/plausible.js"></script>
+  <!-- KaTeX -->
+  <link rel="stylesheet" href="../pkg/katex-0.15.3/katex.min.css" integrity="sha384-KiWOvVjnN8qwAZbuQyWDIbfCLFhLXNETzBQjA/92pIowpC0d2O3nppDGQVgwd2nB" />
+
+</head>
+
+<body>
+  <header id="top">
+    <div class="spread content-wide">
+      <a aria-label="Home" class="font-bold" href="../">Leonardo Uieda</a>
+      <nav aria-label="Main">
+        <ul class="list-inline" role="list">
+            <li>
+              <a class=""  href="../">Home</a>
+            </li>
+            <li>
+              <a class=""  href="../about/">About</a>
+            </li>
+            <li>
+              <a class="active" aria-current="page" href=".">Blog</a>
+            </li>
+            <li>
+              <a class=""  href="../cv/">CV</a>
+            </li>
+            <li>
+              <a class=""  href="../contact/">Contact</a>
+            </li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <main class="flow">
+
+    <div class="content flow">
+  
+    
+  
+  <article class="flow ">
+    <h1>
+      A year in Hawaii hacking on the Generic Mapping Tools
+    </h1>
+    <time class="text-muted" datetime="2017-03-02">
+      Published on
+      2017/03/02
+    </time>
+    <p>Back in July of 2016, I applied for a postdoc position to build Python bindings
+for the <a href="http://gmt.soest.hawaii.edu/">Generic Mapping Tools (GMT)</a> software
+with Professor <a href="http://www.soest.hawaii.edu/wessel/">Paul Wessel</a> at the
+<a href="http://www.soest.hawaii.edu/GG/index.html">University of Hawaii</a>.
+The short version is that I got the position, asked for a 1 year leave from
+<a href="http://www.uerj.br/">UERJ</a> (where I currently work as a professor),
+came to Hawaii, and right now I’m starting to get familiar with the GMT code
+base.</p>
+<p>Read on for the long version.</p>
+<figure>
+<img alt="Picture of the POST building" src="../images/post-building-university-hawaii.jpg">
+<figcaption>
+The Pacific Ocean Science and Technology (POST) building in the UH Manoa
+campus. My office is on the top floor with a nice view of downtown Honolulu.
+</figcaption>
+</figure>
+<p>After two and half years as a <a href="/about">Professor at UERJ</a>,
+struggling to teach classes without any experience or time to prepare,
+all while finishing my PhD,
+I was feeling a bit burned-out and eager to do something different.
+Meanwhile, Brazil was (and still is) in a huge economic and political crisis
+and Rio was hit pretty hard.
+The University, which is State owned, was on strike from March 2016 until after
+the Olympic games in August.
+The time was ripe to apply for something different abroad.</p>
+<p>I signed up for a couple of mailing lists where people post job opportunities
+just to see what was out there.
+If you’re looking for a new position or just want to get a feeling for what is
+currently on demand, I highly recommend signing up for the
+<a href="http://lists.geodynamics.org/cgi-bin/mailman/listinfo/cig-jobpostings">Computational Infrastructure for Geodynamics (CIG) list</a>
+and the
+<a href="http://mailman.ucar.edu/mailman/listinfo/es_jobs_net">Earth Sciences Job Email list (ES-JOBS)</a>.
+I get at least 5-10 emails on the ES-JOBS list per day (you might want to
+redirect them to a folder to keep your inbox from exploding).
+After about a month on the lists, this message from Paul came on the CIG list:</p>
+<blockquote>
+<p>A full-time postdoctoral position is available in the Department of Geology
+and Geophysics at the University of Hawaii at Mānoa to participate in funded
+research in support of the expansion of the Generic Mapping Tools (GMT) to
+Python (possibly via Cython), with applications in plate tectonics and
+geodynamics. A one-year initial appointment is anticipated, with the
+possibility of a second year extension, depending on progress and
+availability of funds.</p>
+<p>The successful applicant will be a highly motivated, independent researcher
+with extensive programming experience (preferably in C) and Python scripting
+and will assist Dr. Wessel and the GMT team in developing the GMT/Python API.
+Applicants must have completed a PhD in the physical sciences at the time of
+appointment, with a preference for geophysics, and should be proficient in
+spoken and written English. The position is open immediately and will remain
+open until an appointment is made.</p>
+<p>To apply, please send a curriculum vitae, a brief (1 page) statement of
+research objectives, a brief (1 page) statement of skills or experience
+suitable for contributing to GMT development, and the names of three
+references to Dr. Paul Wessel.  Questions should also be addressed to Dr.
+Wessel directly via e-mail. Information on the Department can be found at
+http://www.soest.hawaii.edu/GG. The University is an Equal
+Opportunity/Affirmative Action Institution.</p>
+</blockquote>
+<p>The requirements seemed to fit me perfectly.
+My <a href="https://doi.org/10.6084/m9.figshare.963547">Bachelor’s thesis</a> was to developed a
+<a href="http://www.tesseroids.org">C program</a> and I spent most of my PhD
+building a <a href="https://www.fatiando.org">Python library</a>.
+After some careful consideration with my wife and bit of hesitation, I decided
+to apply for the position.
+I consulted my department and they generously agreed to cover my
+geophysics courses
+during the year that I would be away.
+So I sent in
+<a href="https://github.com/leouieda/cv/releases/download/June2016/leonardo_uieda_cv.pdf">my CV</a>,
+the <a href="https://github.com/leouieda/cv/releases/download/June2016/leonardo_uieda_research_statement.pdf">statement of research objectives</a>,
+and the <a href="https://github.com/leouieda/cv/releases/download/June2016/leonardo_uieda_skills_statement.pdf">statement of skills</a>.
+As always, the LaTeX sources for all three are on a
+<a href="https://github.com/leouieda/cv/tree/June2016">GitHub repository</a> if you want
+to have a look or need a template to get started.</p>
+<p>I did a Skype interview with the very friendly GMT team and after a while I got
+an email saying that the position was mine!
+I finished my responsibilities for 2016 and took some vacation time to
+sort out the trip.
+In the middle of February I hopped on a quick ~24h trip from São Paulo to
+Honolulu and now here I am.</p>
+<figure>
+<img alt="My new desk and computer" src="/images/university-office-view-hawaii.jpg">
+<figcaption>
+<p>My new desk at UH with a great view of the tall buildings of
+<a href="https://en.wikipedia.org/wiki/Waikiki">Waikiki</a> and downtown Honolulu on a
+nice rainy day.</p>
+</figcaption>
+</figure>
+<p>The goal of the project is to build a bridge between GMT (a set C-coded
+command-line programs) and the Python programming language.
+GMT is arguably the best map plotting software around and
+it certainly makes <a href="http://gmt.soest.hawaii.edu/doc/latest/Gallery.html">the most beautiful maps</a>.
+This bridge will bring that power to the Python community.</p>
+<p>The way I’m currently exploring for doing this is to hook into the
+<a href="http://gmt.soest.hawaii.edu/doc/latest/GMT_API.html">GMT C API</a> (the internal
+functions that GMT exposes through a shared library)
+using the <a href="https://docs.python.org/3/library/ctypes.html">ctypes</a>
+package from the Python standard library.
+This way, a user could call the internal GMT functions from a Python program
+or, even better, from a <a href="http://jupyter.org/">Jupyter notebook</a>.
+This will serve as a basis for building a more Pythonic higher-level library
+for GMT.
+Hopefully this will help smooth the rough edges of the GMT command-line
+interface that cuts newbies and gurus alike.
+After all, who could possibly remember what <a href="http://gmt.soest.hawaii.edu/doc/latest/gallery/ex17.html#example-17"><code>-DjTR+o0.3i/0.1i+w4i/0.2i+h</code> is
+supposed to
+do</a>?</p>
+<p>Right now, I’m still struggling with CMake configuration issues, linking
+problems, incompatibilities with
+<a href="https://www.continuum.io/downloads#all">Anaconda</a>, and other pleasant things
+that come with dealing with compiled code.
+But I’ll write more about that in a later post.
+<em>Now, I wonder where I put that <code>libgdal.so</code> file?</em></p>
+
+  </article>
+
+  <hr>
+
+  <p class="text-right">
+    <a href="index.html">
+      ← Back to the blog
+    </a>
+  </p>
+    </div>
+  </main>
+
+  <footer class="flow">
+    <div class="content-wide flow">
+      <nav aria-label="Footer">
+        <ul class="list-inline" role="list">
+          <li><strong>CONTENTS:</strong></li>
+          <li>
+            <a class=""  href="../">Home</a>
+          </li>
+          <li>
+            <a class=""  href="../about/">About</a>
+          </li>
+          <li>
+            <a class="active" aria-current="page" href=".">Blog</a>
+          </li>
+          <li>
+            <a class=""  href="../cv/">CV</a>
+          </li>
+          <li>
+            <a class=""  href="../contact/">Contact</a>
+          </li>
+          <li>
+            <a class=""  href="../links/">Links</a>
+          </li>
+          <li>
+            <a class=""  href="../now/">Now</a>
+          </li>
+        </ul>
+      </nav>
+      <ul class="list-inline" role="list">
+        <li><strong>SOCIAL:</strong></li>
+        <li>
+          <a href="https://bertha.social/@leouieda" target="_blank">Mastodon</a>
+        </li>
+        <li>
+          <a href="https://bookwyrm.social/user/leouieda" target="_blank">BookWyrm</a>
+        </li>
+        <li>
+          <a href="https://www.linkedin.com/in/uieda" target="_blank">LinkedIn</a>
+        </li>
+        <li>
+          <a href="https://github.com/leouieda" target="_blank">GitHub</a>
+        </li>
+        <li>
+          <a href="https://www.youtube.com/@leouieda" target="_blank">YouTube</a>
+        </li>
+      </ul>
+      <ul class="list-inline" role="list">
+        <li><strong>ACADEMIC:</strong></li>
+        <li>
+          <a href="https://orcid.org/0000-0001-6123-9515" target="_blank">ORCID</a>
+        </li>
+        <li>
+          <a href="https://lattes.cnpq.br/8939551682050504" target="_blank">Lattes</a>
+        </li>
+        <li>
+          <a href="http://scholar.google.com/citations?user=qfmPrUEAAAAJ" target="_blank">Google Scholar</a>
+        </li>
+        <li>
+          <a href="https://www.researchgate.net/profile/Leonardo-Uieda" target="_blank">ResearchGate</a>
+        </li>
+        <li>
+          <a href="https://figshare.com/authors/Leonardo_Uieda/97471" target="_blank">figshare</a>
+        </li>
+        <li>
+          <a href="https://www.webofscience.com/wos/author/rid/G-3258-2012" target="_blank">Web of Science</a>
+        </li>
+        <li>
+          <a href="https://www.scopus.com/authid/detail.uri?authorId=47062144700" target="_blank">Scopus</a>
+        </li>
+      </ul>
+      <section class="flow font-small">
+        <p>
+          Built on 2025/12/12 with <a href="https://nene.leouieda.com">Nēnē</a> v0.10.0
+          from source code at
+          <a href="https://github.com/leouieda/website" target="_blank">leouieda/website</a>
+          (<a href="https://github.com/leouieda/website/commit/e243f4b"><code>e243f4b</code></a>).
+          <strong>
+          Found a typo/mistake?
+          <a target="_blank" href="https://github.com/leouieda/website/edit/main/blog/hawaii-gmt-postdoc.md">Send a fix through GitHub</a>.
+          </strong>
+        </p>
+        <p>
+          Visitor statistics are gathered anonymously and without tracking by
+          <a href="https://plausible.io">Plausible</a> and can be viewed
+          at
+          <a href="https://plausible.io/leouieda.com">plausible.io/leouieda.com</a>.
+        </p>
+        <p>
+          Copyright &copy; 2025 Leonardo Uieda.
+            Except where otherwise noted, all content is licensed
+<a href="https://creativecommons.org/licenses/by/4.0/">CC-BY</a>.
+
+        </p>
+      </section>
+      <section class="font-small text-center">
+        <a href="#top" class="button-link">↑ Back to top</a>
+      </section>
+    </div>
+  </footer>
+  <!-- KaTeX -->
+  <script defer src="../pkg/katex-0.15.3/katex.min.js" integrity="sha384-0fdwu/T/EQMsQlrHCCHoH10pkPLlKA1jL5dFyUOvB3lfeT2540/2g6YgSi2BL14p" crossorigin="anonymous"></script>
+  <script defer src="../pkg/katex-0.15.3/auto-render.min.js" integrity="sha384-+XBljXPPiv+OzfbB3cVmLHf4hdUFHlWNZN5spNQ7rmHTXpd7WvJum6fIACpNNfIR" crossorigin="anonymous"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", function() {
+      renderMathInElement(document.body, {
+        delimiters: [
+          {left: '$$', right: '$$', display: true},
+          {left: '$', right: '$', display: false},
+        ],
+      });
+    });
+  </script>
+
+</body>
+</html>

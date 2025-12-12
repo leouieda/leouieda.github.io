@@ -1,0 +1,339 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>A template for reproducible papers | Leonardo Uieda</title>
+  <link rel="shortcut icon" href="../assets/favicon.png" />
+
+  <!-- OpenGraph social media card -->
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="A template for reproducible papers" />
+  <meta property="og:description" content="At the PINGA lab, we have been experimenting with ways to increase the reproducibility of our research by publishing the git repositories that accompany our papers. You can find them on our GitHub..." />
+  <meta property="og:image" content="https://www.leouieda.com/assets/thumbnail.jpg" />
+  <meta property="og:url" content="https://www.leouieda.com/blog/paper-template.html" />
+
+  <!-- Atkinson Hyperlegible fonts -->
+  <link rel="stylesheet" href="../pkg/atkinson-hyperlegible-next/font.css" />
+  <link rel="stylesheet" href="../pkg/atkinson-hyperlegible-mono/font.css" />
+
+  <!-- Andy Bell's CSS reset -->
+  <link rel="stylesheet" href="../css/reset.css" />
+
+  <!-- Syntax highlighting for code -->
+  <link rel="stylesheet" href="../css/pygments.css" />
+
+  <!-- Main CSS stylesheet -->
+  <link rel="stylesheet" href="../css/style.css" />
+
+  <!-- Plausible analytics for anonymous usage statistics -->
+  <script defer data-domain="leouieda.com" src="https://plausible.io/js/plausible.js"></script>
+  <!-- KaTeX -->
+  <link rel="stylesheet" href="../pkg/katex-0.15.3/katex.min.css" integrity="sha384-KiWOvVjnN8qwAZbuQyWDIbfCLFhLXNETzBQjA/92pIowpC0d2O3nppDGQVgwd2nB" />
+
+</head>
+
+<body>
+  <header id="top">
+    <div class="spread content-wide">
+      <a aria-label="Home" class="font-bold" href="../">Leonardo Uieda</a>
+      <nav aria-label="Main">
+        <ul class="list-inline" role="list">
+            <li>
+              <a class=""  href="../">Home</a>
+            </li>
+            <li>
+              <a class=""  href="../about/">About</a>
+            </li>
+            <li>
+              <a class="active" aria-current="page" href=".">Blog</a>
+            </li>
+            <li>
+              <a class=""  href="../cv/">CV</a>
+            </li>
+            <li>
+              <a class=""  href="../contact/">Contact</a>
+            </li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <main class="flow">
+
+    <div class="content flow">
+  
+    
+  
+  <article class="flow ">
+    <h1>
+      A template for reproducible papers
+    </h1>
+    <time class="text-muted" datetime="2018-03-15">
+      Published on
+      2018/03/15
+    </time>
+    <p>At the <a href="http://www.pinga-lab.org/">PINGA lab</a>, we have been experimenting with
+ways to increase the reproducibility of our research by publishing the git
+repositories that accompany our papers.
+You can find them on our
+<a href="https://github.com/pinga-lab">GitHub organzation</a>.
+I’ve synthesized the experience of the last 4 years into a template in the
+<a href="https://github.com/pinga-lab/paper-template">pinga-lab/paper-template</a>
+repository.</p>
+<p><img src="/images/paper-template-repository.png" alt="Screenshot of the paper-template GitHub repository." /></p>
+<p>The template reflects the tools we’ve been using and the type of research that
+we do:</p>
+<ul>
+<li>Most papers are proposing a new methodology rather than the analysis of a
+dataset.</li>
+<li>There is always an application to a dataset to show the method works. We
+can’t always publish the data but we include it in the repository whenever we
+can.</li>
+<li>All papers include an implementation of the proposed method.</li>
+<li>Our code is usually written in Python and executed in Jupyter notebooks.</li>
+<li>The focus of the paper is usually on the methodology, not the code. As such,
+the code is more of a proof-of-concept than a full blown application or
+library.</li>
+<li>The paper itself is written in LaTeX with the source usually included in the
+repository.</li>
+</ul>
+<p>This certainly won’t fit everyone’s needs but I hope that you can at least use
+a few bits and pieces for inspiration.
+Of course, the template code is open-source (BSD license) and you are free to
+reuse it however you like.
+The template includes a sample application to climate change data, complete
+with a Python package, automated tests, an analysis notebook, a notebook that
+generates the paper figure, raw data, and a LaTeX text.
+Everything, from compilation to building the final PDF, can be done with a
+single <code>make</code> command.</p>
+<p><img src="/images/paper-template-in-action.png" alt="Screenshot of running &quot;make&quot; in the paper-template with the final paper PDF and a Jupyter notebook." /></p>
+<p>We’ve been using different versions of this template for a few years and I’ve
+been tweaking it to address some of the difficulties we encountered along the
+way.</p>
+<ul>
+<li>Running experiments in Jupyter notebooks can get messy when people aren’t
+diligent about the execution order. It can be hard to remember to “Reset and
+run all” before using the results.</li>
+<li>The execution was done manually so you had to remember and document in what
+order the notebooks need to be run.</li>
+<li>Experimental parameters (e.g., number of data points, inversion parameters,
+model configuration) were copied into the text manually. This sometimes led
+to values getting out of sync between the notebooks and paper.</li>
+<li>We only had integration tests implemented in notebooks. More often than not,
+the checks were visual and not automated. I think a big reason for this is
+the lack of experience in writing tests within the group and setting up all
+of the testing infrastructure (mainly how to use pytest and what kind of test
+to perform).</li>
+</ul>
+<p>The <a href="https://github.com/pinga-lab/paper-template/pull/5">latest update</a>
+addresses all of these pain points.
+The main features of the new template are:</p>
+<ul>
+<li>Uses <code>Makefile</code>s to automate the workflow. You can build and test the
+software, generate results and figures, and compile the PDF with a single
+<code>make</code> command.</li>
+<li>A <code>Makefile</code> for building the manuscript PDF with extra rules for
+running <a href="https://github.com/amperser/proselint">proselint</a>, counting words,
+and opening the PDF.</li>
+<li>A starter <a href="https://conda.io/docs/user-guide/tasks/manage-environments.html">conda
+environment</a>
+for managing dependencies and making sure everyone gets the same version of
+the dependencies.</li>
+<li>Boilerplate instructions for downloading the code and reproducing the
+results.</li>
+<li>A <code>Makefile</code> for building the Python package, testing it with
+<a href="https://docs.pytest.org">pytest</a>, running static code
+checks (<a href="http://flake8.pycqa.org">flake8</a> and
+<a href="https://www.pylint.org/">pylint</a>), and generating results and figures from
+the notebooks.</li>
+<li>The code <code>Makefile</code> can run the notebooks using <code>jupyter nbconvert</code> to
+guarantee that the notebooks are executed in sequential order (top to
+bottom). I would love to use <a href="https://github.com/jhamrick/nbflow">nbflow</a> but
+the <a href="http://scons.org/">SCons</a> requirement puts me off a bit. <code>make</code> works
+fine and the basic syntax is easier to understand.</li>
+<li>An example of using code to write experimental parameters in a <code>.tex</code> file.
+The file defines new variables that are used in the main text. This
+guarantees that the values cited in the text are the ones that you actually
+used to produce the results.</li>
+</ul>
+<p>This last feature is my favorite. For example, the notebook
+<code>code/notebooks/estimate-hawaii-trend.ipynb</code> has the following code:</p>
+<div class="highlight"><pre><span></span><span class="n">tex</span> <span class="o">=</span> <span class="sa">r</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="si">% G</span><span class="s2">enerated by code/notebooks/estimate-hawaii-trend.ipynb</span>
+<span class="s2">\newcommand{{\HawaiiLinearCoef}}{{</span><span class="si">{linear:.3f}</span><span class="s2"> C}}</span>
+<span class="s2">\newcommand{{\HawaiiAngularCoef}}{{</span><span class="si">{angular:.3f}</span><span class="s2"> C/year}}</span>
+<span class="s2">&quot;&quot;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">linear</span><span class="o">=</span><span class="n">trend</span><span class="o">.</span><span class="n">linear_coef</span><span class="p">,</span> <span class="n">angular</span><span class="o">=</span><span class="n">trend</span><span class="o">.</span><span class="n">angular_coef</span><span class="p">)</span>
+
+<span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s1">&#39;../../manuscript/hawaii_trend.tex&#39;</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+    <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">tex</span><span class="p">)</span>
+</pre></div>
+<p>It defines the LaTeX commands <code>\HawaiiLinearCoef</code> and <code>\HawaiiAngularCoef</code> that
+can be used in the paper to insert the values estimated by the Python code.
+The commands are saved to a <code>.tex</code> file that can be included in the main
+<code>manuscript.tex</code>.
+Since this file is generated by the code, the values are guaranteed to be
+up-to-date.</p>
+<p>If you want to use the template to start a new project:</p>
+<ol>
+<li>
+<p>Create a new git repository:</p>
+<pre><code> mkdir mypaper
+ cd mypaper
+ git init
+</code></pre>
+</li>
+<li>
+<p>Pull in the template code:</p>
+<pre><code> git pull https://github.com/pinga-lab/paper-template.git master
+</code></pre>
+</li>
+<li>
+<p>Create a new repository on GitHub.</p>
+</li>
+<li>
+<p>Push the template code to GitHub:</p>
+<pre><code> git remote add origin https://github.com/USER/REPOSITORY.git
+ git push -u origin master
+</code></pre>
+</li>
+<li>
+<p>Follow the instruction in the <code>README.md</code>.</p>
+</li>
+</ol>
+<p>Alternatively, you can use the “Import repository” option on GitHub.</p>
+<p><img src="/images/paper-template-import-repository.png" alt="Screenshot of the GitHub page for importing code from an existing repository." /></p>
+<p>I hope that this template will be useful to people outside of our lab.
+There is definitely still room for improvement and I’m looking forward to
+trying it out on my next project.</p>
+<p><em>What other features would you like to see in the template?</em>
+I’d love to know about your experiences and workflows for computational papers.</p>
+
+  </article>
+
+  <hr>
+
+  <p class="text-right">
+    <a href="index.html">
+      ← Back to the blog
+    </a>
+  </p>
+    </div>
+  </main>
+
+  <footer class="flow">
+    <div class="content-wide flow">
+      <nav aria-label="Footer">
+        <ul class="list-inline" role="list">
+          <li><strong>CONTENTS:</strong></li>
+          <li>
+            <a class=""  href="../">Home</a>
+          </li>
+          <li>
+            <a class=""  href="../about/">About</a>
+          </li>
+          <li>
+            <a class="active" aria-current="page" href=".">Blog</a>
+          </li>
+          <li>
+            <a class=""  href="../cv/">CV</a>
+          </li>
+          <li>
+            <a class=""  href="../contact/">Contact</a>
+          </li>
+          <li>
+            <a class=""  href="../links/">Links</a>
+          </li>
+          <li>
+            <a class=""  href="../now/">Now</a>
+          </li>
+        </ul>
+      </nav>
+      <ul class="list-inline" role="list">
+        <li><strong>SOCIAL:</strong></li>
+        <li>
+          <a href="https://bertha.social/@leouieda" target="_blank">Mastodon</a>
+        </li>
+        <li>
+          <a href="https://bookwyrm.social/user/leouieda" target="_blank">BookWyrm</a>
+        </li>
+        <li>
+          <a href="https://www.linkedin.com/in/uieda" target="_blank">LinkedIn</a>
+        </li>
+        <li>
+          <a href="https://github.com/leouieda" target="_blank">GitHub</a>
+        </li>
+        <li>
+          <a href="https://www.youtube.com/@leouieda" target="_blank">YouTube</a>
+        </li>
+      </ul>
+      <ul class="list-inline" role="list">
+        <li><strong>ACADEMIC:</strong></li>
+        <li>
+          <a href="https://orcid.org/0000-0001-6123-9515" target="_blank">ORCID</a>
+        </li>
+        <li>
+          <a href="https://lattes.cnpq.br/8939551682050504" target="_blank">Lattes</a>
+        </li>
+        <li>
+          <a href="http://scholar.google.com/citations?user=qfmPrUEAAAAJ" target="_blank">Google Scholar</a>
+        </li>
+        <li>
+          <a href="https://www.researchgate.net/profile/Leonardo-Uieda" target="_blank">ResearchGate</a>
+        </li>
+        <li>
+          <a href="https://figshare.com/authors/Leonardo_Uieda/97471" target="_blank">figshare</a>
+        </li>
+        <li>
+          <a href="https://www.webofscience.com/wos/author/rid/G-3258-2012" target="_blank">Web of Science</a>
+        </li>
+        <li>
+          <a href="https://www.scopus.com/authid/detail.uri?authorId=47062144700" target="_blank">Scopus</a>
+        </li>
+      </ul>
+      <section class="flow font-small">
+        <p>
+          Built on 2025/12/12 with <a href="https://nene.leouieda.com">Nēnē</a> v0.10.0
+          from source code at
+          <a href="https://github.com/leouieda/website" target="_blank">leouieda/website</a>
+          (<a href="https://github.com/leouieda/website/commit/e243f4b"><code>e243f4b</code></a>).
+          <strong>
+          Found a typo/mistake?
+          <a target="_blank" href="https://github.com/leouieda/website/edit/main/blog/paper-template.md">Send a fix through GitHub</a>.
+          </strong>
+        </p>
+        <p>
+          Visitor statistics are gathered anonymously and without tracking by
+          <a href="https://plausible.io">Plausible</a> and can be viewed
+          at
+          <a href="https://plausible.io/leouieda.com">plausible.io/leouieda.com</a>.
+        </p>
+        <p>
+          Copyright &copy; 2025 Leonardo Uieda.
+            Except where otherwise noted, all content is licensed
+<a href="https://creativecommons.org/licenses/by/4.0/">CC-BY</a>.
+
+        </p>
+      </section>
+      <section class="font-small text-center">
+        <a href="#top" class="button-link">↑ Back to top</a>
+      </section>
+    </div>
+  </footer>
+  <!-- KaTeX -->
+  <script defer src="../pkg/katex-0.15.3/katex.min.js" integrity="sha384-0fdwu/T/EQMsQlrHCCHoH10pkPLlKA1jL5dFyUOvB3lfeT2540/2g6YgSi2BL14p" crossorigin="anonymous"></script>
+  <script defer src="../pkg/katex-0.15.3/auto-render.min.js" integrity="sha384-+XBljXPPiv+OzfbB3cVmLHf4hdUFHlWNZN5spNQ7rmHTXpd7WvJum6fIACpNNfIR" crossorigin="anonymous"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", function() {
+      renderMathInElement(document.body, {
+        delimiters: [
+          {left: '$$', right: '$$', display: true},
+          {left: '$', right: '$', display: false},
+        ],
+      });
+    });
+  </script>
+
+</body>
+</html>

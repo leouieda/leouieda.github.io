@@ -1,0 +1,312 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Introducing Pooch | Leonardo Uieda</title>
+  <link rel="shortcut icon" href="../assets/favicon.png" />
+
+  <!-- OpenGraph social media card -->
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="Introducing Pooch" />
+  <meta property="og:description" content="A friend to fetch your sample data files. Pooch is a Python package that manages downloading data files over HTTP and storing them in a local directory. It is meant to be used by other Python..." />
+  <meta property="og:image" content="https://www.leouieda.com/assets/thumbnail.jpg" />
+  <meta property="og:url" content="https://www.leouieda.com/blog/introducing-pooch.html" />
+
+  <!-- Atkinson Hyperlegible fonts -->
+  <link rel="stylesheet" href="../pkg/atkinson-hyperlegible-next/font.css" />
+  <link rel="stylesheet" href="../pkg/atkinson-hyperlegible-mono/font.css" />
+
+  <!-- Andy Bell's CSS reset -->
+  <link rel="stylesheet" href="../css/reset.css" />
+
+  <!-- Syntax highlighting for code -->
+  <link rel="stylesheet" href="../css/pygments.css" />
+
+  <!-- Main CSS stylesheet -->
+  <link rel="stylesheet" href="../css/style.css" />
+
+  <!-- Plausible analytics for anonymous usage statistics -->
+  <script defer data-domain="leouieda.com" src="https://plausible.io/js/plausible.js"></script>
+  <!-- KaTeX -->
+  <link rel="stylesheet" href="../pkg/katex-0.15.3/katex.min.css" integrity="sha384-KiWOvVjnN8qwAZbuQyWDIbfCLFhLXNETzBQjA/92pIowpC0d2O3nppDGQVgwd2nB" />
+
+</head>
+
+<body>
+  <header id="top">
+    <div class="spread content-wide">
+      <a aria-label="Home" class="font-bold" href="../">Leonardo Uieda</a>
+      <nav aria-label="Main">
+        <ul class="list-inline" role="list">
+            <li>
+              <a class=""  href="../">Home</a>
+            </li>
+            <li>
+              <a class=""  href="../about/">About</a>
+            </li>
+            <li>
+              <a class="active" aria-current="page" href=".">Blog</a>
+            </li>
+            <li>
+              <a class=""  href="../cv/">CV</a>
+            </li>
+            <li>
+              <a class=""  href="../contact/">Contact</a>
+            </li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <main class="flow">
+
+    <div class="content flow">
+  
+    
+  
+  <article class="flow ">
+    <h1>
+      Introducing Pooch
+    </h1>
+    <time class="text-muted" datetime="2018-07-20">
+      Published on
+      2018/07/20
+    </time>
+    <blockquote>
+<p>A friend to fetch your sample data files.</p>
+</blockquote>
+<p><a href="https://github.com/fatiando/pooch">Pooch</a> is a Python package that manages downloading
+data files over HTTP and storing them in a local directory.
+It is meant to be used by other Python libraries that ship sample data files for use in
+documentation, workshops, demos, etc.</p>
+<p>For example, your package could define a <code>datasets.py</code> module that has functions to load
+sample data
+(<a href="http://scikit-learn.org/0.19/modules/classes.html#module-sklearn.datasets">like scikit-learn does</a>).
+If you want the data to live on the web (like in the GitHub repo) instead of shipping it
+with your package, Pooch can keep track of it and download it to the user’s computer
+only when it’s needed.</p>
+<p>This is what a <code>datasets.py</code> module would look like using Pooch:</p>
+<div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Module mypackage/datasets.py</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pooch</span>
+
+<span class="c1">## Get the version string from your project. You have one of these, right?</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.</span><span class="w"> </span><span class="kn">import</span> <span class="n">__version__</span>
+
+
+<span class="c1">## Create a new friend to manage your sample data storage</span>
+<span class="n">GOODBOY</span> <span class="o">=</span> <span class="n">pooch</span><span class="o">.</span><span class="n">create</span><span class="p">(</span>
+    <span class="c1">## Folder where the data will be stored. For a sensible default, use the default</span>
+    <span class="c1">## cache folder for your OS.</span>
+    <span class="n">path</span><span class="o">=</span><span class="n">pooch</span><span class="o">.</span><span class="n">os_cache</span><span class="p">(</span><span class="s2">&quot;mypackage&quot;</span><span class="p">),</span>
+    <span class="c1">## Base URL of the remote data store. Will call .format on this string to insert</span>
+    <span class="c1">## the version (see below).</span>
+    <span class="n">base_url</span><span class="o">=</span><span class="s2">&quot;https://github.com/myproject/mypackage/raw/</span><span class="si">{version}</span><span class="s2">/data/&quot;</span><span class="p">,</span>
+    <span class="c1">## Pooches are versioned so that you can use multiple versions of a package</span>
+    <span class="c1">## simultaneously. Use PEP440 compliant version number. The version will be</span>
+    <span class="c1">## appended to the path.</span>
+    <span class="n">version</span><span class="o">=</span><span class="n">__version__</span><span class="p">,</span>
+    <span class="c1">## If a version as a &quot;+XX.XXXXX&quot; suffix, we&#39;ll assume that this is a dev version</span>
+    <span class="c1">## and replace the version with this string.</span>
+    <span class="n">version_dev</span><span class="o">=</span><span class="s2">&quot;master&quot;</span><span class="p">,</span>
+    <span class="c1">## An environment variable that overwrites the path.</span>
+    <span class="n">env</span><span class="o">=</span><span class="s2">&quot;MYPACKAGE_DATA_DIR&quot;</span><span class="p">,</span>
+    <span class="c1">## The cache file registry. A dictionary with all files managed by this pooch.</span>
+    <span class="c1">## Keys are the file names (relative to *base_url*) and values are their</span>
+    <span class="c1">## respective SHA256 hashes. Files will be downloaded automatically when needed</span>
+    <span class="c1">## (see fetch_gravity_data).</span>
+    <span class="n">registry</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;gravity-data.csv&quot;</span><span class="p">:</span> <span class="s2">&quot;89y10phsdwhs09whljwc09whcowsdhcwodcy0dcuhw&quot;</span><span class="p">}</span>
+<span class="p">)</span>
+<span class="c1">## You can also load the registry from a file. Each line contains a file name and</span>
+<span class="c1">## it&#39;s sha256 hash separated by a space. This makes it easier to manage large</span>
+<span class="c1">## numbers of data files. The registry file should be in the same directory as this</span>
+<span class="c1">## module.</span>
+<span class="n">GOODBOY</span><span class="o">.</span><span class="n">load_registry</span><span class="p">(</span><span class="s2">&quot;registry.txt&quot;</span><span class="p">)</span>
+
+
+<span class="c1">## Define functions that your users can call to get back some sample data in memory</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">fetch_gravity_data</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Load some sample gravity data to use in your docs.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1">## Fetch the path to a file in the local storae. If it&#39;s not there, we&#39;ll</span>
+    <span class="c1">## download it.</span>
+    <span class="n">fname</span> <span class="o">=</span> <span class="n">GOODBOY</span><span class="o">.</span><span class="n">fetch</span><span class="p">(</span><span class="s2">&quot;gravity-data.csv&quot;</span><span class="p">)</span>
+    <span class="c1">## Load it with numpy/pandas/etc</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="o">...</span>
+    <span class="k">return</span> <span class="n">data</span>
+</pre></div>
+<h2 id="features">Features</h2>
+<ul>
+<li>Download a file only if it’s still not in the local storage.</li>
+<li>Check the SHA256 hash to make sure the file is not corrupted or needs updating.</li>
+<li>If the hash is different from the registry, Pooch will download a new version of the
+file.</li>
+<li>If the hash still doesn’t match, Pooch will raise an exception warning of possible
+data corruption.</li>
+</ul>
+<h2 id="about">About</h2>
+<p>I started coding up Pooch at the <a href="https://scipy2018.scipy.org/">Scipy2018</a> sprints last
+week.
+At one point, I realised that I was writing the same code to fetch sample data multiple
+times.
+I asked <a href="http://www.johnrleeman.com/">John Leeman</a> if such a package would be useful to
+<a href="https://github.com/Unidata/MetPy">MetPy</a>
+and, as it turns out, he was in the middle of
+<a href="https://github.com/Unidata/MetPy/pull/760">implementing the same thing</a>.
+So I decided to write this as a standalone package that we could all share.</p>
+<p>Pooch is the first package released as part of the
+<a href="/blog/future-of-fatiando.html">breakup of the Fatiando a Terra project</a>.
+It will be used in most other packages in the new Fatiando ecosystem, like
+<a href="https://www.fatiando.org/verde/">Verde</a>.</p>
+<h2 id="taking-it-for-a-test-drive">Taking it for a test drive</h2>
+<p>Pooch is still a bit experimental but has complete test coverage and builds successfully
+on Linux, Mac, and Windows. I encourage you to give our first alpha release a try
+(v0.1a1):</p>
+<pre><code>pip install pooch==0.1a1
+</code></pre><p>The documentation at <a href="http://www.fatiando.org/pooch/">fatiando.org/pooch</a> has
+instructions for training your pooch to fetch data. There is also an API reference that
+lists all of the configuration options available.</p>
+<h2 id="getting-involved">Getting involved</h2>
+<p>The code is <a href="https://github.com/fatiando/pooch/blob/master/LICENSE.txt">BSD licensed</a>
+and we would love contributions of any form!
+Checkout the Github repository <a href="https://github.com/fatiando/pooch">fatiando/pooch</a> and
+please report any issues that you might encounter or features you would like to have.</p>
+<p>We have
+<a href="https://github.com/fatiando/pooch/blob/master/CONTRIBUTING.md">Contributing Guide</a> to
+help you get started and a
+<a href="https://github.com/fatiando/pooch/blob/master/CODE_OF_CONDUCT.md">Code of Conduct</a>
+to keep you safe.</p>
+<p><strong>Update (2018-08-10):</strong> Pooch now works on Python 2.7 (<a href="https://github.com/fatiando/pooch/pull/17">PR17</a>)
+but we’ll only support it until mid 2019.</p>
+
+  </article>
+
+  <hr>
+
+  <p class="text-right">
+    <a href="index.html">
+      ← Back to the blog
+    </a>
+  </p>
+    </div>
+  </main>
+
+  <footer class="flow">
+    <div class="content-wide flow">
+      <nav aria-label="Footer">
+        <ul class="list-inline" role="list">
+          <li><strong>CONTENTS:</strong></li>
+          <li>
+            <a class=""  href="../">Home</a>
+          </li>
+          <li>
+            <a class=""  href="../about/">About</a>
+          </li>
+          <li>
+            <a class="active" aria-current="page" href=".">Blog</a>
+          </li>
+          <li>
+            <a class=""  href="../cv/">CV</a>
+          </li>
+          <li>
+            <a class=""  href="../contact/">Contact</a>
+          </li>
+          <li>
+            <a class=""  href="../links/">Links</a>
+          </li>
+          <li>
+            <a class=""  href="../now/">Now</a>
+          </li>
+        </ul>
+      </nav>
+      <ul class="list-inline" role="list">
+        <li><strong>SOCIAL:</strong></li>
+        <li>
+          <a href="https://bertha.social/@leouieda" target="_blank">Mastodon</a>
+        </li>
+        <li>
+          <a href="https://bookwyrm.social/user/leouieda" target="_blank">BookWyrm</a>
+        </li>
+        <li>
+          <a href="https://www.linkedin.com/in/uieda" target="_blank">LinkedIn</a>
+        </li>
+        <li>
+          <a href="https://github.com/leouieda" target="_blank">GitHub</a>
+        </li>
+        <li>
+          <a href="https://www.youtube.com/@leouieda" target="_blank">YouTube</a>
+        </li>
+      </ul>
+      <ul class="list-inline" role="list">
+        <li><strong>ACADEMIC:</strong></li>
+        <li>
+          <a href="https://orcid.org/0000-0001-6123-9515" target="_blank">ORCID</a>
+        </li>
+        <li>
+          <a href="https://lattes.cnpq.br/8939551682050504" target="_blank">Lattes</a>
+        </li>
+        <li>
+          <a href="http://scholar.google.com/citations?user=qfmPrUEAAAAJ" target="_blank">Google Scholar</a>
+        </li>
+        <li>
+          <a href="https://www.researchgate.net/profile/Leonardo-Uieda" target="_blank">ResearchGate</a>
+        </li>
+        <li>
+          <a href="https://figshare.com/authors/Leonardo_Uieda/97471" target="_blank">figshare</a>
+        </li>
+        <li>
+          <a href="https://www.webofscience.com/wos/author/rid/G-3258-2012" target="_blank">Web of Science</a>
+        </li>
+        <li>
+          <a href="https://www.scopus.com/authid/detail.uri?authorId=47062144700" target="_blank">Scopus</a>
+        </li>
+      </ul>
+      <section class="flow font-small">
+        <p>
+          Built on 2025/12/12 with <a href="https://nene.leouieda.com">Nēnē</a> v0.10.0
+          from source code at
+          <a href="https://github.com/leouieda/website" target="_blank">leouieda/website</a>
+          (<a href="https://github.com/leouieda/website/commit/e243f4b"><code>e243f4b</code></a>).
+          <strong>
+          Found a typo/mistake?
+          <a target="_blank" href="https://github.com/leouieda/website/edit/main/blog/introducing-pooch.md">Send a fix through GitHub</a>.
+          </strong>
+        </p>
+        <p>
+          Visitor statistics are gathered anonymously and without tracking by
+          <a href="https://plausible.io">Plausible</a> and can be viewed
+          at
+          <a href="https://plausible.io/leouieda.com">plausible.io/leouieda.com</a>.
+        </p>
+        <p>
+          Copyright &copy; 2025 Leonardo Uieda.
+            Except where otherwise noted, all content is licensed
+<a href="https://creativecommons.org/licenses/by/4.0/">CC-BY</a>.
+
+        </p>
+      </section>
+      <section class="font-small text-center">
+        <a href="#top" class="button-link">↑ Back to top</a>
+      </section>
+    </div>
+  </footer>
+  <!-- KaTeX -->
+  <script defer src="../pkg/katex-0.15.3/katex.min.js" integrity="sha384-0fdwu/T/EQMsQlrHCCHoH10pkPLlKA1jL5dFyUOvB3lfeT2540/2g6YgSi2BL14p" crossorigin="anonymous"></script>
+  <script defer src="../pkg/katex-0.15.3/auto-render.min.js" integrity="sha384-+XBljXPPiv+OzfbB3cVmLHf4hdUFHlWNZN5spNQ7rmHTXpd7WvJum6fIACpNNfIR" crossorigin="anonymous"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", function() {
+      renderMathInElement(document.body, {
+        delimiters: [
+          {left: '$$', right: '$$', display: true},
+          {left: '$', right: '$', display: false},
+        ],
+      });
+    });
+  </script>
+
+</body>
+</html>

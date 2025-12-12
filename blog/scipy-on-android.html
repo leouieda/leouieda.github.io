@@ -1,0 +1,355 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Running Jupyter and the Scipy stack on Android | Leonardo Uieda</title>
+  <link rel="shortcut icon" href="../assets/favicon.png" />
+
+  <!-- OpenGraph social media card -->
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="Running Jupyter and the Scipy stack on Android" />
+  <meta property="og:description" content="TL;DR Install Termux from Google Play, open it and run: apt install clang python python-dev fftw libzmq libzmq-dev freetype freetype-dev libpng libpng-dev pkg-config LDFLAGS=" -lm -lcompiler_rt"..." />
+  <meta property="og:image" content="https://www.leouieda.com/assets/thumbnail.jpg" />
+  <meta property="og:url" content="https://www.leouieda.com/blog/scipy-on-android.html" />
+
+  <!-- Atkinson Hyperlegible fonts -->
+  <link rel="stylesheet" href="../pkg/atkinson-hyperlegible-next/font.css" />
+  <link rel="stylesheet" href="../pkg/atkinson-hyperlegible-mono/font.css" />
+
+  <!-- Andy Bell's CSS reset -->
+  <link rel="stylesheet" href="../css/reset.css" />
+
+  <!-- Syntax highlighting for code -->
+  <link rel="stylesheet" href="../css/pygments.css" />
+
+  <!-- Main CSS stylesheet -->
+  <link rel="stylesheet" href="../css/style.css" />
+
+  <!-- Plausible analytics for anonymous usage statistics -->
+  <script defer data-domain="leouieda.com" src="https://plausible.io/js/plausible.js"></script>
+  <!-- KaTeX -->
+  <link rel="stylesheet" href="../pkg/katex-0.15.3/katex.min.css" integrity="sha384-KiWOvVjnN8qwAZbuQyWDIbfCLFhLXNETzBQjA/92pIowpC0d2O3nppDGQVgwd2nB" />
+
+</head>
+
+<body>
+  <header id="top">
+    <div class="spread content-wide">
+      <a aria-label="Home" class="font-bold" href="../">Leonardo Uieda</a>
+      <nav aria-label="Main">
+        <ul class="list-inline" role="list">
+            <li>
+              <a class=""  href="../">Home</a>
+            </li>
+            <li>
+              <a class=""  href="../about/">About</a>
+            </li>
+            <li>
+              <a class="active" aria-current="page" href=".">Blog</a>
+            </li>
+            <li>
+              <a class=""  href="../cv/">CV</a>
+            </li>
+            <li>
+              <a class=""  href="../contact/">Contact</a>
+            </li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <main class="flow">
+
+    <div class="content flow">
+  
+    
+  
+  <article class="flow ">
+    <h1>
+      Running Jupyter and the Scipy stack on Android
+    </h1>
+    <time class="text-muted" datetime="2017-01-23">
+      Published on
+      2017/01/23
+    </time>
+    <h2 id="tldr">TL;DR</h2>
+<p>Install Termux from Google Play, open it and run:</p>
+<div class="highlight"><pre><span></span>apt<span class="w"> </span>install<span class="w"> </span>clang<span class="w"> </span>python<span class="w"> </span>python-dev<span class="w"> </span>fftw<span class="w"> </span>libzmq<span class="w"> </span>libzmq-dev<span class="w"> </span>freetype<span class="w"> </span>freetype-dev<span class="w"> </span>libpng<span class="w"> </span>libpng-dev<span class="w"> </span>pkg-config
+<span class="nv">LDFLAGS</span><span class="o">=</span><span class="s2">&quot; -lm -lcompiler_rt&quot;</span><span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>numpy<span class="w"> </span>matplotlib<span class="w"> </span>pandas<span class="w"> </span>jupyter
+jupyter<span class="w"> </span>notebook
+</pre></div>
+<p>Copy the URL printed to the screen (it will look something like
+<code>http://localhost:8888/?token=longstringofcharacters</code>)
+and paste it into Chrome/Firefox. Enjoy!</p>
+<p>Read on for more tips and a few tweaks.</p>
+<div class="callout">
+<p><strong>Update (25-01-2017):</strong>
+There were a few dependencies that I had left out of the instructions for
+installing numpy et al. I edited the post to make things more complete and
+clear.</p>
+</div>
+<h2 id="some-background">Some background</h2>
+<p>I bought my first tablet last October, an
+<a href="https://www.amazon.com/NVIDIA-SHIELD-K1-Tablet-Black/dp/B0171BS9CG/ref=sr_1_2?s=pc&amp;ie=UTF8&amp;qid=1484937529&amp;sr=1-2&amp;keywords=nvidia+shield+k1">NVIDIA Shield K1</a>.
+I had been putting off getting one because I never could think of a good use
+for them.
+I have my phone for messaging and Internet, my kindle for reading, and my
+Linux laptop for working.
+It seemed to me that the tablet would be a nice toy but not something I could
+use and justify the purchase.</p>
+<p>The dream would be to be able to ditch my laptop and do actual work on the
+tablet.
+Mark O’Connor wrote about doing just that on
+<a href="http://yieldthought.com/post/12239282034/swapped-my-macbook-for-an-ipad">Yield Thought</a>
+but he cheats a bit by running everything on a Linode server.
+And how does anyone do scientific programming these days without a Jupyter
+notebook?</p>
+<p>I finally gave in, thinking that I would use the tablet mainly for reading
+papers and taking notes.
+Maybe even play a few games.
+Then I discovered <a href="https://termux.com/">Termux</a>.</p>
+<h2 id="show-dont-tell">Show, don’t tell</h2>
+<p>Here is a screencast of me running a Jupyter notebook
+server on my tablet.
+Notice that the URL is <code>localhost:8888/</code> so this is not a remote server.</p>
+<p><img src="/images/termux-running-jupyter.gif" alt="Screencast of Termux running the Jupyter notebook on my Shield K1 tablet" /></p>
+<h2 id="setting-up-your-terminal">Setting up your terminal</h2>
+<p>Install Termux from Google Play and open it.
+You’ll be dropped into a bash terminal, like the one below.</p>
+<p><img src="/images/termux-blank.png" alt="Blank Termux startup screen" /></p>
+<p>Termux uses the <code>apt</code> package manager so you can install packages pretty much
+like you would on Debian/Ubuntu.</p>
+<p>The first thing I do on any new computer is install git so that I can fetch my
+<a href="https://github.com/leouieda/dotfiles">configuration files from GitHub</a>:</p>
+<div class="highlight"><pre><span></span>apt<span class="w"> </span>install<span class="w"> </span>git
+</pre></div>
+<p>Before cloning the repository, I need to generate a new SSH key (only required
+if you <a href="https://help.github.com/articles/generating-a-new-ssh-key-and-adding-it-to-the-ssh-agent/">use the SSH protocol with git</a>):</p>
+<div class="highlight"><pre><span></span>apt<span class="w"> </span>install<span class="w"> </span>openssh
+ssh-keygen<span class="w"> </span>-t<span class="w"> </span>rsa<span class="w"> </span>-b<span class="w"> </span><span class="m">4096</span><span class="w"> </span>-C<span class="w"> </span><span class="s2">&quot;your_email@example.com&quot;</span>
+cat<span class="w"> </span>.ssh/id_rsa.pub<span class="w">  </span><span class="c1">## copy and paste your public key to GitHub</span>
+</pre></div>
+<p>Then I can clone my <a href="https://github.com/leouieda/dotfiles">dotfiles</a>
+repository:</p>
+<div class="highlight"><pre><span></span>git<span class="w"> </span>clone<span class="w"> </span>git@github.com:leouieda/dotfiles.git
+</pre></div>
+<p>Now my Termux terminal looks just like my Linux terminal on my laptops.</p>
+<p><img src="/images/termux-git.png" alt="Cloning git repository with my config files" /></p>
+<p><img src="/images/termux-linux-terminal.png" alt="My Linux terminal to compare with termux" /></p>
+<h2 id="installing-the-scipy-stack">Installing the Scipy stack</h2>
+<p>If you’re from the pre-Anaconda era, you’ll probably remember the frustration
+of trying to <code>pip install numpy scipy matplotlib</code>.
+Sadly, there is no Anaconda for Termux so we’re stuck with using the system
+python and <code>pip</code> to install packages.</p>
+<p>But don’t despair!
+Things work more smoothly these days (if you follow the
+<a href="https://github.com/termux/termux-packages/issues/136">magic incantations</a>).
+Sadly, the scipy library itself so far <a href="https://github.com/termux/termux-packages/issues/471">can’t be installed without significant
+effort</a>.
+Even then you might not be able to do it because of all the Fortran
+requirements (BLAS, LAPACK, and gfortran).
+So for now, we have to make do with numpy only.</p>
+<p>First, we must install python it self (version 3.6), the headers files, a C compiler,
+and the FFTW package from Termux:</p>
+<div class="highlight"><pre><span></span>apt<span class="w"> </span>install<span class="w"> </span>python<span class="w"> </span>python-dev<span class="w"> </span>clang<span class="w"> </span>fftw
+</pre></div>
+<p>Now we can install numpy using pip:</p>
+<div class="highlight"><pre><span></span><span class="nv">LDFLAGS</span><span class="o">=</span><span class="s2">&quot; -lm -lcompiler_rt&quot;</span><span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>numpy
+</pre></div>
+<p>For matplotlib, we’ll need to install a few more dependencies:</p>
+<div class="highlight"><pre><span></span>apt<span class="w"> </span>install<span class="w"> </span>freetype<span class="w"> </span>freetype-dev<span class="w"> </span>libpng<span class="w"> </span>libpng-dev<span class="w"> </span>pkg-config
+<span class="nv">LDFLAGS</span><span class="o">=</span><span class="s2">&quot; -lm -lcompiler_rt&quot;</span><span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>matplotlib
+</pre></div>
+<p>And for Jupyter we need to install the zmq library as well:</p>
+<div class="highlight"><pre><span></span>apt<span class="w"> </span>install<span class="w"> </span>libzmq<span class="w"> </span>libzmq-dev
+<span class="nv">LDFLAGS</span><span class="o">=</span><span class="s2">&quot; -lm -lcompiler_rt&quot;</span><span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>jupyter
+</pre></div>
+<p>Finally, we can get pandas:</p>
+<div class="highlight"><pre><span></span><span class="nv">LDFLAGS</span><span class="o">=</span><span class="s2">&quot; -lm -lcompiler_rt&quot;</span><span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>pandas
+</pre></div>
+<p>Now you have access to things like <code>ipython</code> on the command-line:</p>
+<p><img src="/images/termux-ipython-numpy.png" alt="IPython running inside Termux" /></p>
+<p>One thing that won’t work are matplotlib plots because there is no backend for
+Android.
+You can, however, use <code>%matplotlib inline</code> or <code>%matplotlib notebook</code> inside
+Jupyter notebooks to get the plots working.
+Using <code>plt.savefig</code> without using <code>plt.show()</code> should also work.</p>
+<p>To get a Jupyter notebook server running, so the same thing you would on any
+other computer:</p>
+<div class="highlight"><pre><span></span>jupyter<span class="w"> </span>notebook
+</pre></div>
+<p>The server won’t automatically open a browser but
+you can copy the URL from the output and paste it into Chrome or Firefox.</p>
+<p><img src="/images/termux-jupyter-startup.png" alt="Jupyter notebook server running inside Termux" /></p>
+<h2 id="getting-comfortable">Getting comfortable</h2>
+<p>While it is possible to do some work using this setup (I wrote part of this
+post on the tablet using Vim and pushing to the <a href="https://github.com/leouieda/website">website’s GitHub
+repo</a>), it may not be the most productive
+environment.
+Here are a few tips for making life a little bit easier.</p>
+<ul>
+<li>Enable <a href="https://termux.com/touch-keyboard.html">extra keys (esc, ctrl, tab)</a>
+to complement your touch keyboard by pressing “Volume Up” + Q. Can you
+imagine using a terminal without tab completion?</li>
+<li>Get a bluetooth keyboard. I bought the
+<a href="https://www.amazon.com/Logitech-920-003390-Tablet-Keyboard-Android/dp/B0054L8N7M/ref=sr_1_15?s=pc&amp;ie=UTF8&amp;qid=1476900899&amp;sr=1-15&amp;keywords=Android+keyboard">Logitech 920-003390</a>.
+It’s not great but much better than a touch screen.</li>
+<li>If you want to use the touch screen, you’ll need the
+<a href="https://play.google.com/store/apps/details?id=org.pocketworkstation.pckeyboard&amp;hl=en">Hacker’s Keyboard app</a>
+to execute your code cells with Shift+Enter and not go crazy.</li>
+<li><a href="http://vim.wikia.com/wiki/Avoid_the_escape_key">Remap Esc to anything else</a>
+when using Vim. Esc shows the homescreen on Android and is a very frustrating
+habit to loose.</li>
+</ul>
+<p><img src="/images/termux-vim.png" alt="Sreenshot of vim running inside termux writing this post, inception style." /></p>
+<h2 id="things-that-are-still-missing">Things that are still missing</h2>
+<p>This setup works and is way beyond what I expected to be able to accomplish
+with a $200 tablet.
+However, going back to pip installing numpy feels a bit like I’m back in 2010.
+What I’ve missed the most is <a href="http://continuum.io/downloads#all">Anaconda</a>
+and the <a href="http://conda.pydata.org/docs/">conda package manager</a>.
+Having a prebuilt bundle certainly makes life a lot easier.
+But I miss the conda environments the most.
+I use them extensively for my projects and papers.</p>
+<p>The scipy package. So yeah, that is still missing as well. A lot of things can
+be done using numpy replacements (<code>numpy.fft</code> instead of <code>scipy.fftpack</code> etc)
+though they are usually slower.</p>
+<p>Another recent arrival that has made a huge impact on my daily work is <a href="https://conda-forge.github.io/">conda-forge</a>.
+This project greatly democratizes conda packages.
+Now anyone can build their own packages for Linux, Windows, and Mac.
+It would be awesome to have some for Android as well.
+Assuming that you can get conda installed, the major difficulty might
+be finding a continuous integration service that runs Android and setting up
+the infrastructure.</p>
+<p><strong>Let me know if you try this out! Is there another setup that you use?  What
+else is missing?  Do you think we’ll be able to fully work like this one day?</strong></p>
+
+  </article>
+
+  <hr>
+
+  <p class="text-right">
+    <a href="index.html">
+      ← Back to the blog
+    </a>
+  </p>
+    </div>
+  </main>
+
+  <footer class="flow">
+    <div class="content-wide flow">
+      <nav aria-label="Footer">
+        <ul class="list-inline" role="list">
+          <li><strong>CONTENTS:</strong></li>
+          <li>
+            <a class=""  href="../">Home</a>
+          </li>
+          <li>
+            <a class=""  href="../about/">About</a>
+          </li>
+          <li>
+            <a class="active" aria-current="page" href=".">Blog</a>
+          </li>
+          <li>
+            <a class=""  href="../cv/">CV</a>
+          </li>
+          <li>
+            <a class=""  href="../contact/">Contact</a>
+          </li>
+          <li>
+            <a class=""  href="../links/">Links</a>
+          </li>
+          <li>
+            <a class=""  href="../now/">Now</a>
+          </li>
+        </ul>
+      </nav>
+      <ul class="list-inline" role="list">
+        <li><strong>SOCIAL:</strong></li>
+        <li>
+          <a href="https://bertha.social/@leouieda" target="_blank">Mastodon</a>
+        </li>
+        <li>
+          <a href="https://bookwyrm.social/user/leouieda" target="_blank">BookWyrm</a>
+        </li>
+        <li>
+          <a href="https://www.linkedin.com/in/uieda" target="_blank">LinkedIn</a>
+        </li>
+        <li>
+          <a href="https://github.com/leouieda" target="_blank">GitHub</a>
+        </li>
+        <li>
+          <a href="https://www.youtube.com/@leouieda" target="_blank">YouTube</a>
+        </li>
+      </ul>
+      <ul class="list-inline" role="list">
+        <li><strong>ACADEMIC:</strong></li>
+        <li>
+          <a href="https://orcid.org/0000-0001-6123-9515" target="_blank">ORCID</a>
+        </li>
+        <li>
+          <a href="https://lattes.cnpq.br/8939551682050504" target="_blank">Lattes</a>
+        </li>
+        <li>
+          <a href="http://scholar.google.com/citations?user=qfmPrUEAAAAJ" target="_blank">Google Scholar</a>
+        </li>
+        <li>
+          <a href="https://www.researchgate.net/profile/Leonardo-Uieda" target="_blank">ResearchGate</a>
+        </li>
+        <li>
+          <a href="https://figshare.com/authors/Leonardo_Uieda/97471" target="_blank">figshare</a>
+        </li>
+        <li>
+          <a href="https://www.webofscience.com/wos/author/rid/G-3258-2012" target="_blank">Web of Science</a>
+        </li>
+        <li>
+          <a href="https://www.scopus.com/authid/detail.uri?authorId=47062144700" target="_blank">Scopus</a>
+        </li>
+      </ul>
+      <section class="flow font-small">
+        <p>
+          Built on 2025/12/12 with <a href="https://nene.leouieda.com">Nēnē</a> v0.10.0
+          from source code at
+          <a href="https://github.com/leouieda/website" target="_blank">leouieda/website</a>
+          (<a href="https://github.com/leouieda/website/commit/e243f4b"><code>e243f4b</code></a>).
+          <strong>
+          Found a typo/mistake?
+          <a target="_blank" href="https://github.com/leouieda/website/edit/main/blog/scipy-on-android.md">Send a fix through GitHub</a>.
+          </strong>
+        </p>
+        <p>
+          Visitor statistics are gathered anonymously and without tracking by
+          <a href="https://plausible.io">Plausible</a> and can be viewed
+          at
+          <a href="https://plausible.io/leouieda.com">plausible.io/leouieda.com</a>.
+        </p>
+        <p>
+          Copyright &copy; 2025 Leonardo Uieda.
+            Except where otherwise noted, all content is licensed
+<a href="https://creativecommons.org/licenses/by/4.0/">CC-BY</a>.
+
+        </p>
+      </section>
+      <section class="font-small text-center">
+        <a href="#top" class="button-link">↑ Back to top</a>
+      </section>
+    </div>
+  </footer>
+  <!-- KaTeX -->
+  <script defer src="../pkg/katex-0.15.3/katex.min.js" integrity="sha384-0fdwu/T/EQMsQlrHCCHoH10pkPLlKA1jL5dFyUOvB3lfeT2540/2g6YgSi2BL14p" crossorigin="anonymous"></script>
+  <script defer src="../pkg/katex-0.15.3/auto-render.min.js" integrity="sha384-+XBljXPPiv+OzfbB3cVmLHf4hdUFHlWNZN5spNQ7rmHTXpd7WvJum6fIACpNNfIR" crossorigin="anonymous"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", function() {
+      renderMathInElement(document.body, {
+        delimiters: [
+          {left: '$$', right: '$$', display: true},
+          {left: '$', right: '$', display: false},
+        ],
+      });
+    });
+  </script>
+
+</body>
+</html>

@@ -1,0 +1,289 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Recommended reading to get started with Python for science and data analysis | Leonardo Uieda</title>
+  <link rel="shortcut icon" href="../assets/favicon.png" />
+
+  <!-- OpenGraph social media card -->
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="Recommended reading to get started with Python for science and data analysis" />
+  <meta property="og:description" content="I get asked a lot in the Fatiando a Terra mailing list how to do some basic Python and numpy tasks which are not necessarily related to Fatiando. The most common question is some variant of “I..." />
+  <meta property="og:image" content="https://www.leouieda.com/assets/thumbnail.jpg" />
+  <meta property="og:url" content="https://www.leouieda.com/blog/getting-started-with-python-for-science.html" />
+
+  <!-- Atkinson Hyperlegible fonts -->
+  <link rel="stylesheet" href="../pkg/atkinson-hyperlegible-next/font.css" />
+  <link rel="stylesheet" href="../pkg/atkinson-hyperlegible-mono/font.css" />
+
+  <!-- Andy Bell's CSS reset -->
+  <link rel="stylesheet" href="../css/reset.css" />
+
+  <!-- Syntax highlighting for code -->
+  <link rel="stylesheet" href="../css/pygments.css" />
+
+  <!-- Main CSS stylesheet -->
+  <link rel="stylesheet" href="../css/style.css" />
+
+  <!-- Plausible analytics for anonymous usage statistics -->
+  <script defer data-domain="leouieda.com" src="https://plausible.io/js/plausible.js"></script>
+  <!-- KaTeX -->
+  <link rel="stylesheet" href="../pkg/katex-0.15.3/katex.min.css" integrity="sha384-KiWOvVjnN8qwAZbuQyWDIbfCLFhLXNETzBQjA/92pIowpC0d2O3nppDGQVgwd2nB" />
+
+</head>
+
+<body>
+  <header id="top">
+    <div class="spread content-wide">
+      <a aria-label="Home" class="font-bold" href="../">Leonardo Uieda</a>
+      <nav aria-label="Main">
+        <ul class="list-inline" role="list">
+            <li>
+              <a class=""  href="../">Home</a>
+            </li>
+            <li>
+              <a class=""  href="../about/">About</a>
+            </li>
+            <li>
+              <a class="active" aria-current="page" href=".">Blog</a>
+            </li>
+            <li>
+              <a class=""  href="../cv/">CV</a>
+            </li>
+            <li>
+              <a class=""  href="../contact/">Contact</a>
+            </li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <main class="flow">
+
+    <div class="content flow">
+  
+    
+  
+  <article class="flow ">
+    <h1>
+      Recommended reading to get started with Python for science and data analysis
+    </h1>
+    <time class="text-muted" datetime="2017-02-07">
+      Published on
+      2017/02/07
+    </time>
+    <p>I get asked a lot in the <a href="https://www.fatiando.org">Fatiando a Terra</a>
+<a href="https://groups.google.com/d/forum/fatiando">mailing list</a>
+how to do some basic Python and numpy tasks which are not necessarily related
+to Fatiando.
+The most common question is some variant of “I have some data in a csv/txt/xyz
+file and I want to load it into Python”.
+I think this happens because a lot of people find the project while searching
+for a replacement for GUI based commercial projects,
+like Geosoft’s Oasis Montaj,
+but they don’t necessarily know Python.
+So instead of writing yet another email,
+I decided to <a href="http://matt.might.net/articles/how-to-blog-as-an-academic/">“Reply to public”</a>
+here.</p>
+<p><strong>Before you start</strong>, try to find a task or problem that you would like to
+solve using programming.
+Then learn what you need to solve this problem.
+This will let you apply the knowledge you gain straight away.
+Plus, you get something useful by the end of your studies.
+If you don’t have anything in mind, here a few ideas:</p>
+<ul>
+<li>Loading data from several text files and making a plot for each one.</li>
+<li>Extracting a section of data from several files and compiling them into a
+single file.</li>
+<li>Download data from an online source and fit a trend line to it (for example,
+the temperature data from
+<a href="/blog/python-hawaii-2017.html">my Python workshop at UH</a>).</li>
+<li>Implement a common (and simple) method in your field that is only available
+in commercial software.</li>
+</ul>
+<p>Finally, here are my recommendations (in order):</p>
+<ol start="0">
+<li><strong>Don’t start</strong> with a general Python programming book/site/tutorial/video.
+They are usually meant for programmers, not scientists. You’ll have to wade
+through mountains of string formatting and Fibonacci numbers before you find
+an answer to “How do I load these data?” (and it won’t be <code>numpy.loadtxt</code>).</li>
+<li><strong>Ignore</strong> any reference that uses Python 2. All support for Python 2.7
+will end in 2020 and there is no reason to still be using it.</li>
+<li><strong>Start</strong> with the <a href="https://software-carpentry.org/lessons/">Software Carpentry
+lessons</a>. Read all of them if you
+can. <strong>Everything there will make your life easier.</strong> If you don’t have the
+time, focus on “Programming with Python” and “Version Control with git”.
+The lessons are not detailed but instead show you what is out
+there and what you should type into Google.</li>
+<li>After you wet your appetite, <strong>dive deeper</strong> into more detailed material. I
+highly recommend the <a href="http://www.scipy-lectures.org/">Scipy Lecture Notes</a>.
+If you like the feeling of paper in your hands and have some money to spare,
+try the books
+<a href="http://shop.oreilly.com/product/0636920033424.do">Effective Computation in Physics</a>
+by <a href="http://www.scopatz.com/">Anthony Scopatz</a> and
+<a href="http://katyhuff.github.io/">Katy Huff</a>
+and <a href="http://shop.oreilly.com/product/0636920034919.do">Python Data Science Handbook</a>
+by <a href="http://staff.washington.edu/jakevdp/">Jake VanderPlas</a>.
+There is also <a href="http://greenteapress.com/wp/think-python-2e/">Think Python</a> by
+the excellent <a href="http://www.allendowney.com/">Allen Downey</a>, which is available
+for free if you don’t have the option to purchase.
+<strong>Beware that I have not read these books</strong> so I cannot vouch for them
+(but I have read good reviews online).</li>
+<li>Now that you have the basics down, <strong>use the project documentation pages</strong>
+to find specific instructions for what you want, for example the
+<a href="http://www.numpy.org/">numpy documentation</a> and the
+<a href="http://matplotlib.org/gallery.html">matplotlib gallery</a>.</li>
+<li>If you like games and want to learn useful general Python skills, try the
+<a href="http://www.pythonchallenge.com/">Python Challenge</a>.</li>
+</ol>
+<p>From now on, learning new things will be a continuous process. I’ve been
+programming Python for 10 years and every once in a while I’ll still learn
+something new, usually that reduces the amount of code I have to write (less
+code = less bugs).
+The key is to stay informed and you can do that by subscribing to some (or all)
+of the following:</p>
+<ul>
+<li><a href="https://planet.scipy.org/">Planet Scipy</a>, an aggregator feed for scientific
+Python blogs.</li>
+<li>The <a href="http://www.pythonweekly.com/">Python Weekly</a> email news letter.</li>
+<li>The podcasts <a href="https://www.podcastinit.com/">Podcast.__init__</a> and
+<a href="https://talkpython.fm/">Talk Python To Me</a>. See my <a href="/blog/podcasts-2016.html">previous post for more
+podcast recommendations</a>.</li>
+</ul>
+<p>Now go out there and learn a skill that just might save you in these times of
+crisis!</p>
+<p><strong>How did you get started with Python? Do you have anything to add to this list?
+Let me know!</strong></p>
+<div class="callout">
+<p>Update (2017-11-13): Added “Before you start” and the Python Challenge.</p>
+<p>Update (2018-12-17): Added “Think Python” and a warning about Python 2.</p>
+</div>
+  </article>
+
+  <hr>
+
+  <p class="text-right">
+    <a href="index.html">
+      ← Back to the blog
+    </a>
+  </p>
+    </div>
+  </main>
+
+  <footer class="flow">
+    <div class="content-wide flow">
+      <nav aria-label="Footer">
+        <ul class="list-inline" role="list">
+          <li><strong>CONTENTS:</strong></li>
+          <li>
+            <a class=""  href="../">Home</a>
+          </li>
+          <li>
+            <a class=""  href="../about/">About</a>
+          </li>
+          <li>
+            <a class="active" aria-current="page" href=".">Blog</a>
+          </li>
+          <li>
+            <a class=""  href="../cv/">CV</a>
+          </li>
+          <li>
+            <a class=""  href="../contact/">Contact</a>
+          </li>
+          <li>
+            <a class=""  href="../links/">Links</a>
+          </li>
+          <li>
+            <a class=""  href="../now/">Now</a>
+          </li>
+        </ul>
+      </nav>
+      <ul class="list-inline" role="list">
+        <li><strong>SOCIAL:</strong></li>
+        <li>
+          <a href="https://bertha.social/@leouieda" target="_blank">Mastodon</a>
+        </li>
+        <li>
+          <a href="https://bookwyrm.social/user/leouieda" target="_blank">BookWyrm</a>
+        </li>
+        <li>
+          <a href="https://www.linkedin.com/in/uieda" target="_blank">LinkedIn</a>
+        </li>
+        <li>
+          <a href="https://github.com/leouieda" target="_blank">GitHub</a>
+        </li>
+        <li>
+          <a href="https://www.youtube.com/@leouieda" target="_blank">YouTube</a>
+        </li>
+      </ul>
+      <ul class="list-inline" role="list">
+        <li><strong>ACADEMIC:</strong></li>
+        <li>
+          <a href="https://orcid.org/0000-0001-6123-9515" target="_blank">ORCID</a>
+        </li>
+        <li>
+          <a href="https://lattes.cnpq.br/8939551682050504" target="_blank">Lattes</a>
+        </li>
+        <li>
+          <a href="http://scholar.google.com/citations?user=qfmPrUEAAAAJ" target="_blank">Google Scholar</a>
+        </li>
+        <li>
+          <a href="https://www.researchgate.net/profile/Leonardo-Uieda" target="_blank">ResearchGate</a>
+        </li>
+        <li>
+          <a href="https://figshare.com/authors/Leonardo_Uieda/97471" target="_blank">figshare</a>
+        </li>
+        <li>
+          <a href="https://www.webofscience.com/wos/author/rid/G-3258-2012" target="_blank">Web of Science</a>
+        </li>
+        <li>
+          <a href="https://www.scopus.com/authid/detail.uri?authorId=47062144700" target="_blank">Scopus</a>
+        </li>
+      </ul>
+      <section class="flow font-small">
+        <p>
+          Built on 2025/12/12 with <a href="https://nene.leouieda.com">Nēnē</a> v0.10.0
+          from source code at
+          <a href="https://github.com/leouieda/website" target="_blank">leouieda/website</a>
+          (<a href="https://github.com/leouieda/website/commit/e243f4b"><code>e243f4b</code></a>).
+          <strong>
+          Found a typo/mistake?
+          <a target="_blank" href="https://github.com/leouieda/website/edit/main/blog/getting-started-with-python-for-science.md">Send a fix through GitHub</a>.
+          </strong>
+        </p>
+        <p>
+          Visitor statistics are gathered anonymously and without tracking by
+          <a href="https://plausible.io">Plausible</a> and can be viewed
+          at
+          <a href="https://plausible.io/leouieda.com">plausible.io/leouieda.com</a>.
+        </p>
+        <p>
+          Copyright &copy; 2025 Leonardo Uieda.
+            Except where otherwise noted, all content is licensed
+<a href="https://creativecommons.org/licenses/by/4.0/">CC-BY</a>.
+
+        </p>
+      </section>
+      <section class="font-small text-center">
+        <a href="#top" class="button-link">↑ Back to top</a>
+      </section>
+    </div>
+  </footer>
+  <!-- KaTeX -->
+  <script defer src="../pkg/katex-0.15.3/katex.min.js" integrity="sha384-0fdwu/T/EQMsQlrHCCHoH10pkPLlKA1jL5dFyUOvB3lfeT2540/2g6YgSi2BL14p" crossorigin="anonymous"></script>
+  <script defer src="../pkg/katex-0.15.3/auto-render.min.js" integrity="sha384-+XBljXPPiv+OzfbB3cVmLHf4hdUFHlWNZN5spNQ7rmHTXpd7WvJum6fIACpNNfIR" crossorigin="anonymous"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", function() {
+      renderMathInElement(document.body, {
+        delimiters: [
+          {left: '$$', right: '$$', display: true},
+          {left: '$', right: '$', display: false},
+        ],
+      });
+    });
+  </script>
+
+</body>
+</html>

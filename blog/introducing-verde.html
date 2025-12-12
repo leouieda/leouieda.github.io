@@ -1,0 +1,363 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Introducing Verde | Leonardo Uieda</title>
+  <link rel="shortcut icon" href="../assets/favicon.png" />
+
+  <!-- OpenGraph social media card -->
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="Introducing Verde" />
+  <meta property="og:description" content="Verde is a Python library for processing spatial data (bathymetry, geophysics surveys, etc) and interpolating it on regular grids (i.e., gridding). It implements Green’s functions based..." />
+  <meta property="og:image" content="https://www.leouieda.com/assets/thumbnail.jpg" />
+  <meta property="og:url" content="https://www.leouieda.com/blog/introducing-verde.html" />
+
+  <!-- Atkinson Hyperlegible fonts -->
+  <link rel="stylesheet" href="../pkg/atkinson-hyperlegible-next/font.css" />
+  <link rel="stylesheet" href="../pkg/atkinson-hyperlegible-mono/font.css" />
+
+  <!-- Andy Bell's CSS reset -->
+  <link rel="stylesheet" href="../css/reset.css" />
+
+  <!-- Syntax highlighting for code -->
+  <link rel="stylesheet" href="../css/pygments.css" />
+
+  <!-- Main CSS stylesheet -->
+  <link rel="stylesheet" href="../css/style.css" />
+
+  <!-- Plausible analytics for anonymous usage statistics -->
+  <script defer data-domain="leouieda.com" src="https://plausible.io/js/plausible.js"></script>
+  <!-- KaTeX -->
+  <link rel="stylesheet" href="../pkg/katex-0.15.3/katex.min.css" integrity="sha384-KiWOvVjnN8qwAZbuQyWDIbfCLFhLXNETzBQjA/92pIowpC0d2O3nppDGQVgwd2nB" />
+
+</head>
+
+<body>
+  <header id="top">
+    <div class="spread content-wide">
+      <a aria-label="Home" class="font-bold" href="../">Leonardo Uieda</a>
+      <nav aria-label="Main">
+        <ul class="list-inline" role="list">
+            <li>
+              <a class=""  href="../">Home</a>
+            </li>
+            <li>
+              <a class=""  href="../about/">About</a>
+            </li>
+            <li>
+              <a class="active" aria-current="page" href=".">Blog</a>
+            </li>
+            <li>
+              <a class=""  href="../cv/">CV</a>
+            </li>
+            <li>
+              <a class=""  href="../contact/">Contact</a>
+            </li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <main class="flow">
+
+    <div class="content flow">
+  
+    
+  
+  <article class="flow ">
+    <h1>
+      Introducing Verde
+    </h1>
+    <time class="text-muted" datetime="2018-09-14">
+      Published on
+      2018/09/14
+    </time>
+    <p><strong>Verde is a Python library for processing spatial data (bathymetry, geophysics surveys,
+etc) and interpolating it on regular grids (i.e., gridding).</strong></p>
+<p>It implements <a href="https://en.wikipedia.org/wiki/Green%27s_function">Green’s functions</a>
+based interpolation methods and other data processing routines.
+The type of gridding implemented in Verde is essentially fitting various linear models
+to spatial data and using them to predict new data on regular grids, which is what a lot
+of machine learning is all about.
+So Verde’s <a href="http://www.fatiando.org/verde/v1.0.0/tutorials/overview.html#the-gridder-interface">gridder API</a>
+is inspired on <a href="http://scikit-learn.org/">scikit-learn</a>, the state-of-the-art for
+machine learning in Python.
+The Green’s functions that make up the Jacobian matrix (aka sensitivity or feature
+matrix) of the linear models generally come from elastic deformation theory.
+For example, the bi-harmonic spline (<a href="https://doi.org/10.1029/GL014i002p00139">Sandwell, 1987</a>)
+implemented in <code>verde.Spline</code> comes from the deformation of a thin elastic plate.</p>
+<p>I submitted a <a href="/publications">paper about Verde</a> to the
+<a href="https://joss.theoj.org/">Journal of Open Source Software (JOSS)</a> where it’s currently
+awaiting review.
+This is my first time submitting to JOSS, though I have reviewed for it before.
+If you need academic credit for an open-source software project, I recommend giving JOSS
+a shot.
+Unlike many “geoscience computing” journals, you’ll actually get great feedback on your
+code and project structure.</p>
+<h2 id="dig-in">Dig In</h2>
+<p>Verde comes with an <a href="http://www.fatiando.org/verde/v1.0.0/gallery/index.html">example gallery</a>,
+<a href="http://www.fatiando.org/verde/v1.0.0/tutorials/overview.html">tutorials</a>, and
+a range of <a href="http://www.fatiando.org/verde/v1.0.0/sample_data/index.html">sample datasets</a>
+to get you started (which are managed by <a href="/blog/introducing-pooch.html">Pooch</a> under the
+hood).
+You can install it from <a href="https://pypi.org/project/verde/">PyPI</a> using <code>pip</code>:</p>
+<div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span>verde
+</pre></div>
+<p>Conda packages will be available soon. We have a
+<a href="https://github.com/conda-forge/verde-feedstock">conda-forge feedstock</a> ready and are
+just waiting on issue
+<a href="https://github.com/conda-forge/staged-recipes/issues/6659">conda-forge/staged-recipes#6659</a>.</p>
+<p>The code is hosted on Github under the Fatiando a Terra organization:
+<a href="https://github.com/fatiando/verde">fatiando/verde</a>.</p>
+<p><a href="http://www.fatiando.org/verde/v1.0.0/gallery/index.html"><img src="/images/verde-gallery.png" alt="The Verde example gallery" /></a></p>
+<h2 id="example">Example</h2>
+<p>Here is an example code that interpolates our
+<a href="http://www.fatiando.org/verde/v1.0.0/sample_data/texas-wind.html">sample air temperature dataset</a>:</p>
+<div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">cartopy.crs</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">ccrs</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pyproj</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">verde</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">vd</span>
+</pre></div>
+<p>Verde is imported as <code>vd</code> in all our documentation. You can access all functions from
+directly from the <code>verde</code> base package namespace.</p>
+<div class="highlight"><pre><span></span><span class="c1">## Load the air temperature data from Texas</span>
+<span class="n">data</span> <span class="o">=</span> <span class="n">vd</span><span class="o">.</span><span class="n">datasets</span><span class="o">.</span><span class="n">fetch_texas_wind</span><span class="p">()</span>
+<span class="n">coordinates</span> <span class="o">=</span> <span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">longitude</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="n">data</span><span class="o">.</span><span class="n">latitude</span><span class="o">.</span><span class="n">values</span><span class="p">)</span>
+<span class="n">region</span> <span class="o">=</span> <span class="n">vd</span><span class="o">.</span><span class="n">get_region</span><span class="p">(</span><span class="n">coordinates</span><span class="p">)</span>
+
+<span class="c1">## Use a Mercator projection for our Cartesian gridder</span>
+<span class="n">projection</span> <span class="o">=</span> <span class="n">pyproj</span><span class="o">.</span><span class="n">Proj</span><span class="p">(</span><span class="n">proj</span><span class="o">=</span><span class="s2">&quot;merc&quot;</span><span class="p">,</span> <span class="n">lat_ts</span><span class="o">=</span><span class="n">data</span><span class="o">.</span><span class="n">latitude</span><span class="o">.</span><span class="n">mean</span><span class="p">())</span>
+
+<span class="c1">## The output grid spacing will 15 arc-minutes</span>
+<span class="n">spacing</span> <span class="o">=</span> <span class="mi">15</span> <span class="o">/</span> <span class="mi">60</span>
+</pre></div>
+<p>We can evaluate model performance by splitting the data into a training and testing set.
+We’ll use the training set to grid the data and the testing set to validate our spline
+model.</p>
+<div class="highlight"><pre><span></span><span class="n">train</span><span class="p">,</span> <span class="n">test</span> <span class="o">=</span> <span class="n">vd</span><span class="o">.</span><span class="n">train_test_split</span><span class="p">(</span>
+    <span class="n">projection</span><span class="p">(</span><span class="o">*</span><span class="n">coordinates</span><span class="p">),</span> <span class="n">data</span><span class="o">.</span><span class="n">air_temperature_c</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">0</span>
+<span class="p">)</span>
+</pre></div>
+<p>Now we can chain a blocked mean and spline using <code>verde.Chain</code> to create a data
+processing pipeline. The <code>Spline</code> can be regularized by setting the <code>damping</code> parameter.
+It’s also a good idea to set the minimum distance to the average data spacing to avoid
+singularities in the spline.</p>
+<div class="highlight"><pre><span></span><span class="n">chain</span> <span class="o">=</span> <span class="n">vd</span><span class="o">.</span><span class="n">Chain</span><span class="p">(</span>
+    <span class="p">[</span>
+        <span class="p">(</span><span class="s2">&quot;mean&quot;</span><span class="p">,</span> <span class="n">vd</span><span class="o">.</span><span class="n">BlockReduce</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">,</span> <span class="n">spacing</span><span class="o">=</span><span class="n">spacing</span> <span class="o">*</span> <span class="mf">111e3</span><span class="p">)),</span>
+        <span class="p">(</span><span class="s2">&quot;spline&quot;</span><span class="p">,</span> <span class="n">vd</span><span class="o">.</span><span class="n">Spline</span><span class="p">(</span><span class="n">damping</span><span class="o">=</span><span class="mf">1e-10</span><span class="p">,</span> <span class="n">mindist</span><span class="o">=</span><span class="mf">100e3</span><span class="p">)),</span>
+    <span class="p">]</span>
+<span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">chain</span><span class="p">)</span>
+</pre></div>
+<pre><code>Chain(steps=[('mean', BlockReduce(adjust='spacing', center_coordinates=False,
+      reduction=&lt;function mean at 0x7f5df74048c8&gt;, region=None,
+      spacing=27750.0)), ('spline', Spline(damping=1e-10, engine='auto', force_coords=None, mindist=100000.0))])
+</code></pre><p>Fit the model on the training set like you would with scikit-learn. And calculate an R²
+score coefficient on the testing set. The best possible score (perfect prediction) is 1.
+This can tell us how good our spline is at predicting data that was not in the input
+dataset.</p>
+<div class="highlight"><pre><span></span><span class="n">chain</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="o">*</span><span class="n">train</span><span class="p">)</span>
+<span class="n">score</span> <span class="o">=</span> <span class="n">chain</span><span class="o">.</span><span class="n">score</span><span class="p">(</span><span class="o">*</span><span class="n">test</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Score: </span><span class="si">{:.2f}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">score</span><span class="p">))</span>
+</pre></div>
+<pre><code>Score: 0.86
+</code></pre><p>Now we can create a geographic grid of air temperature by providing the <code>projection</code>
+function to the <code>grid</code> method. The output of <code>grid</code> is an
+<a href="http://xarray.pydata.org/"><code>xarray.Dataset</code></a> that is ready to be plotted or saved to
+netCDF.</p>
+<div class="highlight"><pre><span></span><span class="n">grid_full</span> <span class="o">=</span> <span class="n">chain</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span>
+    <span class="n">region</span><span class="o">=</span><span class="n">region</span><span class="p">,</span>
+    <span class="n">spacing</span><span class="o">=</span><span class="n">spacing</span><span class="p">,</span>
+    <span class="n">projection</span><span class="o">=</span><span class="n">projection</span><span class="p">,</span>
+    <span class="n">dims</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;latitude&quot;</span><span class="p">,</span> <span class="s2">&quot;longitude&quot;</span><span class="p">],</span>
+    <span class="n">data_names</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;temperature&quot;</span><span class="p">],</span>
+<span class="p">)</span>
+
+<span class="c1">## Mask points that are too far away from the original data points.</span>
+<span class="n">grid</span> <span class="o">=</span> <span class="n">vd</span><span class="o">.</span><span class="n">distance_mask</span><span class="p">(</span>
+    <span class="n">coordinates</span><span class="p">,</span> <span class="n">maxdist</span><span class="o">=</span><span class="mi">4</span> <span class="o">*</span> <span class="n">spacing</span> <span class="o">*</span> <span class="mf">111e3</span><span class="p">,</span> <span class="n">grid</span><span class="o">=</span><span class="n">grid_full</span><span class="p">,</span> <span class="n">projection</span><span class="o">=</span><span class="n">projection</span>
+<span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">grid</span><span class="p">)</span>
+</pre></div>
+<pre><code>&lt;xarray.Dataset&gt;
+Dimensions:      (latitude: 43, longitude: 51)
+Coordinates:
+  * longitude    (longitude) float64 -106.4 -106.1 -105.9 -105.6 -105.4 ...
+  * latitude     (latitude) float64 25.91 26.16 26.41 26.66 26.91 27.16 ...
+Data variables:
+    temperature  (latitude, longitude) float64 nan nan nan nan nan nan nan ...
+Attributes:
+    metadata:  Generated by Chain(steps=[('mean', BlockReduce(adjust='spacing...
+</code></pre><p>And finally, plot the grid and the original data points.</p>
+<div class="highlight"><pre><span></span><span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="mf">6.5</span><span class="p">))</span>
+<span class="n">crs</span> <span class="o">=</span> <span class="n">ccrs</span><span class="o">.</span><span class="n">PlateCarree</span><span class="p">()</span>
+<span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">axes</span><span class="p">(</span><span class="n">projection</span><span class="o">=</span><span class="n">ccrs</span><span class="o">.</span><span class="n">Mercator</span><span class="p">())</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s2">&quot;Gridded air temperature (R²=</span><span class="si">{:.2f}</span><span class="s2">)&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">score</span><span class="p">))</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="o">*</span><span class="n">coordinates</span><span class="p">,</span> <span class="s2">&quot;.k&quot;</span><span class="p">,</span> <span class="n">markersize</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Stations&quot;</span><span class="p">,</span> <span class="n">transform</span><span class="o">=</span><span class="n">crs</span><span class="p">)</span>
+<span class="n">tmp</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">pcolormesh</span><span class="p">(</span>
+    <span class="n">grid</span><span class="o">.</span><span class="n">longitude</span><span class="p">,</span>
+    <span class="n">grid</span><span class="o">.</span><span class="n">latitude</span><span class="p">,</span>
+    <span class="n">grid</span><span class="o">.</span><span class="n">temperature</span><span class="p">,</span>
+    <span class="n">cmap</span><span class="o">=</span><span class="s2">&quot;plasma&quot;</span><span class="p">,</span>
+    <span class="n">transform</span><span class="o">=</span><span class="n">crs</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">colorbar</span><span class="p">(</span><span class="n">tmp</span><span class="p">,</span> <span class="n">pad</span><span class="o">=</span><span class="mf">0.01</span><span class="p">,</span> <span class="n">aspect</span><span class="o">=</span><span class="mi">50</span><span class="p">)</span><span class="o">.</span><span class="n">set_label</span><span class="p">(</span><span class="s2">&quot;Air temperature (C)&quot;</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
+<span class="c1">## Use an utility function to add tick labels and land and ocean features to the map.</span>
+<span class="n">vd</span><span class="o">.</span><span class="n">datasets</span><span class="o">.</span><span class="n">setup_texas_wind_map</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="n">region</span><span class="o">=</span><span class="n">region</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+<p><img src="/images/verde-spline-example.jpg" alt="Output of the Verde gridding example" /></p>
+<h2 id="getting-involved">Getting Involved</h2>
+<p>Verde is a part of <a href="/blog/future-of-fatiando.html">my large-scale refactor of Fatiando a Terra</a>
+and there is lot’s of room for improvement.
+The 1.0.0 release was focused on setting the look-and-feel of the library and getting
+the essential functionality in there.
+As it stands, Verde can already be used on moderately sized datasets, given that you
+have enough RAM.
+In fact, Verde is the engine behind my work on <a href="https://github.com/leouieda/agu2018">3-component GPS interpolation</a>.</p>
+<p>The code is <a href="https://github.com/fatiando/verde/blob/master/LICENSE.txt">BSD licensed</a>
+and we would love contributions of any form!
+You can browse the <a href="https://github.com/fatiando/verde/issues">open issues on the Github repository</a>
+to see if there is anything that you would like to work on.
+We welcome feature requests, bug reports, typo fixes, and examples.</p>
+<p>If you’re new to open-source but want to give it a try, take a look at our
+<a href="https://github.com/fatiando/verde/blob/master/CONTRIBUTING.md">Contributing Guide</a>
+and the issues tagged with
+<a href="https://github.com/fatiando/verde/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22">“good first issue”</a>.
+<strong>We commit to help you get started and work through your first contributions.</strong></p>
+<p><strong>If you give Verde a try, please let me know what you think. Any feedback would be
+greatly appreciated!</strong></p>
+
+  </article>
+
+  <hr>
+
+  <p class="text-right">
+    <a href="index.html">
+      ← Back to the blog
+    </a>
+  </p>
+    </div>
+  </main>
+
+  <footer class="flow">
+    <div class="content-wide flow">
+      <nav aria-label="Footer">
+        <ul class="list-inline" role="list">
+          <li><strong>CONTENTS:</strong></li>
+          <li>
+            <a class=""  href="../">Home</a>
+          </li>
+          <li>
+            <a class=""  href="../about/">About</a>
+          </li>
+          <li>
+            <a class="active" aria-current="page" href=".">Blog</a>
+          </li>
+          <li>
+            <a class=""  href="../cv/">CV</a>
+          </li>
+          <li>
+            <a class=""  href="../contact/">Contact</a>
+          </li>
+          <li>
+            <a class=""  href="../links/">Links</a>
+          </li>
+          <li>
+            <a class=""  href="../now/">Now</a>
+          </li>
+        </ul>
+      </nav>
+      <ul class="list-inline" role="list">
+        <li><strong>SOCIAL:</strong></li>
+        <li>
+          <a href="https://bertha.social/@leouieda" target="_blank">Mastodon</a>
+        </li>
+        <li>
+          <a href="https://bookwyrm.social/user/leouieda" target="_blank">BookWyrm</a>
+        </li>
+        <li>
+          <a href="https://www.linkedin.com/in/uieda" target="_blank">LinkedIn</a>
+        </li>
+        <li>
+          <a href="https://github.com/leouieda" target="_blank">GitHub</a>
+        </li>
+        <li>
+          <a href="https://www.youtube.com/@leouieda" target="_blank">YouTube</a>
+        </li>
+      </ul>
+      <ul class="list-inline" role="list">
+        <li><strong>ACADEMIC:</strong></li>
+        <li>
+          <a href="https://orcid.org/0000-0001-6123-9515" target="_blank">ORCID</a>
+        </li>
+        <li>
+          <a href="https://lattes.cnpq.br/8939551682050504" target="_blank">Lattes</a>
+        </li>
+        <li>
+          <a href="http://scholar.google.com/citations?user=qfmPrUEAAAAJ" target="_blank">Google Scholar</a>
+        </li>
+        <li>
+          <a href="https://www.researchgate.net/profile/Leonardo-Uieda" target="_blank">ResearchGate</a>
+        </li>
+        <li>
+          <a href="https://figshare.com/authors/Leonardo_Uieda/97471" target="_blank">figshare</a>
+        </li>
+        <li>
+          <a href="https://www.webofscience.com/wos/author/rid/G-3258-2012" target="_blank">Web of Science</a>
+        </li>
+        <li>
+          <a href="https://www.scopus.com/authid/detail.uri?authorId=47062144700" target="_blank">Scopus</a>
+        </li>
+      </ul>
+      <section class="flow font-small">
+        <p>
+          Built on 2025/12/12 with <a href="https://nene.leouieda.com">Nēnē</a> v0.10.0
+          from source code at
+          <a href="https://github.com/leouieda/website" target="_blank">leouieda/website</a>
+          (<a href="https://github.com/leouieda/website/commit/e243f4b"><code>e243f4b</code></a>).
+          <strong>
+          Found a typo/mistake?
+          <a target="_blank" href="https://github.com/leouieda/website/edit/main/blog/introducing-verde.md">Send a fix through GitHub</a>.
+          </strong>
+        </p>
+        <p>
+          Visitor statistics are gathered anonymously and without tracking by
+          <a href="https://plausible.io">Plausible</a> and can be viewed
+          at
+          <a href="https://plausible.io/leouieda.com">plausible.io/leouieda.com</a>.
+        </p>
+        <p>
+          Copyright &copy; 2025 Leonardo Uieda.
+            Except where otherwise noted, all content is licensed
+<a href="https://creativecommons.org/licenses/by/4.0/">CC-BY</a>.
+
+        </p>
+      </section>
+      <section class="font-small text-center">
+        <a href="#top" class="button-link">↑ Back to top</a>
+      </section>
+    </div>
+  </footer>
+  <!-- KaTeX -->
+  <script defer src="../pkg/katex-0.15.3/katex.min.js" integrity="sha384-0fdwu/T/EQMsQlrHCCHoH10pkPLlKA1jL5dFyUOvB3lfeT2540/2g6YgSi2BL14p" crossorigin="anonymous"></script>
+  <script defer src="../pkg/katex-0.15.3/auto-render.min.js" integrity="sha384-+XBljXPPiv+OzfbB3cVmLHf4hdUFHlWNZN5spNQ7rmHTXpd7WvJum6fIACpNNfIR" crossorigin="anonymous"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", function() {
+      renderMathInElement(document.body, {
+        delimiters: [
+          {left: '$$', right: '$$', display: true},
+          {left: '$', right: '$', display: false},
+        ],
+      });
+    });
+  </script>
+
+</body>
+</html>

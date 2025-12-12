@@ -1,0 +1,335 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Geo+Code UK - Lessons from organizing sprints for a mixed audience | Leonardo Uieda</title>
+  <link rel="shortcut icon" href="../assets/favicon.png" />
+
+  <!-- OpenGraph social media card -->
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="Geo+Code UK - Lessons from organizing sprints for a mixed audience" />
+  <meta property="og:description" content="This blog post was first published on the Software Sustainability Institute’s blog on 29 May 2023 under a CC-BY-NC license. It’s republished here under the same license. After moving to the UK in..." />
+  <meta property="og:image" content="https://www.leouieda.com/assets/thumbnail.jpg" />
+  <meta property="og:url" content="https://www.leouieda.com/blog/geo-plus-code-uk-2023.html" />
+
+  <!-- Atkinson Hyperlegible fonts -->
+  <link rel="stylesheet" href="../pkg/atkinson-hyperlegible-next/font.css" />
+  <link rel="stylesheet" href="../pkg/atkinson-hyperlegible-mono/font.css" />
+
+  <!-- Andy Bell's CSS reset -->
+  <link rel="stylesheet" href="../css/reset.css" />
+
+  <!-- Syntax highlighting for code -->
+  <link rel="stylesheet" href="../css/pygments.css" />
+
+  <!-- Main CSS stylesheet -->
+  <link rel="stylesheet" href="../css/style.css" />
+
+  <!-- Plausible analytics for anonymous usage statistics -->
+  <script defer data-domain="leouieda.com" src="https://plausible.io/js/plausible.js"></script>
+  <!-- KaTeX -->
+  <link rel="stylesheet" href="../pkg/katex-0.15.3/katex.min.css" integrity="sha384-KiWOvVjnN8qwAZbuQyWDIbfCLFhLXNETzBQjA/92pIowpC0d2O3nppDGQVgwd2nB" />
+
+</head>
+
+<body>
+  <header id="top">
+    <div class="spread content-wide">
+      <a aria-label="Home" class="font-bold" href="../">Leonardo Uieda</a>
+      <nav aria-label="Main">
+        <ul class="list-inline" role="list">
+            <li>
+              <a class=""  href="../">Home</a>
+            </li>
+            <li>
+              <a class=""  href="../about/">About</a>
+            </li>
+            <li>
+              <a class="active" aria-current="page" href=".">Blog</a>
+            </li>
+            <li>
+              <a class=""  href="../cv/">CV</a>
+            </li>
+            <li>
+              <a class=""  href="../contact/">Contact</a>
+            </li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <main class="flow">
+
+    <div class="content flow">
+  
+    
+  
+  <article class="flow ">
+    <h1>
+      Geo+Code UK - Lessons from organizing sprints for a mixed audience
+    </h1>
+    <time class="text-muted" datetime="2023-07-27">
+      Published on
+      2023/07/27
+    </time>
+    <div class="callout">
+<p>This blog post was first published on the
+<a href="https://www.software.ac.uk/blog/2023-05-29-geocode-uk-lessons-organizing-sprints-mixed-audience">Software Sustainability Institute’s blog</a>
+on 29 May 2023 under a
+<a href="https://creativecommons.org/licenses/by-nc/2.5/scotland/">CC-BY-NC license</a>.
+It’s republished here under the same license.</p>
+</div>
+<p>After moving to the UK in 2019, I found myself missing some of the connections
+I had made in my previous job with folks that live in the border between
+geoscience and open research software. So I based my SSI Fellowship around
+establishing new connections within the UK. Or at least that was the plan.
+Reality ended up being 2 whole years away from in-person events because of the
+COVID19 pandemic and very little time and energy to devote to socializing.</p>
+<p>When 2022 rolled in with relaxations in social restrictions, I was thrilled to
+finally be able to organize an event for myself and my fellow geo-coders.
+That’s how the “Geo+Code” event came to be. My main idea was to gather UK
+geosciencists who code for a 1-day event in Liverpool. The format was inspired
+by the “sprints” that happen after events like the <a href="https://www.scipy2022.scipy.org/">Scipy
+Conference</a>, where everyone gathers to work
+on coding projects for 1-2 days. The format is great to building relationships
+and producing something concrete as an output.</p>
+<p>This blog post reports on how the event went, some of the challenges we faced,
+and some of the things that worked well.</p>
+<h2 id="the-event">The event</h2>
+<p>After brainstorming some ideas, I came up with the following goals for the event:</p>
+<ul>
+<li>This would be a gathering of people in the intersection of geoscience,
+coding, education, and open source/data/science.</li>
+<li>The focus is on <strong>doing</strong> something together that can be the start of great
+collaborations going forward.</li>
+<li>We’ll gather for 1 day, in-person, at a nice venue.</li>
+<li>Participants will have the chance to introduce themselves and pitch a project
+idea.</li>
+<li>All communication will be through the <a href="https://softwareunderground.org/">Software
+Underground</a> Slack, an awesome open
+community. Having everyone there ensures that conversations can easily
+continue after the event.</li>
+<li>During the event, we’ll pick one or more projects to work on together.</li>
+<li>The projects could be coding something, producing a video, joining teaching
+material, or anything generating <strong>open resources</strong>.</li>
+</ul>
+<p>I put out a call for participants in the <a href="https://softwareunderground.org/">Software
+Underground</a> and got several responses. One
+of the first was from 2023 SSI Fellow <a href="https://software.ac.uk/about/fellows/michael-tso">Michael
+Tso</a>, who was instrumental in
+getting the event organized and the venue sorted (thanks, Michael!). On 28
+November 2022, 14 participants from 10 different institutions showed up to
+<a href="https://www.blackburnehouse.co.uk/">Blackburne House</a>, Liverpool, for a day of
+chatting, coding, and content creation.</p>
+<figure>
+<img src="../images/geo-plus-code-uk-2023.jpg" alt="Photo of people crowding around a large TV with a Jupyter notebook showing an interactive example">
+<figcaption>
+Geo+Code participants watching a demo of open educational resources using
+<a href="https://jupyterbook.org/en/stable/">JupyterBook</a>.
+</figcaption>
+</figure>
+<p>The event was a success, with good feedback from participants and a lot of happy
+faces. Most participants didn’t know each other previously or had only met
+online. During the event, we settled on two projects that would be tackled:</p>
+<ol>
+<li>Reviewing the tutorials and examples in the documentation of
+<a href="https://simpeg.xyz/">SimPEG</a>, an open-source geophysics software. This
+group had the objective to comb through the examples and identify any broken
+code or sections that required more detailed instructions in the software. A
+thing to note is that none of the participants is a core developer on
+SimPEG.</li>
+<li>Developing an open textbook for applied geophysics that can be used to teach
+undergraduate courses. The book would be based on
+<a href="https://jupyterbook.org/en/stable/">JupyterBook</a> and would include
+computational lessons and open data. The book would be hosted under the
+<a href="https://github.com/GeophysicsLibrary">Geophysics Library</a> GitHub
+organization.</li>
+</ol>
+<h2 id="challenge-organizing-an-inclusive-event">Challenge: Organizing an inclusive event</h2>
+<p>From the started, I wanted to make sure that this event would be as inclusive
+as possible and included participants from diverse backgrounds.
+Unsurprisingly, putting out a call for volunteers did not produce a very
+diverse set of attendants. So I explicitly invited people who would be a great
+fit for the event but wouldn’t necessarily put themselves forward as
+participants, which was much more effective at attracting participants than
+simply putting out an open call.</p>
+<p>Since myself and other participants have young children, I tried to schedule
+the event for a weekday and provide childcare support for those who would
+require it. This proved to be a major difficulty. Local nurseries wouldn’t
+accept children for a one-time event and it was difficult to find a provider
+who would be able to care for 1-5 children only for a single day. In the end,
+none of the participants ended up needing the childcare and I have yet to find
+a good solution for this.</p>
+<h2 id="challenge-variable-levels-of-technical-skill">Challenge: Variable levels of technical skill</h2>
+<p>Our participants came with a range of technical backgrounds, some very
+experienced with software engineering and others only familiar with the content
+of <a href="https://software-carpentry.org/">Software Carpentry</a> lessons. This meant
+that a single day for working together on a shared GitHub repository was not
+enough. We spent most of the day getting everyone up to speed on:</p>
+<ul>
+<li>Setting up a working development environment with <code>conda</code> and <code>git</code>.</li>
+<li>Forking and cloning a GitHub repository.</li>
+<li>Creating branches and pushing them to GitHub.</li>
+<li>Opening and merging pull requests.</li>
+<li>Building HTML from Jupyter Notebooks using JupyterBook.</li>
+</ul>
+<p>Between this and brainstorming what we wanted to include in our book, we were
+left with very little time for actually creating content for the book. By the
+time we wrapped up, our book was little more than a test document with people’s
+names and a skeleton for the chapters.</p>
+<p>Ideally, this should have been organized as a 2-day event, with training in day
+1 and sprinting in day 2. However, making the event longer conflicts with the
+inclusivity of it because it requires a higher commitment than some may be able
+to make. In the future, I hope to experiement with a hybrid model where the
+training is done online and async ahead of the in-person event.</p>
+<h2 id="outcomes">Outcomes</h2>
+<p>The outcomes of the day were:</p>
+<ol>
+<li>Participants identified that the main source of frustration with the SimPEG
+examples was obtaining a working environment with the software installed. A
+considerable amount of time was spent on trying to get a working version of
+the software environment on everyone’s computers. Afterwards, the examples
+themselves executed without any issues. This would be fed back to the SimPEG
+developers as something to focus on in the future.</li>
+<li>The open applied geophysics book was started in
+https://github.com/GeophysicsLibrary/applied-geophysics. The scope and main
+direction for the book has been laid out already and hopefully a future
+event can be used to kickstart the content.</li>
+</ol>
+<p>It was also great to meet so many new people, most of which I only knew
+virtually (or not at all). Everyone seemed to come out of it excited and some
+were event considering hosting a follow-up event at their institutions in the
+future.</p>
+<p>I hope this post can be helpful for those who want to organize similar events.
+Of course, I’d be more than happy to get suggestions for how I could do things
+better in the future. Drop me a message!</p>
+
+  </article>
+
+  <hr>
+
+  <p class="text-right">
+    <a href="index.html">
+      ← Back to the blog
+    </a>
+  </p>
+    </div>
+  </main>
+
+  <footer class="flow">
+    <div class="content-wide flow">
+      <nav aria-label="Footer">
+        <ul class="list-inline" role="list">
+          <li><strong>CONTENTS:</strong></li>
+          <li>
+            <a class=""  href="../">Home</a>
+          </li>
+          <li>
+            <a class=""  href="../about/">About</a>
+          </li>
+          <li>
+            <a class="active" aria-current="page" href=".">Blog</a>
+          </li>
+          <li>
+            <a class=""  href="../cv/">CV</a>
+          </li>
+          <li>
+            <a class=""  href="../contact/">Contact</a>
+          </li>
+          <li>
+            <a class=""  href="../links/">Links</a>
+          </li>
+          <li>
+            <a class=""  href="../now/">Now</a>
+          </li>
+        </ul>
+      </nav>
+      <ul class="list-inline" role="list">
+        <li><strong>SOCIAL:</strong></li>
+        <li>
+          <a href="https://bertha.social/@leouieda" target="_blank">Mastodon</a>
+        </li>
+        <li>
+          <a href="https://bookwyrm.social/user/leouieda" target="_blank">BookWyrm</a>
+        </li>
+        <li>
+          <a href="https://www.linkedin.com/in/uieda" target="_blank">LinkedIn</a>
+        </li>
+        <li>
+          <a href="https://github.com/leouieda" target="_blank">GitHub</a>
+        </li>
+        <li>
+          <a href="https://www.youtube.com/@leouieda" target="_blank">YouTube</a>
+        </li>
+      </ul>
+      <ul class="list-inline" role="list">
+        <li><strong>ACADEMIC:</strong></li>
+        <li>
+          <a href="https://orcid.org/0000-0001-6123-9515" target="_blank">ORCID</a>
+        </li>
+        <li>
+          <a href="https://lattes.cnpq.br/8939551682050504" target="_blank">Lattes</a>
+        </li>
+        <li>
+          <a href="http://scholar.google.com/citations?user=qfmPrUEAAAAJ" target="_blank">Google Scholar</a>
+        </li>
+        <li>
+          <a href="https://www.researchgate.net/profile/Leonardo-Uieda" target="_blank">ResearchGate</a>
+        </li>
+        <li>
+          <a href="https://figshare.com/authors/Leonardo_Uieda/97471" target="_blank">figshare</a>
+        </li>
+        <li>
+          <a href="https://www.webofscience.com/wos/author/rid/G-3258-2012" target="_blank">Web of Science</a>
+        </li>
+        <li>
+          <a href="https://www.scopus.com/authid/detail.uri?authorId=47062144700" target="_blank">Scopus</a>
+        </li>
+      </ul>
+      <section class="flow font-small">
+        <p>
+          Built on 2025/12/12 with <a href="https://nene.leouieda.com">Nēnē</a> v0.10.0
+          from source code at
+          <a href="https://github.com/leouieda/website" target="_blank">leouieda/website</a>
+          (<a href="https://github.com/leouieda/website/commit/e243f4b"><code>e243f4b</code></a>).
+          <strong>
+          Found a typo/mistake?
+          <a target="_blank" href="https://github.com/leouieda/website/edit/main/blog/geo-plus-code-uk-2023.md">Send a fix through GitHub</a>.
+          </strong>
+        </p>
+        <p>
+          Visitor statistics are gathered anonymously and without tracking by
+          <a href="https://plausible.io">Plausible</a> and can be viewed
+          at
+          <a href="https://plausible.io/leouieda.com">plausible.io/leouieda.com</a>.
+        </p>
+        <p>
+          Copyright &copy; 2025 Leonardo Uieda.
+            Except where otherwise noted, all content is licensed
+<a href="https://creativecommons.org/licenses/by/4.0/">CC-BY</a>.
+
+        </p>
+      </section>
+      <section class="font-small text-center">
+        <a href="#top" class="button-link">↑ Back to top</a>
+      </section>
+    </div>
+  </footer>
+  <!-- KaTeX -->
+  <script defer src="../pkg/katex-0.15.3/katex.min.js" integrity="sha384-0fdwu/T/EQMsQlrHCCHoH10pkPLlKA1jL5dFyUOvB3lfeT2540/2g6YgSi2BL14p" crossorigin="anonymous"></script>
+  <script defer src="../pkg/katex-0.15.3/auto-render.min.js" integrity="sha384-+XBljXPPiv+OzfbB3cVmLHf4hdUFHlWNZN5spNQ7rmHTXpd7WvJum6fIACpNNfIR" crossorigin="anonymous"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", function() {
+      renderMathInElement(document.body, {
+        delimiters: [
+          {left: '$$', right: '$$', display: true},
+          {left: '$', right: '$', display: false},
+        ],
+      });
+    });
+  </script>
+
+</body>
+</html>

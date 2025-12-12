@@ -1,0 +1,410 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Manage project dependencies with conda environments | Leonardo Uieda</title>
+  <link rel="shortcut icon" href="../assets/favicon.png" />
+
+  <!-- OpenGraph social media card -->
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="Manage project dependencies with conda environments" />
+  <meta property="og:description" content="TL;DR: Create a conda environment for each project, capture exact versions when possible, automate activation and updating with a bash function. I often work on several different projects..." />
+  <meta property="og:image" content="https://www.leouieda.com/assets/thumbnail.jpg" />
+  <meta property="og:url" content="https://www.leouieda.com/blog/conda-envs.html" />
+
+  <!-- Atkinson Hyperlegible fonts -->
+  <link rel="stylesheet" href="../pkg/atkinson-hyperlegible-next/font.css" />
+  <link rel="stylesheet" href="../pkg/atkinson-hyperlegible-mono/font.css" />
+
+  <!-- Andy Bell's CSS reset -->
+  <link rel="stylesheet" href="../css/reset.css" />
+
+  <!-- Syntax highlighting for code -->
+  <link rel="stylesheet" href="../css/pygments.css" />
+
+  <!-- Main CSS stylesheet -->
+  <link rel="stylesheet" href="../css/style.css" />
+
+  <!-- Plausible analytics for anonymous usage statistics -->
+  <script defer data-domain="leouieda.com" src="https://plausible.io/js/plausible.js"></script>
+  <!-- KaTeX -->
+  <link rel="stylesheet" href="../pkg/katex-0.15.3/katex.min.css" integrity="sha384-KiWOvVjnN8qwAZbuQyWDIbfCLFhLXNETzBQjA/92pIowpC0d2O3nppDGQVgwd2nB" />
+
+</head>
+
+<body>
+  <header id="top">
+    <div class="spread content-wide">
+      <a aria-label="Home" class="font-bold" href="../">Leonardo Uieda</a>
+      <nav aria-label="Main">
+        <ul class="list-inline" role="list">
+            <li>
+              <a class=""  href="../">Home</a>
+            </li>
+            <li>
+              <a class=""  href="../about/">About</a>
+            </li>
+            <li>
+              <a class="active" aria-current="page" href=".">Blog</a>
+            </li>
+            <li>
+              <a class=""  href="../cv/">CV</a>
+            </li>
+            <li>
+              <a class=""  href="../contact/">Contact</a>
+            </li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <main class="flow">
+
+    <div class="content flow">
+  
+    
+  
+  <article class="flow ">
+    <h1>
+      Manage project dependencies with conda environments
+    </h1>
+    <time class="text-muted" datetime="2018-12-26">
+      Published on
+      2018/12/26
+    </time>
+    <blockquote>
+<p><strong>TL;DR:</strong> Create a conda environment for each project, capture exact versions when
+possible, automate <a href="https://github.com/leouieda/dotfiles/blob/e95f6d951d8ddf6ffa303fdca38ebcf620dc5d6c/.bash/functions.sh#L72">activation and updating with a bash function</a>.</p>
+</blockquote>
+<p>I often work on several different projects involving software:
+<a href="https://github.com/leouieda">Python libraries</a>,
+<a href="/publications">papers</a>,
+<a href="/presentations">presentations</a>,
+<a href="https://github.com/leouieda/website">this website</a>,
+etc.
+Each project has different dependencies and there is a non-zero chance that these
+dependencies might be in conflict with each other.
+For example, I need Python 2.7 to work on a
+<a href="/publications">tesseroid modeling paper</a> with a student,
+while my current work on <a href="/blog/hawaii-gmt-postdoc.html">GMT/Python</a> and
+<a href="https://github.com/leouieda/agu2018">GPS interpolation</a> project are Python
+3.5+ only.
+Clearly, I can’t have everything under the same Python installation.
+That’s where virtual environments come in.</p>
+<p>Virtual environments allow you to create multiple separate Python installations
+(“environments”).
+You can install different packages on each and switch between them easily.
+Currently, you can do this using Python’s
+<a href="https://virtualenv.pypa.io/en/latest/">virtualenv</a> or using the
+<a href="https://conda.io/docs/">conda package manager</a>.
+I use conda for all my package management because I need non-Python packages and
+multiple Python versions.
+If you’re new to conda, please go check out
+<a href="http://ericmjl.com/blog/2018/12/25/conda-hacks-for-data-science-efficiency/">Eric Ma’s great tips for working with conda</a>.</p>
+<p>In this post, I’ll share some more tips and a bash function I made for managing
+environments.</p>
+<h2 id="when-to-create-environments">When to create environments</h2>
+<p>First of all, I want to reiterate Eric’s second hack:
+<strong>create one conda environment for each project</strong>.</p>
+<p>I have been doing this for a few years now and even included a default environment file
+in <a href="/blog/paper-template.html">my research group’s paper template</a>.
+As soon as I start a new project repository, I’ll create an <code>environment.yml</code> with the
+configuration I need:</p>
+<div class="highlight"><pre><span></span><span class="c1">## The name of the environment matching the repository name</span>
+<span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">same-as-repository</span>
+<span class="c1">## I prefer conda-forge packages for my projects</span>
+<span class="nt">channels</span><span class="p">:</span>
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">conda-forge</span>
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">defaults</span>
+<span class="c1">## Start with Python and include everything you need</span>
+<span class="nt">dependencies</span><span class="p">:</span>
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">python=3.7</span>
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">pip</span>
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">numpy</span>
+<span class="nn">...</span>
+</pre></div>
+<p>With this file in the repository, you can create the new environment by running:</p>
+<div class="highlight"><pre><span></span>conda<span class="w"> </span>env<span class="w"> </span>create
+</pre></div>
+<p>The advantage of always having the environment file is that I always know what each
+project needs. This is particularly useful when switching back and forth between a
+laptop and desktop or when returning to a project after a while.</p>
+<p>Now you can activate the environment using <code>source activate same-as-repository</code>
+to get access to a completely separate Python installation.
+When switching to a different project, always <code>source activate environment-name</code> and
+then run your code.</p>
+<p>See the
+<a href="https://conda.io/docs/user-guide/tasks/manage-environments.html">conda docs</a>
+for more information on environments.</p>
+<h2 id="be-as-specific-as-you-can">Be as specific as you can</h2>
+<p>When creating environments for papers, it’s a good idea to capture the exact versions of
+every package so that you can rebuild the environment later on.
+Otherwise, there is the risk of dependencies updating and your code no longer running.
+You might not want to do this if you’re still in the middle of the project and
+adding new dependencies.</p>
+<p>Once a paper is accepted, I’ll usually export the environment with exact version numbers
+using:</p>
+<div class="highlight"><pre><span></span>conda<span class="w"> </span>env<span class="w"> </span><span class="nb">export</span><span class="w"> </span>&gt;<span class="w"> </span>environment.yml
+</pre></div>
+<h2 id="automate-the-boring-parts">Automate the boring parts</h2>
+<p>I have a git repository for
+<a href="https://github.com/leouieda?tab=repositories">nearly everything I do</a> and most of them
+have an <code>environment.yml</code> file.
+With so many environments, it can be really hard to remember all their names and type
+out <code>conda activate paper-moho-inversion-tesseroids</code>.
+Instead of using really short names, let’s automate the activation and some other useful
+commands with a bash function:</p>
+<div class="highlight"><pre><span></span><span class="k">function</span><span class="w"> </span>cenv<span class="o">()</span><span class="w"> </span><span class="o">{</span>
+
+<span class="c1">## Usage and help message</span>
+<span class="nb">read</span><span class="w"> </span>-r<span class="w"> </span>-d<span class="w"> </span><span class="s1">&#39;&#39;</span><span class="w"> </span>CENV_HELP<span class="w"> </span><span class="s">&lt;&lt;-&#39;EOF&#39;</span>
+<span class="s">Usage: cenv [COMMAND] [FILE]</span>
+
+<span class="s">Detect, activate, delete, and update conda environments.</span>
+<span class="s">FILE should be a conda .yml environment file.</span>
+<span class="s">If FILE is not given, assumes it is environment.yml.</span>
+<span class="s">Automatically finds the environment name from FILE.</span>
+
+<span class="s">Commands:</span>
+
+<span class="s">  None     Activates the environment</span>
+<span class="s">  rm       Delete the environment</span>
+<span class="s">  up       Update the environment</span>
+
+<span class="s">EOF</span>
+
+<span class="w">    </span><span class="nv">envfile</span><span class="o">=</span><span class="s2">&quot;environment.yml&quot;</span>
+
+<span class="w">    </span><span class="c1">## Parse the command line arguments</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="o">[[</span><span class="w"> </span><span class="nv">$#</span><span class="c1"># -gt 2 ]]; then</span>
+<span class="w">        </span>errcho<span class="w"> </span><span class="s2">&quot;Invalid argument(s): </span><span class="nv">$@</span><span class="s2">&quot;</span><span class="p">;</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="m">1</span><span class="p">;</span>
+<span class="w">    </span><span class="k">elif</span><span class="w"> </span><span class="o">[[</span><span class="w"> </span><span class="nv">$#</span><span class="c1"># == 0 ]]; then</span>
+<span class="w">        </span><span class="nv">cmd</span><span class="o">=</span><span class="s2">&quot;activate&quot;</span>
+<span class="w">    </span><span class="k">elif</span><span class="w"> </span><span class="o">[[</span><span class="w"> </span><span class="s2">&quot;</span><span class="nv">$1</span><span class="s2">&quot;</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s2">&quot;--help&quot;</span><span class="w"> </span><span class="o">]]</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="o">[[</span><span class="w"> </span><span class="s2">&quot;</span><span class="nv">$1</span><span class="s2">&quot;</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s2">&quot;-h&quot;</span><span class="w"> </span><span class="o">]]</span><span class="p">;</span><span class="w"> </span><span class="k">then</span>
+<span class="w">        </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;</span><span class="nv">$CENV_HELP</span><span class="s2">&quot;</span><span class="p">;</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="m">0</span><span class="p">;</span>
+<span class="w">    </span><span class="k">elif</span><span class="w"> </span><span class="o">[[</span><span class="w"> </span><span class="s2">&quot;</span><span class="nv">$1</span><span class="s2">&quot;</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s2">&quot;rm&quot;</span><span class="w"> </span><span class="o">]]</span><span class="p">;</span><span class="w"> </span><span class="k">then</span>
+<span class="w">        </span><span class="nv">cmd</span><span class="o">=</span><span class="s2">&quot;delete&quot;</span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="o">[[</span><span class="w"> </span><span class="nv">$#</span><span class="c1"># == 2 ]]; then</span>
+<span class="w">            </span><span class="nv">envfile</span><span class="o">=</span><span class="s2">&quot;</span><span class="nv">$2</span><span class="s2">&quot;</span>
+<span class="w">        </span><span class="k">fi</span>
+<span class="w">    </span><span class="k">elif</span><span class="w"> </span><span class="o">[[</span><span class="w"> </span><span class="s2">&quot;</span><span class="nv">$1</span><span class="s2">&quot;</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s2">&quot;up&quot;</span><span class="w"> </span><span class="o">]]</span><span class="p">;</span><span class="w"> </span><span class="k">then</span>
+<span class="w">        </span><span class="nv">cmd</span><span class="o">=</span><span class="s2">&quot;update&quot;</span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="o">[[</span><span class="w"> </span><span class="nv">$#</span><span class="c1"># == 2 ]]; then</span>
+<span class="w">            </span><span class="nv">envfile</span><span class="o">=</span><span class="s2">&quot;</span><span class="nv">$2</span><span class="s2">&quot;</span>
+<span class="w">        </span><span class="k">fi</span>
+<span class="w">    </span><span class="k">elif</span><span class="w"> </span><span class="o">[[</span><span class="w"> </span><span class="nv">$#</span><span class="c1"># == 1 ]]; then</span>
+<span class="w">        </span><span class="nv">envfile</span><span class="o">=</span><span class="s2">&quot;</span><span class="nv">$1</span><span class="s2">&quot;</span>
+<span class="w">        </span><span class="nv">cmd</span><span class="o">=</span><span class="s2">&quot;activate&quot;</span>
+<span class="w">    </span><span class="k">else</span>
+<span class="w">        </span>errcho<span class="w"> </span><span class="s2">&quot;Invalid argument(s): </span><span class="nv">$@</span><span class="s2">&quot;</span><span class="p">;</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="m">1</span><span class="p">;</span>
+<span class="w">    </span><span class="k">fi</span>
+
+<span class="w">    </span><span class="c1">## Check if the file exists</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="o">[[</span><span class="w"> </span>!<span class="w"> </span>-e<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$envfile</span><span class="s2">&quot;</span><span class="w"> </span><span class="o">]]</span><span class="p">;</span><span class="w"> </span><span class="k">then</span>
+<span class="w">        </span>errcho<span class="w"> </span><span class="s2">&quot;Environment file not found:&quot;</span><span class="w"> </span><span class="nv">$envfile</span><span class="p">;</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="m">1</span><span class="p">;</span>
+<span class="w">    </span><span class="k">fi</span>
+
+<span class="w">    </span><span class="c1">## Get the environment name from the yaml file</span>
+<span class="w">    </span><span class="nv">envname</span><span class="o">=</span><span class="k">$(</span>grep<span class="w"> </span><span class="s2">&quot;name: *&quot;</span><span class="w"> </span><span class="nv">$envfile</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>sed<span class="w"> </span>-n<span class="w"> </span>-e<span class="w"> </span><span class="s1">&#39;s/name: //p&#39;</span><span class="k">)</span>
+
+<span class="w">    </span><span class="c1">## Execute one of these actions: activate, update, delete</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="o">[[</span><span class="w"> </span><span class="nv">$cmd</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s2">&quot;activate&quot;</span><span class="w"> </span><span class="o">]]</span><span class="p">;</span><span class="w"> </span><span class="k">then</span>
+<span class="w">        </span><span class="nb">source</span><span class="w"> </span>activate<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$envname</span><span class="s2">&quot;</span><span class="p">;</span>
+<span class="w">    </span><span class="k">elif</span><span class="w"> </span><span class="o">[[</span><span class="w"> </span><span class="nv">$cmd</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s2">&quot;update&quot;</span><span class="w"> </span><span class="o">]]</span><span class="p">;</span><span class="w"> </span><span class="k">then</span>
+<span class="w">        </span>errcho<span class="w"> </span><span class="s2">&quot;Updating environment:&quot;</span><span class="w"> </span><span class="nv">$envname</span><span class="p">;</span>
+<span class="w">        </span><span class="nb">source</span><span class="w"> </span>activate<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$envname</span><span class="s2">&quot;</span><span class="p">;</span>
+<span class="w">        </span>conda<span class="w"> </span>env<span class="w"> </span>update<span class="w"> </span>-f<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$envfile</span><span class="s2">&quot;</span>
+<span class="w">    </span><span class="k">elif</span><span class="w"> </span><span class="o">[[</span><span class="w"> </span><span class="nv">$cmd</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s2">&quot;delete&quot;</span><span class="w"> </span><span class="o">]]</span><span class="p">;</span><span class="w"> </span><span class="k">then</span>
+<span class="w">        </span>errcho<span class="w"> </span><span class="s2">&quot;Removing environment:&quot;</span><span class="w"> </span><span class="nv">$envname</span><span class="p">;</span>
+<span class="w">        </span><span class="nb">source</span><span class="w"> </span>deactivate<span class="p">;</span>
+<span class="w">        </span>conda<span class="w"> </span>env<span class="w"> </span>remove<span class="w"> </span>--name<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$envname</span><span class="s2">&quot;</span><span class="p">;</span>
+<span class="w">    </span><span class="k">fi</span>
+<span class="o">}</span>
+</pre></div>
+<p>Copy this code into your <code>~/.bashrc</code> file and restart your terminal.
+Now you can activate an environment using the <code>cenv</code> command:</p>
+<div class="highlight"><pre><span></span><span class="o">(</span>base<span class="o">)</span><span class="w"> </span>$<span class="w"> </span><span class="nb">cd</span><span class="w"> </span>papers/my-long-project-name
+
+<span class="o">(</span>base<span class="o">)</span><span class="w"> </span>$<span class="w"> </span>ls<span class="w"> </span>-F
+code/<span class="w"> </span>manuscrip/<span class="w"> </span>data/<span class="w"> </span>README.md<span class="w"> </span>LICENSE.txt<span class="w"> </span>environment.yml
+
+<span class="o">(</span>base<span class="o">)</span><span class="w"> </span>$<span class="w"> </span>head<span class="w"> </span>-n<span class="w"> </span><span class="m">1</span><span class="w"> </span>environment.yml
+name:<span class="w"> </span>my-long-project-env-name
+
+<span class="o">(</span>base<span class="o">)</span><span class="w"> </span>$<span class="w"> </span>cenv
+
+<span class="o">(</span>my-long-project-env-name<span class="o">)</span><span class="w"> </span>$
+</pre></div>
+<p>With no arguments, <code>cenv</code> will find the <code>environment.yml</code>, extract the environment name,
+and activate it.
+You can also specify the file as an argument.
+I find this preferable to using <code>conda-auto-env</code>, as suggested in Eric’s post, because
+conda is not the fastest program and I get frustrated by the slowdown in the <code>cd</code>
+command.</p>
+<p>If you add new dependencies to <code>environment.yml</code>, you can update the environment by
+running:</p>
+<div class="highlight"><pre><span></span>$<span class="w"> </span>cenv<span class="w"> </span>up
+</pre></div>
+<p>Or you can delete the environment using:</p>
+<div class="highlight"><pre><span></span>$<span class="w"> </span>cenv<span class="w"> </span>rm
+</pre></div>
+<p>With these commands, updating and activating environments is simple and quick to type so
+there is no excuse for not using them abundantly.</p>
+<p><strong>NOTE:</strong>
+If you’re using <strong>Jupyter notebooks</strong>, the <code>cenv</code> function might not be that useful.
+In that case, I recommend installing the
+<a href="https://github.com/Anaconda-Platform/nb_conda"><code>nb_conda</code> package</a>.
+It allows you to specify which environment you want your notebook to run under when you
+create a new notebook or change the kernel.</p>
+<h2 id="final-thoughts">Final thoughts</h2>
+<p>The main takeaways here are:</p>
+<ol>
+<li>Use a tool to manage your dependencies (whatever works for you)</li>
+<li>Automate the process so you won’t be lazy</li>
+<li>Specify exact version numbers for long(er) term reproducibility</li>
+</ol>
+<p>I use conda because it suits my needs but similar features exits in other package
+managers.
+If you prefer <code>pip</code> with <a href="https://pipenv.readthedocs.io/en/latest/">pipenv</a>, by all
+means use them.</p>
+<p>The source code for the <code>cenv</code> function is in
+<a href="https://github.com/leouieda/dotfiles">my <code>dotfiles</code> repository</a> and is
+<a href="https://github.com/leouieda/dotfiles/blob/master/LICENSE">MIT licensed</a>.
+The exact version of the code shown here is
+<a href="https://github.com/leouieda/dotfiles/blob/e95f6d951d8ddf6ffa303fdca38ebcf620dc5d6c/.bash/functions.sh#L72">in <code>.bash/functions.sh</code> commit e95f6d9</a>.
+Additions and contributions are more than welcome!</p>
+<p><strong>What are your conda workflow/productivity hacks?</strong></p>
+
+  </article>
+
+  <hr>
+
+  <p class="text-right">
+    <a href="index.html">
+      ← Back to the blog
+    </a>
+  </p>
+    </div>
+  </main>
+
+  <footer class="flow">
+    <div class="content-wide flow">
+      <nav aria-label="Footer">
+        <ul class="list-inline" role="list">
+          <li><strong>CONTENTS:</strong></li>
+          <li>
+            <a class=""  href="../">Home</a>
+          </li>
+          <li>
+            <a class=""  href="../about/">About</a>
+          </li>
+          <li>
+            <a class="active" aria-current="page" href=".">Blog</a>
+          </li>
+          <li>
+            <a class=""  href="../cv/">CV</a>
+          </li>
+          <li>
+            <a class=""  href="../contact/">Contact</a>
+          </li>
+          <li>
+            <a class=""  href="../links/">Links</a>
+          </li>
+          <li>
+            <a class=""  href="../now/">Now</a>
+          </li>
+        </ul>
+      </nav>
+      <ul class="list-inline" role="list">
+        <li><strong>SOCIAL:</strong></li>
+        <li>
+          <a href="https://bertha.social/@leouieda" target="_blank">Mastodon</a>
+        </li>
+        <li>
+          <a href="https://bookwyrm.social/user/leouieda" target="_blank">BookWyrm</a>
+        </li>
+        <li>
+          <a href="https://www.linkedin.com/in/uieda" target="_blank">LinkedIn</a>
+        </li>
+        <li>
+          <a href="https://github.com/leouieda" target="_blank">GitHub</a>
+        </li>
+        <li>
+          <a href="https://www.youtube.com/@leouieda" target="_blank">YouTube</a>
+        </li>
+      </ul>
+      <ul class="list-inline" role="list">
+        <li><strong>ACADEMIC:</strong></li>
+        <li>
+          <a href="https://orcid.org/0000-0001-6123-9515" target="_blank">ORCID</a>
+        </li>
+        <li>
+          <a href="https://lattes.cnpq.br/8939551682050504" target="_blank">Lattes</a>
+        </li>
+        <li>
+          <a href="http://scholar.google.com/citations?user=qfmPrUEAAAAJ" target="_blank">Google Scholar</a>
+        </li>
+        <li>
+          <a href="https://www.researchgate.net/profile/Leonardo-Uieda" target="_blank">ResearchGate</a>
+        </li>
+        <li>
+          <a href="https://figshare.com/authors/Leonardo_Uieda/97471" target="_blank">figshare</a>
+        </li>
+        <li>
+          <a href="https://www.webofscience.com/wos/author/rid/G-3258-2012" target="_blank">Web of Science</a>
+        </li>
+        <li>
+          <a href="https://www.scopus.com/authid/detail.uri?authorId=47062144700" target="_blank">Scopus</a>
+        </li>
+      </ul>
+      <section class="flow font-small">
+        <p>
+          Built on 2025/12/12 with <a href="https://nene.leouieda.com">Nēnē</a> v0.10.0
+          from source code at
+          <a href="https://github.com/leouieda/website" target="_blank">leouieda/website</a>
+          (<a href="https://github.com/leouieda/website/commit/e243f4b"><code>e243f4b</code></a>).
+          <strong>
+          Found a typo/mistake?
+          <a target="_blank" href="https://github.com/leouieda/website/edit/main/blog/conda-envs.md">Send a fix through GitHub</a>.
+          </strong>
+        </p>
+        <p>
+          Visitor statistics are gathered anonymously and without tracking by
+          <a href="https://plausible.io">Plausible</a> and can be viewed
+          at
+          <a href="https://plausible.io/leouieda.com">plausible.io/leouieda.com</a>.
+        </p>
+        <p>
+          Copyright &copy; 2025 Leonardo Uieda.
+            Except where otherwise noted, all content is licensed
+<a href="https://creativecommons.org/licenses/by/4.0/">CC-BY</a>.
+
+        </p>
+      </section>
+      <section class="font-small text-center">
+        <a href="#top" class="button-link">↑ Back to top</a>
+      </section>
+    </div>
+  </footer>
+  <!-- KaTeX -->
+  <script defer src="../pkg/katex-0.15.3/katex.min.js" integrity="sha384-0fdwu/T/EQMsQlrHCCHoH10pkPLlKA1jL5dFyUOvB3lfeT2540/2g6YgSi2BL14p" crossorigin="anonymous"></script>
+  <script defer src="../pkg/katex-0.15.3/auto-render.min.js" integrity="sha384-+XBljXPPiv+OzfbB3cVmLHf4hdUFHlWNZN5spNQ7rmHTXpd7WvJum6fIACpNNfIR" crossorigin="anonymous"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", function() {
+      renderMathInElement(document.body, {
+        delimiters: [
+          {left: '$$', right: '$$', display: true},
+          {left: '$', right: '$', display: false},
+        ],
+      });
+    });
+  </script>
+
+</body>
+</html>

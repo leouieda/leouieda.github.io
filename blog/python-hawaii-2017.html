@@ -1,0 +1,411 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Thoughts from the Introduction to Python Workshop at UH Manoa | Leonardo Uieda</title>
+  <link rel="shortcut icon" href="../assets/favicon.png" />
+
+  <!-- OpenGraph social media card -->
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="Thoughts from the Introduction to Python Workshop at UH Manoa" />
+  <meta property="og:description" content="Last week, I taught a 3-day Python workshop at the Department of Geology and Geophysics of the University of Hawaii at Manoa, where I’m currently doing a postdoc. It covered the basics of computer..." />
+  <meta property="og:image" content="https://www.leouieda.com/assets/thumbnail.jpg" />
+  <meta property="og:url" content="https://www.leouieda.com/blog/python-hawaii-2017.html" />
+
+  <!-- Atkinson Hyperlegible fonts -->
+  <link rel="stylesheet" href="../pkg/atkinson-hyperlegible-next/font.css" />
+  <link rel="stylesheet" href="../pkg/atkinson-hyperlegible-mono/font.css" />
+
+  <!-- Andy Bell's CSS reset -->
+  <link rel="stylesheet" href="../css/reset.css" />
+
+  <!-- Syntax highlighting for code -->
+  <link rel="stylesheet" href="../css/pygments.css" />
+
+  <!-- Main CSS stylesheet -->
+  <link rel="stylesheet" href="../css/style.css" />
+
+  <!-- Plausible analytics for anonymous usage statistics -->
+  <script defer data-domain="leouieda.com" src="https://plausible.io/js/plausible.js"></script>
+  <!-- KaTeX -->
+  <link rel="stylesheet" href="../pkg/katex-0.15.3/katex.min.css" integrity="sha384-KiWOvVjnN8qwAZbuQyWDIbfCLFhLXNETzBQjA/92pIowpC0d2O3nppDGQVgwd2nB" />
+
+</head>
+
+<body>
+  <header id="top">
+    <div class="spread content-wide">
+      <a aria-label="Home" class="font-bold" href="../">Leonardo Uieda</a>
+      <nav aria-label="Main">
+        <ul class="list-inline" role="list">
+            <li>
+              <a class=""  href="../">Home</a>
+            </li>
+            <li>
+              <a class=""  href="../about/">About</a>
+            </li>
+            <li>
+              <a class="active" aria-current="page" href=".">Blog</a>
+            </li>
+            <li>
+              <a class=""  href="../cv/">CV</a>
+            </li>
+            <li>
+              <a class=""  href="../contact/">Contact</a>
+            </li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <main class="flow">
+
+    <div class="content flow">
+  
+    
+  
+  <article class="flow ">
+    <h1>
+      Thoughts from the Introduction to Python Workshop at UH Manoa
+    </h1>
+    <time class="text-muted" datetime="2017-04-28">
+      Published on
+      2017/04/28
+    </time>
+    <p>Last week, I taught a 3-day Python workshop at the
+<a href="http://www.soest.hawaii.edu/GG/index.html">Department of Geology and Geophysics of the University of Hawaii at
+Manoa</a>,
+where I’m currently <a href="/blog/hawaii-gmt-postdoc.html">doing a postdoc</a>.
+It covered the basics of computer programming with Python, starting from the
+very beginning.
+Below are thoughts and information about the workshop, the demographics of
+people who signed up, and the feedback that I got from the participants.</p>
+<p>See the <a href="https://github.com/leouieda/python-hawaii-2017">GitHub repository</a> for
+more information and links to material used.</p>
+<h2 id="my-goals">My goals</h2>
+<p>I wanted this to be a hands-on workshop of the basic concepts needed to use
+Python for research. Participants who complete the workshop should be able to
+use Python to gather data from one or more files, process the data, run an
+analysis, make publication quality figures, and save the output.
+Most importantly, I wanted participants to know what they should type into
+Google to learn more about Python.</p>
+<h2 id="materials">Materials</h2>
+<p>The class is based on a mixture of the
+<a href="https://software-carpentry.org/">Software Carpentry</a>
+lessons
+<a href="http://swcarpentry.github.io/python-novice-gapminder/">Plotting and Programming in Python (under development)</a>
+and <a href="http://swcarpentry.github.io/python-novice-inflammation">Programming with Python</a>.
+However, I use temperature data from
+<a href="http://berkeleyearth.org/">Berkeley Earth</a>
+instead of the <a href="http://www.gapminder.org/">Gapminder</a> and inflammation data
+used by Software Carpentry.
+For example, our goal for the second day of the workshop was to reproduce the
+figure for
+<a href="http://berkeleyearth.lbl.gov/regions/hawaii">average temperature variation in Hawaii</a>
+from the <a href="http://berkeleyearth.lbl.gov/regions/hawaii">Berkeley Earth</a> website.</p>
+<p>On the last day, we finished with some code that processed a list of country
+names to download the respective data file (using <code>requests</code>), load it into
+Python, make a figure, and save it to a different folder
+(see <a href="https://github.com/leouieda/python-hawaii-2017/blob/master/notebooks/exercise-download-a-bunch-of-data.ipynb">this Jupyter notebook for the
+code</a>).</p>
+<p>I also used a few techniques from the
+<a href="http://swcarpentry.github.io/instructor-training/">Software Carpentry Instructor Training</a>,
+mainly the shared class notes (I used Google Docs instead of Etherpad)
+and colored sticky notes.
+The sticky notes were in two colors: pink and blue.
+Learners kept the blue sticky note on their laptop lid if everything was OK.
+They put up the pink one if they have a problem or need help.
+This way, myself and the teaching assistants can know at a glance who needs
+help.
+I had them write positive and negative feedback on the sticky notes at the
+end of the workshop.</p>
+<p>The notebooks that I created during class and some notes for myself are in the
+GitHub repository (in the <code>notebooks</code> and <code>notes</code> folders, respectively).</p>
+<h2 id="who-attended">Who attended</h2>
+<p>I asked all participants to sign up through a Google Form that asked a few
+questions regarding their operating system, background in programming, and
+position at the university.
+The file
+<a href="https://github.com/leouieda/python-hawaii-2017/blob/master/demographics.csv"><code>demographics.csv</code></a>
+in the GitHub repository has the anonymous information from this form.
+I wrote some code to analyze the data and generate the figures below using
+<a href="http://pandas.pydata.org/">pandas</a> and <a href="http://matplotlib.org/">matplotlib</a>.
+You can find in the
+<a href="http://nbviewer.jupyter.org/github/leouieda/python-hawaii-2017/blob/master/demographics-analysis.ipynb"><code>demographics-analysis.ipynb</code></a>
+Jupyter notebook (also in the GitHub repo).</p>
+<p>First, lets look at how many people signed up and then actually attended each
+day.</p>
+<p><img src="/images/python-hawaii-2017/attendance.jpg" alt="Number of attendants per day of the workshop." /></p>
+<p>We were very lucky that most people who signed up also attended the workshop on
+the first day, even though there was no sign up fee.
+It seems that the workshop really fills a need in the community!
+Some people gave up after the first day.
+Maybe it was too fast, or too basic, or life just happened.
+I can’t really tell because I failed to collect feedback at the end of each
+day.
+That is something to keep in mind for the next iteration: <strong>get feedback every
+day</strong>.</p>
+<p><img src="/images/python-hawaii-2017/education.jpg" alt="Prior education of attendants" /></p>
+<p>The experience level of participants was more evenly distributed than I
+expected.
+I was very pleased with the number of people who had never programmed before.
+But the distribution made it challenging to keep everyone motivated and
+following along.
+From the feedback (see below), it seems that I managed it well enough.</p>
+<p><img src="/images/python-hawaii-2017/programming-languages.jpg" alt="Programming language experience of attendants" /></p>
+<p>Not surprisingly, most participants who already programmed know Matlab.
+What was a bit surprising is how few people reported experience with Fortran.
+Is this a reflection of the age of participants (a lot of young grad students)?
+The number of Fortran users does correlate with the number of faculty who
+signed up, so maybe yes.</p>
+<p><img src="/images/python-hawaii-2017/position.jpg" alt="Job title of attendants" /></p>
+<p>I was very pleased to have someone from the
+<a href="https://www.hawaii.edu/diversity/seed-programs/na-kupuna-senior-citizen-visitor-program/">Nā Kūpuna Senior Citizen Visitor Program</a>
+and a not insignificant number of faculty.
+We even had an “interested citizen” who studies film production and education
+(a personal friend)!</p>
+<h2 id="feedback">Feedback</h2>
+<p><img src="/images/python-hawaii-2017/sticky-note-feedback.jpg" alt="Feedback on the colored sticky notes." /></p>
+<p>This is a synthesis from the feedback given by participants on the last day
+(using the pink and blue sticky notes):</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">The Good</th>
+<th style="text-align:left">#</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left">Instructor style</td>
+<td style="text-align:left">5</td>
+</tr>
+<tr>
+<td style="text-align:left">Examples and exercises</td>
+<td style="text-align:left">5</td>
+</tr>
+<tr>
+<td style="text-align:left">Dense but efficient (learn a lot in little time)</td>
+<td style="text-align:left">3</td>
+</tr>
+<tr>
+<td style="text-align:left">Using real data</td>
+<td style="text-align:left">3</td>
+</tr>
+<tr>
+<td style="text-align:left">Simple and accessible level</td>
+<td style="text-align:left">3</td>
+</tr>
+<tr>
+<td style="text-align:left">Shared notes</td>
+<td style="text-align:left">1</td>
+</tr>
+</tbody>
+</table>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">The Bad</th>
+<th style="text-align:left">#</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left">Too short</td>
+<td style="text-align:left">5</td>
+</tr>
+<tr>
+<td style="text-align:left">Too fast</td>
+<td style="text-align:left">3</td>
+</tr>
+<tr>
+<td style="text-align:left">Too slow</td>
+<td style="text-align:left">3</td>
+</tr>
+<tr>
+<td style="text-align:left">Hard to multi-task (pay attention + notes + exercise)</td>
+<td style="text-align:left">2</td>
+</tr>
+<tr>
+<td style="text-align:left">No TA on Monday</td>
+<td style="text-align:left">2</td>
+</tr>
+<tr>
+<td style="text-align:left">Instructor took too many tangents when teaching</td>
+<td style="text-align:left">1</td>
+</tr>
+<tr>
+<td style="text-align:left">Too many people</td>
+<td style="text-align:left">1</td>
+</tr>
+<tr>
+<td style="text-align:left">Ran late</td>
+<td style="text-align:left">1</td>
+</tr>
+<tr>
+<td style="text-align:left">Jupyter Google maps example failed</td>
+<td style="text-align:left">1</td>
+</tr>
+</tbody>
+</table>
+<p>It was a very funny coincidence that the exact same number of people complained
+about the pace being either too fast or too slow.</p>
+<h2 id="lessons-learned">Lessons learned</h2>
+<p>I was glad to see that the hands-on approach worked and the students
+appreciated using real data during the exercises.
+We had very little time (6h total) to cover a lot of material.
+So it’s no wonder that people thought it was too short and maybe didn’t explain
+quite as thoroughly some concepts (like <code>for</code> and <code>if</code>).
+Regarding the pace, it’s hard to satisfy everyone.
+I expect that novices might have found the pace a bit too fast and more
+experienced programmers found it too slow (but I don’t have data to back that
+up).
+Since only 6 people complained about the pace, I guess it wasn’t too bad.
+Not having a TA on Monday (the first day) was not good because that is when the
+most serious problems occur (Jupyter won’t start, where is my Python?, lost my
+files, etc).
+The next two days of the workshop were much smoother thanks to the generous
+help of volunteer TAs Sam Murphy and Julie Schnurr.
+We also didn’t get to cover the last few topics on the last day (functions and
+getting data from headers).</p>
+<p>A few things that I would have done differently:</p>
+<ul>
+<li><strong>Get feedback through sticky notes at the end of each day</strong>. The Software
+Carpentry material actually recommends this but I completely forgot.</li>
+<li><strong>Use more pair programming activities</strong>. This is also something recommended
+by Software Carpentry and that I had planned on doing. In the end, I left
+this as optional and didn’t explicitly pair learners. A lot of people were
+interacting naturally but I would have liked to see more of it.</li>
+</ul>
+<p><em>Have you taught or participated in a workshop like this before? What were your
+experiences?</em></p>
+
+  </article>
+
+  <hr>
+
+  <p class="text-right">
+    <a href="index.html">
+      ← Back to the blog
+    </a>
+  </p>
+    </div>
+  </main>
+
+  <footer class="flow">
+    <div class="content-wide flow">
+      <nav aria-label="Footer">
+        <ul class="list-inline" role="list">
+          <li><strong>CONTENTS:</strong></li>
+          <li>
+            <a class=""  href="../">Home</a>
+          </li>
+          <li>
+            <a class=""  href="../about/">About</a>
+          </li>
+          <li>
+            <a class="active" aria-current="page" href=".">Blog</a>
+          </li>
+          <li>
+            <a class=""  href="../cv/">CV</a>
+          </li>
+          <li>
+            <a class=""  href="../contact/">Contact</a>
+          </li>
+          <li>
+            <a class=""  href="../links/">Links</a>
+          </li>
+          <li>
+            <a class=""  href="../now/">Now</a>
+          </li>
+        </ul>
+      </nav>
+      <ul class="list-inline" role="list">
+        <li><strong>SOCIAL:</strong></li>
+        <li>
+          <a href="https://bertha.social/@leouieda" target="_blank">Mastodon</a>
+        </li>
+        <li>
+          <a href="https://bookwyrm.social/user/leouieda" target="_blank">BookWyrm</a>
+        </li>
+        <li>
+          <a href="https://www.linkedin.com/in/uieda" target="_blank">LinkedIn</a>
+        </li>
+        <li>
+          <a href="https://github.com/leouieda" target="_blank">GitHub</a>
+        </li>
+        <li>
+          <a href="https://www.youtube.com/@leouieda" target="_blank">YouTube</a>
+        </li>
+      </ul>
+      <ul class="list-inline" role="list">
+        <li><strong>ACADEMIC:</strong></li>
+        <li>
+          <a href="https://orcid.org/0000-0001-6123-9515" target="_blank">ORCID</a>
+        </li>
+        <li>
+          <a href="https://lattes.cnpq.br/8939551682050504" target="_blank">Lattes</a>
+        </li>
+        <li>
+          <a href="http://scholar.google.com/citations?user=qfmPrUEAAAAJ" target="_blank">Google Scholar</a>
+        </li>
+        <li>
+          <a href="https://www.researchgate.net/profile/Leonardo-Uieda" target="_blank">ResearchGate</a>
+        </li>
+        <li>
+          <a href="https://figshare.com/authors/Leonardo_Uieda/97471" target="_blank">figshare</a>
+        </li>
+        <li>
+          <a href="https://www.webofscience.com/wos/author/rid/G-3258-2012" target="_blank">Web of Science</a>
+        </li>
+        <li>
+          <a href="https://www.scopus.com/authid/detail.uri?authorId=47062144700" target="_blank">Scopus</a>
+        </li>
+      </ul>
+      <section class="flow font-small">
+        <p>
+          Built on 2025/12/12 with <a href="https://nene.leouieda.com">Nēnē</a> v0.10.0
+          from source code at
+          <a href="https://github.com/leouieda/website" target="_blank">leouieda/website</a>
+          (<a href="https://github.com/leouieda/website/commit/e243f4b"><code>e243f4b</code></a>).
+          <strong>
+          Found a typo/mistake?
+          <a target="_blank" href="https://github.com/leouieda/website/edit/main/blog/python-hawaii-2017.md">Send a fix through GitHub</a>.
+          </strong>
+        </p>
+        <p>
+          Visitor statistics are gathered anonymously and without tracking by
+          <a href="https://plausible.io">Plausible</a> and can be viewed
+          at
+          <a href="https://plausible.io/leouieda.com">plausible.io/leouieda.com</a>.
+        </p>
+        <p>
+          Copyright &copy; 2025 Leonardo Uieda.
+            Except where otherwise noted, all content is licensed
+<a href="https://creativecommons.org/licenses/by/4.0/">CC-BY</a>.
+
+        </p>
+      </section>
+      <section class="font-small text-center">
+        <a href="#top" class="button-link">↑ Back to top</a>
+      </section>
+    </div>
+  </footer>
+  <!-- KaTeX -->
+  <script defer src="../pkg/katex-0.15.3/katex.min.js" integrity="sha384-0fdwu/T/EQMsQlrHCCHoH10pkPLlKA1jL5dFyUOvB3lfeT2540/2g6YgSi2BL14p" crossorigin="anonymous"></script>
+  <script defer src="../pkg/katex-0.15.3/auto-render.min.js" integrity="sha384-+XBljXPPiv+OzfbB3cVmLHf4hdUFHlWNZN5spNQ7rmHTXpd7WvJum6fIACpNNfIR" crossorigin="anonymous"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", function() {
+      renderMathInElement(document.body, {
+        delimiters: [
+          {left: '$$', right: '$$', display: true},
+          {left: '$', right: '$', display: false},
+        ],
+      });
+    });
+  </script>
+
+</body>
+</html>
